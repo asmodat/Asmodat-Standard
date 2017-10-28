@@ -1,20 +1,16 @@
-﻿using AsmodatStandard.Extensions.Threading;
-using Newtonsoft.Json;
-using System;
-using System.IO;
-using System.Net.Http;
-using System.Text;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace AsmodatStandard.Extensions
 {
     public static class HttpHelper
     {
-        public static string GET(string requestUri)
+        public static async Task<string> GET(string requestUri)
         {
             using (var client = new HttpClient())
             {
-                var response = client.GetAsync(requestUri).Await();
-                return response.Content.ReadAsStringAsync().Await();
+                var response = await client.GetAsync(requestUri);
+                return await response.Content.ReadAsStringAsync();
             }
         }
     }
