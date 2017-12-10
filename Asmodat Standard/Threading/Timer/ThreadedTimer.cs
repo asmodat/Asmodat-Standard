@@ -66,14 +66,11 @@ namespace AsmodatStandard.Threading
                 while (Enabled)
                 {
                     if (_syncAction != null)
-                    {
                         await Task.Run(_syncAction, _cancellationTokenSource.Token);
-                    }
                     else if (_asyncFunction != null)
-                    {
                         await _asyncFunction();
-                    }
-                    else break;
+                    else
+                        break;
                     
                     await Task.Delay((int)Math.Max(0, _period - sw.ElapsedMilliseconds), _cancellationTokenSource.Token);
                     sw.Restart();
