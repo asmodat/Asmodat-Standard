@@ -33,5 +33,22 @@ namespace AsmodatStandard.Extensions.Collections
 
         public static string JoinToString(this char[] arr) => arr == null ? null : new string(arr);
 
+        /// <summary>
+        /// returns sub array starting at index and ending at length or end of the array => (data.length - index)
+        /// </summary>
+        public static T[] SubArray<T>(this T[] data, int index, int length = int.MaxValue)
+        {
+            if (index < 0 || index >= data.Length)
+                throw new ArgumentException("index canno't be less then 0 nor greater or equal data array length");
+
+            if (length < 0)
+                throw new ArgumentException("length cannot be negative");
+            else if (length == 0)
+                return new T[0];
+
+            var result = new T[Math.Min(data.Length - index, length)];
+            Array.Copy(data, index, result, 0, result.Length);
+            return result;
+        }
     }
 }

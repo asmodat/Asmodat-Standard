@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsmodatStandard.Extensions.Diagnostics
@@ -16,9 +14,12 @@ namespace AsmodatStandard.Extensions.Diagnostics
             if (sw?.IsRunning != true)
                 throw new ArgumentException("Stopwatch must be running.");
 
-            long sleep;
-            while ((sleep = ((sw.ElapsedMilliseconds - interval_ms) - 1) / 2) < 0)
-                await Task.Delay(sleep < int.MaxValue ? int.MaxValue : (int)Math.Abs(sleep));
+            int sleep = (int)(interval_ms - sw.ElapsedMilliseconds - 1);
+
+            if (sleep <= 0)
+                return;
+
+            await Task.Delay(sleep);
         }
     }
 }

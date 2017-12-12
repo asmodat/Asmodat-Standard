@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using AsmodatStandard.Extensions.Collections;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -38,6 +40,15 @@ namespace AsmodatStandard.Extensions
         }
 
         public static void SerialiseJson(string fileName, object obj, Formatting formatting = Formatting.None)
-            => FileHelper.WriteAllText(fileName, JsonConvert.SerializeObject(obj, formatting));
+            => WriteAllText(fileName, JsonConvert.SerializeObject(obj, formatting));
+
+        public static Dictionary<FileInfo,T> DesrialiseJsons<T>(string path, string searchPattern = "*.json", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        {
+            var di = new DirectoryInfo(path);
+            var files = di.GetFiles(searchPattern, searchOption);
+            var result = new Dictionary<FileInfo, T>();
+            files?.ForEach(file => result.Add(file, DeserialiseJson<T>(file)));
+            return result;
+        }
     }
 }
