@@ -1,11 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AsmodatStandard.Extensions.Collections
 {
     public static class IEnumerableEx
     {
+        public static T SelectMin<T, K>(this IEnumerable<T> source, Func<T, K> keySelector) 
+            => source.SortAscending(keySelector).FirstOrDefault();
+
+        public static T SelectMax<T, K>(this IEnumerable<T> source, Func<T, K> keySelector)
+            => source.SortDescending(keySelector).FirstOrDefault();
+
+        public static IEnumerable<T> Merge<T>(this IEnumerable<T> left, params T[] right) => left?.ToArray().Merge(right);
+
+        public static IEnumerable<T> Merge<T>(this IEnumerable<T> left, IEnumerable<T> right) => left?.ToArray().Merge(right?.ToArray());
+
         public static string JoinToString(this IEnumerable<char> coll) => coll == null ? null : new string(coll.ToArray());
 
         /// <summary>
@@ -251,6 +262,18 @@ namespace AsmodatStandard.Extensions.Collections
             foreach (T item in source)
             {
                 a(item);
+                ++i;
+            }
+
+            return ++i;
+        }
+
+        public static async Task<int> ForEach<T>(this IEnumerable<T> source, Func<T, Task> a)
+        {
+            int i = -1;
+            foreach (T item in source)
+            {
+                await a(item);
                 ++i;
             }
 

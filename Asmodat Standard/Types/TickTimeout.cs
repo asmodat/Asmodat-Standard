@@ -172,6 +172,11 @@ namespace AsmodatStandard.Types
         }
 
         /// <summary>
+        /// time in unit untill 
+        /// </summary>
+        public decimal TimeoutsIn() => this.Timeout - this.Span;
+
+        /// <summary>
         /// Defines if timout result should be forced to true
         /// </summary>
         public bool Forced { get; set; } = false;

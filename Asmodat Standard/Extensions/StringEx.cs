@@ -13,7 +13,7 @@ namespace AsmodatStandard.Extensions
 
         public static bool IsNullOrEmpty(this string str) => string.IsNullOrEmpty(str);
 
-        public static bool IsNullOrWhitespace(this string str) => str.IsNullOrWhitespace();
+        public static bool IsNullOrWhitespace(this string str) => string.IsNullOrWhiteSpace(str);
 
         public static bool Equals(this string left, string right, StringComparison stringComparison) => string.Equals(left, right, stringComparison);
     }

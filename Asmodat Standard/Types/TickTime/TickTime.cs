@@ -188,15 +188,9 @@ namespace AsmodatStandard.Types
         /// <summary>
         /// This property returns current span between now and stored tick value
         /// </summary>
-        public long Span()
-        {
-            return (TickTime.Now.Ticks - this.Ticks);
-        }
-
-        public decimal Span(TickTime.Unit unit)
-        {
-            return (decimal)(TickTime.Now.Ticks - this.Ticks) / (decimal)unit;
-        }
+        public long Span() => (Now.Ticks - this.Ticks);
+        public decimal Span(Unit unit) => (decimal)(Now.Ticks - Ticks) / (decimal)unit;
+        
 
         public TickTime TickSpan { get => (Now - Ticks); }
 
