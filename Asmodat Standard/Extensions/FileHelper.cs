@@ -8,7 +8,7 @@ using System.Text;
 namespace AsmodatStandard.Extensions
 {
     public static class FileHelper
-    { 
+    {
         /// <summary>
         /// Deserializes Json Text File into .net type
         /// </summary>
