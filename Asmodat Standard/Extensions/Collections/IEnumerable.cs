@@ -242,7 +242,7 @@ namespace AsmodatStandard.Extensions.Collections
         }
 
         /// <summary>
-        /// Executes action with index and returns count
+        /// Executes action with index and returns count, use action as: (v,i) => {}, where v is valie, i is index
         /// </summary>
         public static int ForEach<T>(this IEnumerable<T> source, Action<T, int> a)
         {

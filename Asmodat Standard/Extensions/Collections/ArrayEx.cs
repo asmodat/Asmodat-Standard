@@ -7,6 +7,42 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class ArrayEx
     {
+        public static int MaxWidth<T>(this T[][] arr) => arr?.Max(x => x.Length) ?? 0;
+        public static int MinWidth<T>(this T[][] arr) => arr?.Min(x => x.Length) ?? 0;
+        public static int Height<T>(this T[][] arr) => arr?.Length ?? 0;
+
+        /// <summary>
+        /// resizes input array into provided dimentions, if dimention is null original value will be set
+        /// </summary>
+        public static T[][] ResizeRectangular<T>(this T[][] arr, int? height = null, int? width = null, 
+            bool heightNotLessThenOriginal = false, bool widthNotLessThenOriginal = false)
+        {
+            height = height ?? arr.Height();
+            width = width ?? arr.MaxWidth();
+
+            if (heightNotLessThenOriginal)
+                height = Math.Max(height.Value, arr.Height());
+
+            if (widthNotLessThenOriginal)
+                width = Math.Max(width.Value, arr.MaxWidth());
+
+            if (height < 0 || width < 0)
+                throw new ArgumentException("height nor width cannot be negative");
+
+            var output = new T[height.Value][];
+
+            for (int y = 0; y < output.Length; y++)
+            {
+                output[y] = new T[width.Value];
+
+                if (y < arr.Height())
+                    for (int x = 0; x < width && x < (arr[y]?.Length ?? 0); x++)
+                        output[y][x] = arr[y][x];
+            }
+
+            return output;
+        }
+
         /// <summary>
         /// joins two arrays together
         /// </summary>
