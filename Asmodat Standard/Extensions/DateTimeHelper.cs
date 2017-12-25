@@ -4,6 +4,8 @@ namespace AsmodatStandard.Extensions
 {
     public static class DateTimeHelper
     {
+        public static DateTime CoallesceDefault(this DateTime dt, DateTime value) => dt.Ticks == default(DateTime).Ticks ? value : dt;
+
         /// <summary>
         /// Converts unix 'timestamp' into UTC DateTime
         /// </summary>

@@ -4,6 +4,7 @@ namespace AsmodatStandard.Extensions
 {
     public static class DoubleEx
     {
+        public static double CoalesceZeroOrNaN(this double d, double value) => double.IsNaN(d) || d == 0 ? value : d;
         public static double CoalesceNaN(this double d, double value) => double.IsNaN(d) ? value : d;
         public static double CoalesceNaN(this double? d, double value) => (d == null || double.IsNaN(d.Value)) ? value : d.Value;
 
