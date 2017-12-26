@@ -7,6 +7,8 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class IEnumerableEx
     {
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source) => new HashSet<T>(source);
+
         public static T SelectMin<T, K>(this IEnumerable<T> source, Func<T, K> keySelector) 
             => source.SortAscending(keySelector).FirstOrDefault();
 
@@ -23,11 +25,13 @@ namespace AsmodatStandard.Extensions.Collections
         /// returns common elements for two sets of enumerables
         /// </summary>
         public static IEnumerable<T> Intersection<T>(this IEnumerable<T> e1, IEnumerable<T> e2)
+            => e1.Intersection(new HashSet<T>(e2));
+
+        public static IEnumerable<T> Intersection<T>(this IEnumerable<T> e1, HashSet<T> lookup)
         {
-            if (e1 == null || e2 == null)
+            if (e1 == null || lookup == null)
                 return null;
 
-            var lookup = new HashSet<T>(e2);
             return e1.Where(lookup.Contains);
         }
 

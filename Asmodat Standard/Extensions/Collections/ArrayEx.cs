@@ -7,6 +7,9 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class ArrayEx
     {
+        public static T GetValueOrDefault<T>(this T[][] arr, int x, int y, T @default = default(T))
+            => (arr.IsNullOrEmpty() ||  arr.Height() <= y || arr[y].Length <= x) ? @default : arr[y][x];
+        
         public static int MaxWidth<T>(this T[][] arr) => arr?.Max(x => x.Length) ?? 0;
         public static int MinWidth<T>(this T[][] arr) => arr?.Min(x => x.Length) ?? 0;
         public static int Height<T>(this T[][] arr) => arr?.Length ?? 0;
