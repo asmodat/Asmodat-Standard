@@ -7,6 +7,14 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class IEnumerableEx
     {
+        public static IEnumerable<T> DistinctBy<T, K>(this IEnumerable<T> source, Func<T, K> keySelector)
+        {
+            var hashSet = new HashSet<K>();
+            foreach (T item in source)
+                if (hashSet.Add(keySelector(item)))
+                    yield return item;
+        }
+
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source) => new HashSet<T>(source);
 
         public static T SelectMin<T, K>(this IEnumerable<T> source, Func<T, K> keySelector) 
@@ -168,27 +176,6 @@ namespace AsmodatStandard.Extensions.Collections
             else return false;
         }
 
-
-
-        /// <summary>
-        /// Removes repeating values inside table
-        /// Use Example:
-        /// IEnumerable[Foo] distinct = someList.DistinctBy(x => x.FooProperty);
-        /// </summary>
-        /// <typeparam name="TSource"></typeparam>
-        /// <typeparam name="Tkey"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="keySelector"></param>
-        /// <returns></returns>
-        public static IEnumerable<TSource> DistinctBy<TSource, Tkey>(this IEnumerable<TSource> source, Func<TSource, Tkey> keySelector)
-        {
-            if (source == null || keySelector == null || source.Count() <= 1)
-                return source;
-
-            var knownKeys = new HashSet<Tkey>();
-            return source.Where(element => knownKeys.Add(keySelector(element)));
-        }
-
         public static IEnumerable<TSource> SortAscending<TSource, Tkey>(this IEnumerable<TSource> source, Func<TSource, Tkey> keySelector)
         {
             if (source == null || keySelector == null || source.Count() <= 1)
@@ -206,35 +193,6 @@ namespace AsmodatStandard.Extensions.Collections
                 return null;
 
             return source.OrderByDescending(keySelector);
-        }
-
-        /// <summary>
-        /// Distinctincts list by key property, and then adds to dictionary
-        /// </summary>
-        /// <typeparam name="TSource"></typeparam>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TElement"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="keySelector"></param>
-        /// <param name="valueSelector"></param>
-        /// <returns></returns>
-        public static Dictionary<TKey, TElement> ToDistinctKeyDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> valueSelector)
-        {
-            if (source == null || keySelector == null || valueSelector == null)
-                return null;
-
-            if (source.Count() <= 0)
-                return new Dictionary<TKey, TElement>();
-
-            List<TSource> distinct = source.DistinctBy(keySelector).ToList();
-
-            if (distinct == null)
-                return null;
-
-            if (distinct.Count <= 0)
-                return new Dictionary<TKey, TElement>();
-
-            return distinct.ToDictionary(keySelector, valueSelector);
         }
         
         public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int n)
