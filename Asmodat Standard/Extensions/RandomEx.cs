@@ -44,6 +44,13 @@ namespace AsmodatStandard.Extensions
             }
         }
 
+        public static T[] Shuffle<T>(this IEnumerable<T> items)
+        {
+            var arr = items.ToArray();
+            arr.Shuffle();
+            return arr;
+        }
+
         /// <summary>
         /// Random distinct int arrary of the length 'count' with values from the range of [min, max)
         /// </summary>

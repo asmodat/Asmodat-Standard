@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.0",
-    "signature": "68b476cfee317bd7088895918d56ea1b773872f0"
+    "signature": "eb007dfcdd976ed9749913412bcd1c150d23ad9a"
   },
   "compilationOptions": {},
   "targets": {
@@ -331,15 +331,10 @@
           "System.Runtime": "4.3.0"
         }
       },
-      "Microsoft.Win32.Registry/4.3.0": {
+      "Microsoft.Win32.Registry/4.4.0": {
         "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.Globalization": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0"
+          "System.Security.AccessControl": "4.4.0",
+          "System.Security.Principal.Windows": "4.4.0"
         },
         "runtimeTargets": {
           "runtime/unix/lib/_._": {
@@ -496,7 +491,7 @@
       "System.Diagnostics.Process/4.3.0": {
         "dependencies": {
           "Microsoft.Win32.Primitives": "4.3.0",
-          "Microsoft.Win32.Registry": "4.3.0",
+          "Microsoft.Win32.Registry": "4.4.0",
           "System.Collections": "4.3.0",
           "System.Diagnostics.Debug": "4.3.0",
           "System.Globalization": "4.3.0",
@@ -856,6 +851,33 @@
           "System.Runtime": "4.3.0"
         }
       },
+      "System.Security.AccessControl/4.4.0": {
+        "dependencies": {
+          "System.Security.Principal.Windows": "4.4.0"
+        },
+        "runtimeTargets": {
+          "runtime/unix/lib/_._": {
+            "rid": "unix",
+            "assetType": "runtime"
+          },
+          "runtime/win/lib/_._": {
+            "rid": "win",
+            "assetType": "runtime"
+          }
+        }
+      },
+      "System.Security.Principal.Windows/4.4.0": {
+        "runtimeTargets": {
+          "runtime/unix/lib/_._": {
+            "rid": "unix",
+            "assetType": "runtime"
+          },
+          "runtime/win/lib/_._": {
+            "rid": "win",
+            "assetType": "runtime"
+          }
+        }
+      },
       "System.Text.Encoding/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Targets": "1.1.0",
@@ -990,6 +1012,7 @@
       },
       "AsmodatStandard/1.0.0": {
         "dependencies": {
+          "Microsoft.Win32.Registry": "4.4.0",
           "Newtonsoft.Json": "10.0.3"
         },
         "runtime": {
@@ -1074,12 +1097,12 @@
       "path": "microsoft.win32.primitives/4.3.0",
       "hashPath": "microsoft.win32.primitives.4.3.0.nupkg.sha512"
     },
-    "Microsoft.Win32.Registry/4.3.0": {
+    "Microsoft.Win32.Registry/4.4.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-Lw1/VwLH1yxz6SfFEjVRCN0pnflLEsWgnV4qsdJ512/HhTwnKXUG+zDQ4yTO3K/EJQemGoNaBHX5InISNKTzUQ==",
-      "path": "microsoft.win32.registry/4.3.0",
-      "hashPath": "microsoft.win32.registry.4.3.0.nupkg.sha512"
+      "sha512": "sha512-dA36TlNVn/XfrZtmf0fiI/z1nd3Wfp2QVzTdj26pqgP9LFWq0i1hYEUAW50xUjGFYn1+/cP3KGuxT2Yn1OUNBQ==",
+      "path": "microsoft.win32.registry/4.4.0",
+      "hashPath": "microsoft.win32.registry.4.4.0.nupkg.sha512"
     },
     "Newtonsoft.Json/10.0.3": {
       "type": "package",
@@ -1409,6 +1432,20 @@
       "sha512": "sha512-Wz+0KOukJGAlXjtKr+5Xpuxf8+c8739RI1C+A2BoQZT+wMCCoMDDdO8/4IRHfaVINqL78GO8dW8G2lW/e45Mcw==",
       "path": "system.runtime.serialization.primitives/4.3.0",
       "hashPath": "system.runtime.serialization.primitives.4.3.0.nupkg.sha512"
+    },
+    "System.Security.AccessControl/4.4.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-2NRFPX/V81ucKQmqNgGBZrKGH/5ejsvivSGMRum0SMgPnJxwhuNkzVS1+7gC3R2X0f57CtwrPrXPPSe6nOp82g==",
+      "path": "system.security.accesscontrol/4.4.0",
+      "hashPath": "system.security.accesscontrol.4.4.0.nupkg.sha512"
+    },
+    "System.Security.Principal.Windows/4.4.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-pP+AOzt1o3jESOuLmf52YQTF7H3Ng9hTnrOESQiqsnl2IbBh1HInsAMHYtoh75iUYV0OIkHmjvveraYB6zM97w==",
+      "path": "system.security.principal.windows/4.4.0",
+      "hashPath": "system.security.principal.windows.4.4.0.nupkg.sha512"
     },
     "System.Text.Encoding/4.3.0": {
       "type": "package",

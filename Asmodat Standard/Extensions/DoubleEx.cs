@@ -4,6 +4,7 @@ namespace AsmodatStandard.Extensions
 {
     public static class DoubleEx
     {
+        public static bool IsNaN(this double d) => double.IsNaN(d);
         public static bool IsZeroOrNaN(this double d) => double.IsNaN(d) || d == 0;
         public static bool IsZeroOrNaN(this double? d) => d == null || d.Value.IsZeroOrNaN();
 

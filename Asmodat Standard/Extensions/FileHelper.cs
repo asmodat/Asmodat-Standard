@@ -3,12 +3,25 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace AsmodatStandard.Extensions
 {
     public static class FileHelper
     {
+        public static void FileNamesReplace(string path, string to_replace, string to_replace_with, string seachPattern = "*", SearchOption options = SearchOption.AllDirectories)
+        {
+            var files = (new DirectoryInfo(path)).GetFiles(seachPattern, options).Where(file => file.Name.Contains(to_replace)).ToArray();
+
+            Parallel.ForEach(files, file => {
+                var new_name = file.Name.Replace(to_replace, to_replace_with);
+                var new_path = Path.Combine(file.DirectoryName, new_name);
+                File.Move(file.FullName, new_path);
+            });
+        }
+
         /// <summary>
         /// Deserializes Json Text File into .net type
         /// </summary>
@@ -41,6 +54,19 @@ namespace AsmodatStandard.Extensions
 
         public static void SerialiseJson(string fileName, object obj, Formatting formatting = Formatting.None)
             => WriteAllText(fileName, JsonConvert.SerializeObject(obj, formatting));
+
+        public static void SerialiseJsons<T>(string dir, Func<T, string> nameSelector, IEnumerable<T> items, Formatting formatting = Formatting.None, int maxDegreeOfParallelism = 100)
+            => Parallel.ForEach(items, new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism }, item => WriteAllText(Path.Combine(dir, nameSelector(item)), JsonConvert.SerializeObject(item, formatting)));
+
+        public static IEnumerable<T> DeserialiseJsons<T, K>(string dir, IEnumerable<K> items, Func<K, string> nameSelector, int maxDegreeOfParallelism = 100)
+        {
+            var results = new List<T>();
+            Parallel.ForEach(items, new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism } , item => {
+                var path = Path.Combine(dir, $"{item}.json");
+                results.Add(DeserialiseJson<T>(path));
+            });
+            return results.ToArray();
+        }
 
         public static Dictionary<FileInfo,T> DesrialiseJsons<T>(string path, string searchPattern = "*.json", SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
