@@ -1,4 +1,5 @@
 ﻿using AsmodatStandard.Extensions.Collections;
+using AsmodatStandard.Json;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,8 @@ namespace AsmodatStandard.Extensions
         /// <summary>
         /// Deserializes Json Text File into .net type
         /// </summary>
-        public static T DeserialiseJson<T>(string fileName) => JsonConvert.DeserializeObject<T>(File.ReadAllText(fileName));
+        public static T DeserialiseJson<T>(string fileName)
+            => JsonConvert.DeserializeObject<T>(File.ReadAllText(fileName));
 
         public static T DeserialiseJson<T>(FileInfo fi) => DeserialiseJson<T>(fi.FullName);
 
@@ -51,14 +53,14 @@ namespace AsmodatStandard.Extensions
                     fw.Write(data, 0, data.Length);
                 }
         }
-
+        
         public static void SerialiseJson(string fileName, object obj, Formatting formatting = Formatting.None)
             => WriteAllText(fileName, JsonConvert.SerializeObject(obj, formatting));
 
-        public static void SerialiseJsons<T>(string dir, Func<T, string> nameSelector, IEnumerable<T> items, Formatting formatting = Formatting.None, int maxDegreeOfParallelism = 100)
-            => Parallel.ForEach(items, new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism }, item => WriteAllText(Path.Combine(dir, nameSelector(item)), JsonConvert.SerializeObject(item, formatting)));
+        public static void SerialiseJsons<T>(string dir, Func<T, string> nameSelector, IEnumerable<T> items, Formatting formatting = Formatting.None, int maxDegreeOfParallelism = 10)
+            => Parallel.ForEach(items, new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism }, item => SerialiseJson(Path.Combine(dir, nameSelector(item)), item, formatting));
 
-        public static IEnumerable<T> DeserialiseJsons<T, K>(string dir, IEnumerable<K> items, Func<K, string> nameSelector, int maxDegreeOfParallelism = 100)
+        public static IEnumerable<T> DeserializeJsons<T, K>(string dir, IEnumerable<K> items, Func<K, string> nameSelector, int maxDegreeOfParallelism = 100)
         {
             var results = new List<T>();
             Parallel.ForEach(items, new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism } , item => {
@@ -68,7 +70,7 @@ namespace AsmodatStandard.Extensions
             return results.ToArray();
         }
 
-        public static Dictionary<FileInfo,T> DesrialiseJsons<T>(string path, string searchPattern = "*.json", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public static Dictionary<FileInfo,T> DeserializeJsons<T>(string path, string searchPattern = "*.json", SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             var di = new DirectoryInfo(path);
             var files = di.GetFiles(searchPattern, searchOption);

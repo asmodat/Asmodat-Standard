@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.0",
-    "signature": "eb007dfcdd976ed9749913412bcd1c150d23ad9a"
+    "signature": "b1ab664254701bdfd6465d91f1986c561577e73e"
   },
   "compilationOptions": {},
   "targets": {
@@ -902,6 +902,21 @@
           "System.Threading.Tasks": "4.3.0"
         }
       },
+      "System.Threading.AccessControl/4.4.0": {
+        "dependencies": {
+          "System.Security.AccessControl": "4.4.0",
+          "System.Security.Principal.Windows": "4.4.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/System.Threading.AccessControl.dll": {}
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/netstandard2.0/System.Threading.AccessControl.dll": {
+            "rid": "win",
+            "assetType": "runtime"
+          }
+        }
+      },
       "System.Threading.Tasks/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Targets": "1.1.0",
@@ -1013,7 +1028,8 @@
       "AsmodatStandard/1.0.0": {
         "dependencies": {
           "Microsoft.Win32.Registry": "4.4.0",
-          "Newtonsoft.Json": "10.0.3"
+          "Newtonsoft.Json": "10.0.3",
+          "System.Threading.AccessControl": "4.4.0"
         },
         "runtime": {
           "AsmodatStandard.dll": {}
@@ -1474,6 +1490,13 @@
       "sha512": "sha512-VkUS0kOBcUf3Wwm0TSbrevDDZ6BlM+b/HRiapRFWjM5O0NS0LviG0glKmFK+hhPDd1XFeSdU1GmlLhb2CoVpIw==",
       "path": "system.threading/4.3.0",
       "hashPath": "system.threading.4.3.0.nupkg.sha512"
+    },
+    "System.Threading.AccessControl/4.4.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-CbywegComLpet8Q/Cfre7qmu5NybfN8d6iyTuZRC/xqOILs1Jz2ao8erOyC1XjuIG/TDQEZATwkD0/4DWeikGw==",
+      "path": "system.threading.accesscontrol/4.4.0",
+      "hashPath": "system.threading.accesscontrol.4.4.0.nupkg.sha512"
     },
     "System.Threading.Tasks/4.3.0": {
       "type": "package",

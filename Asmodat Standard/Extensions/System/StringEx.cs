@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AsmodatStandard.Extensions.Collections;
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -9,6 +10,13 @@ namespace AsmodatStandard.Extensions
 {
     public static class StringEx
     {
+        public static string Replace(this string str, params (string to, string with)[] replace)
+        {
+            replace.ForEach(r => str = str.Replace(r.to, r.with));
+            return str;
+        }
+
+
         /// <summary>
         /// Math Min of GZip'ed ShannonEntropy and ShannonEntropy on raw string, should provide more accurate entropy value on longer strings
         /// </summary>
