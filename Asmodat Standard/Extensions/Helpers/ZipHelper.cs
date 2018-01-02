@@ -17,14 +17,13 @@ namespace AsmodatStandard.Extensions
             => JsonConvert.DeserializeObject<T>(ReadText(zipFile, entryName));
 
         public static IEnumerable<T> DeserialiseJsons<T, K>(string zipFile, IEnumerable<K> items, Func<K, string> entryNameSelector)
-            => items.Select(item => DeserialiseJson<T>(zipFile, entryNameSelector(item))).ToArray();
+            => Read<T>(zipFile, items.Select(item => entryNameSelector(item)));
 
         public static void SerialiseJson(string zipFile, string entryName, object obj, Formatting formatting = Formatting.None)
             => UpdateText(zipFile, entryName, JsonConvert.SerializeObject(obj, formatting));
 
         public static void SerialiseJsons<T>(string zipFile, IEnumerable<T> items, Func<T, string> entryNameSelector, Formatting formatting = Formatting.None)
-            => items.ForEach(item => SerialiseJson(zipFile, entryNameSelector(item), item, formatting));
-
+            => UpdateText(zipFile, items.Select(item => (entryNameSelector(item), JsonConvert.SerializeObject(item, formatting))).ToArray());
 
         /// <summary>
         /// If 'path' doesn't exist creates empty zip file
@@ -53,28 +52,54 @@ namespace AsmodatStandard.Extensions
         }
 
         public static void UpdateText(string path, string entryName, string text)
+            => UpdateText(path, (entryName, text));
+
+        public static void UpdateText(string path, params (string name, string text)[] entries)
         {
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 4096, false))
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Update))
             {
-                if (archive.Entries.Any(x => x.FullName == entryName))
-                    archive.GetEntry(entryName).Delete();
+                foreach (var txtEntry in entries)
+                {
+                    if (archive.Entries.Any(x => x.FullName == txtEntry.name))
+                        archive.GetEntry(txtEntry.name).Delete();
 
-                var entry = archive.CreateEntry(entryName);
-                using (var writer = new StreamWriter(entry.Open()))
-                    writer.Write(text);
+                    var entry = archive.CreateEntry(txtEntry.name);
+                    using (var writer = new StreamWriter(entry.Open()))
+                        writer.Write(txtEntry.text);
+                }
             }
         }
 
         public static string ReadText(string path, string entryName)
+            => ReadText(path, new string[] { entryName }).First();
+
+        public static IEnumerable<string> ReadText(string path, params string[] entryNames)
+            => Read<string>(path, entryNames);
+
+        public static IEnumerable<T> Read<T>(string path, IEnumerable<string> entryNames)
         {
+            var isStringType = typeof(T) == typeof(string);
+            var results = new List<T>();
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, false))
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Read))
             {
-                var entry = archive.GetEntry(entryName);
-                using (var reader = new StreamReader(entry.Open()))
-                    return reader.ReadToEnd();
+                var serializer = new JsonSerializer();
+                Parallel.ForEach(entryNames, entryName =>
+                {
+                    var entry = archive.GetEntry(entryName);
+                    using (var reader = new StreamReader(entry.Open()))
+                    {
+                        if (isStringType)
+                            results.Add((T)(object)reader.ReadToEnd());
+                        else
+                            using (var jsonReader = new JsonTextReader(reader))
+                                results.Add(serializer.Deserialize<T>(jsonReader));
+                    }
+                });
             }
+
+            return results;
         }
 
         public static void Delete(string path, string entryName)

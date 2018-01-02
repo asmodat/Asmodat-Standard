@@ -72,12 +72,13 @@ namespace AsmodatStandard.Extensions
             return result;
         }
         
-        public static T[] SelectRandomDistinct<T>(this IEnumerable<T> items, int count)
+        public static T[] SelectRandomDistinct<T>(this IEnumerable<T> items, int? count = null)
         {
             var arr = items.ToArray();
-            var indexes = NextDistinct(0, arr.Length, count);
-            var result = new T[count];
-            for (int i = 0; i < count; i++)
+            var length = Math.Min(arr.Length, count ?? arr.Length);
+            var indexes = NextDistinct(0, arr.Length, length);
+            var result = new T[length];
+            for (int i = 0; i < length; i++)
                 result[i] = arr[indexes[i]];
 
             return result;

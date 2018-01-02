@@ -7,6 +7,9 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class IEnumerableEx
     {
+        public static async Task<IEnumerable<K>> SelectManyAsync<T, K>(this IEnumerable<T> enumeration, Func<T, Task<IEnumerable<K>>> func)
+            => (await Task.WhenAll(enumeration.Select(func))).SelectMany(s => s);
+
         public static IEnumerable<T> DistinctBy<T, K>(this IEnumerable<T> source, Func<T, K> keySelector)
         {
             var hashSet = new HashSet<K>();
