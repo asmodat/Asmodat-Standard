@@ -39,9 +39,7 @@ namespace AsmodatStandard.Extensions.Threading
         {
             try
             {
-                while (!s.WaitOne(1000))
-                    await Task.Delay(10);
-
+                s.WaitOne();
                 await func();
             }
             finally
@@ -54,9 +52,7 @@ namespace AsmodatStandard.Extensions.Threading
         {
             try
             {
-                while (!s.WaitOne(1000))
-                    await Task.Delay(10);
-
+                s.WaitOne();
                 return await func();
             }
             finally

@@ -6,3 +6,4 @@ C:\Users\asmodat\Documents\Visual Studio 2017\Projects\Asmodat Standard\Asmodat 
 C:\Users\asmodat\Documents\Visual Studio 2017\Projects\Asmodat Standard\Asmodat Standard\obj\x64\Debug\netstandard2.0\Asmodat Standard.AssemblyInfo.cs
 C:\Users\asmodat\Documents\Visual Studio 2017\Projects\Asmodat Standard\Asmodat Standard\obj\x64\Debug\netstandard2.0\AsmodatStandard.dll
 C:\Users\asmodat\Documents\Visual Studio 2017\Projects\Asmodat Standard\Asmodat Standard\obj\x64\Debug\netstandard2.0\AsmodatStandard.pdb
+C:\Users\asmodat\Documents\Visual Studio 2017\Projects\Asmodat Standard\Asmodat Standard\obj\x64\Debug\netstandard2.0\Asmodat Standard.csprojResolveAssemblyReference.cache

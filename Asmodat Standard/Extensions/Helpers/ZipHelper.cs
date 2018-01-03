@@ -1,13 +1,15 @@
 ﻿using AsmodatStandard.Extensions.Collections;
-using AsmodatStandard.Json;
+using AsmodatStandard.Extensions.Threading;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace AsmodatStandard.Extensions
 {
@@ -16,7 +18,7 @@ namespace AsmodatStandard.Extensions
         public static T DeserialiseJson<T>(string zipFile, string entryName)
             => JsonConvert.DeserializeObject<T>(ReadText(zipFile, entryName));
 
-        public static IEnumerable<T> DeserialiseJsons<T, K>(string zipFile, IEnumerable<K> items, Func<K, string> entryNameSelector)
+        public static IEnumerable<T> DeserializeJsons<T, K>(string zipFile, IEnumerable<K> items, Func<K, string> entryNameSelector)
             => Read<T>(zipFile, items.Select(item => entryNameSelector(item)));
 
         public static void SerialiseJson(string zipFile, string entryName, object obj, Formatting formatting = Formatting.None)
@@ -57,18 +59,14 @@ namespace AsmodatStandard.Extensions
         public static void UpdateText(string path, params (string name, string text)[] entries)
         {
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 4096, false))
-            using (var archive = new ZipArchive(stream, ZipArchiveMode.Update))
-            {
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Update, false, Encoding.UTF8))
                 foreach (var txtEntry in entries)
                 {
-                    if (archive.Entries.Any(x => x.FullName == txtEntry.name))
-                        archive.GetEntry(txtEntry.name).Delete();
-
-                    var entry = archive.CreateEntry(txtEntry.name);
+                    archive.GetEntry(txtEntry.name)?.Delete(); //remove if exists already
+                    var entry = archive.CreateEntry(txtEntry.name, CompressionLevel.NoCompression);
                     using (var writer = new StreamWriter(entry.Open()))
                         writer.Write(txtEntry.text);
                 }
-            }
         }
 
         public static string ReadText(string path, string entryName)
@@ -77,29 +75,37 @@ namespace AsmodatStandard.Extensions
         public static IEnumerable<string> ReadText(string path, params string[] entryNames)
             => Read<string>(path, entryNames);
 
-        public static IEnumerable<T> Read<T>(string path, IEnumerable<string> entryNames)
+        public static IEnumerable<T> Read<T>(string path, IEnumerable<string> entryNames, int procesSplit = 5)
         {
             var isStringType = typeof(T) == typeof(string);
-            var results = new List<T>();
-            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, false))
-            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read))
-            {
-                var serializer = new JsonSerializer();
-                Parallel.ForEach(entryNames, entryName =>
-                {
-                    var entry = archive.GetEntry(entryName);
-                    using (var reader = new StreamReader(entry.Open()))
-                    {
-                        if (isStringType)
-                            results.Add((T)(object)reader.ReadToEnd());
-                        else
-                            using (var jsonReader = new JsonTextReader(reader))
-                                results.Add(serializer.Deserialize<T>(jsonReader));
-                    }
-                });
-            }
+            var entryNamesSplits = entryNames.Split(procesSplit);
+            var bag = new ConcurrentBag<List<T>>();
+            var serializer = new JsonSerializer();
+            var encoding = Encoding.UTF8;
 
-            return results;
+            Parallel.ForEach(entryNamesSplits, new ParallelOptions { MaxDegreeOfParallelism = procesSplit }, entryNamesSplit =>
+            {
+                using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
+                using (var archive = new ZipArchive(stream, ZipArchiveMode.Read))
+                {
+                    var results = new List<T>();
+                    entryNamesSplit.Select(x => archive.GetEntry(x)).ForEach(entry =>
+                    {
+                        if (entry != null)
+                            using (var reader = new StreamReader(entry.Open(), encoding, false, 4096, false))
+                            {
+                                if (isStringType)
+                                    results.Add((T)(object)reader.ReadToEnd());
+                                else
+                                    using (var jsonReader = new JsonTextReader(reader))
+                                        results.Add(serializer.Deserialize<T>(jsonReader));
+                            }
+                    });
+                    bag.Add(results);
+                }
+            });
+
+            return bag.SelectMany(x => x);
         }
 
         public static void Delete(string path, string entryName)
@@ -110,3 +116,33 @@ namespace AsmodatStandard.Extensions
         }
     }
 }
+
+/*
+ public static IEnumerable<T> Read<T>(string path, IEnumerable<string> entryNames)
+        {
+            var isStringType = typeof(T) == typeof(string);
+            var results = new List<T>();
+
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096 * 32, true))
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read))
+            {
+                var serializer = new JsonSerializer();
+                var encoding = Encoding.UTF8;
+                entryNames.Select(x => archive.GetEntry(x)).ForEach(entry =>
+                {
+                    if (entry != null)
+                        using (var reader = new StreamReader(entry.Open(), encoding, false, 4096, false))
+                        {
+                            if (isStringType)
+                                results.Add((T)(object)reader.ReadToEnd());
+                            else
+                                using (var jsonReader = new JsonTextReader(reader))
+                                    results.Add(serializer.Deserialize<T>(jsonReader));
+                        }
+                });
+            }
+
+            return results;
+        }
+     
+     */

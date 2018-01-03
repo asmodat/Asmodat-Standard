@@ -27,7 +27,14 @@ namespace AsmodatStandard.Extensions
         /// Deserializes Json Text File into .net type
         /// </summary>
         public static T DeserialiseJson<T>(string fileName)
-            => JsonConvert.DeserializeObject<T>(File.ReadAllText(fileName));
+        {
+            JsonSerializer serializer = new JsonSerializer();
+            using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
+            using (var reader = new StreamReader(stream, Encoding.UTF8, false, 4096, false))
+            using (var jsonReader = new JsonTextReader(reader))
+                return serializer.Deserialize<T>(jsonReader);
+        }
+            //=> JsonConvert.DeserializeObject<T>(File.ReadAllText(fileName));
 
         public static T DeserialiseJson<T>(FileInfo fi) => DeserialiseJson<T>(fi.FullName);
 
@@ -57,7 +64,7 @@ namespace AsmodatStandard.Extensions
         public static void SerialiseJson(string fileName, object obj, Formatting formatting = Formatting.None)
             => WriteAllText(fileName, JsonConvert.SerializeObject(obj, formatting));
 
-        public static void SerialiseJsons<T>(string dir, Func<T, string> nameSelector, IEnumerable<T> items, Formatting formatting = Formatting.None, int maxDegreeOfParallelism = 10)
+        public static void SerialiseJsons<T>(string dir, IEnumerable<T> items, Func<T, string> nameSelector, Formatting formatting = Formatting.None, int maxDegreeOfParallelism = 10)
             => Parallel.ForEach(items, new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism }, item => SerialiseJson(Path.Combine(dir, nameSelector(item)), item, formatting));
 
         public static IEnumerable<T> DeserializeJsons<T, K>(string dir, IEnumerable<K> items, Func<K, string> nameSelector, int maxDegreeOfParallelism = 100)

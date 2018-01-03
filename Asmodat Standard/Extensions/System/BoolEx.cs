@@ -4,6 +4,9 @@ namespace AsmodatStandard.Extensions
 {
     public static class BoolEx
     {
+        public static bool IsTrue(this bool? b) => b != null && b.Value ? true : false;
+        public static bool IsFalse(this bool? b) => b != null && !b.Value ? true : false;
+
         /// <summary>
         /// true == 1 | false == 0
         /// </summary>

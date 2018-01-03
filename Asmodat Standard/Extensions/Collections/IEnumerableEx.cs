@@ -7,6 +7,28 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class IEnumerableEx
     {
+        /// <summary>
+        /// splits source into (up to) n elemets
+        /// </summary>
+        public static List<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int n)
+        {
+            var length = source.Count();
+            var countPerSplit = (int)Math.Ceiling((double)length / n);
+
+            var result = new List<IEnumerable<T>>();
+            int toSkip;
+            for(int i = 0; i < n; i++)
+            {
+                toSkip = i * countPerSplit;
+                if (toSkip >= length)
+                    break;
+
+                result.Add(source.Skip(toSkip).Take(countPerSplit));
+            }
+
+            return result;
+        }
+
         public static async Task<IEnumerable<K>> SelectManyAsync<T, K>(this IEnumerable<T> enumeration, Func<T, Task<IEnumerable<K>>> func)
             => (await Task.WhenAll(enumeration.Select(func))).SelectMany(s => s);
 
@@ -26,9 +48,9 @@ namespace AsmodatStandard.Extensions.Collections
         public static T SelectMax<T, K>(this IEnumerable<T> source, Func<T, K> keySelector)
             => source.SortDescending(keySelector).FirstOrDefault();
 
-        public static IEnumerable<T> Merge<T>(this IEnumerable<T> left, params T[] right) => left?.ToArray().Merge(right);
+        public static IEnumerable<T> Merge<T>(this IEnumerable<T> left, params T[] right) => (left?.ToArray()).Merge(right);
 
-        public static IEnumerable<T> Merge<T>(this IEnumerable<T> left, IEnumerable<T> right) => left?.ToArray().Merge(right?.ToArray());
+        public static IEnumerable<T> Merge<T>(this IEnumerable<T> left, IEnumerable<T> right) => (left?.ToArray()).Merge(right?.ToArray());
 
         public static string JoinToString(this IEnumerable<char> coll) => coll == null ? null : new string(coll.ToArray());
 
@@ -233,6 +255,18 @@ namespace AsmodatStandard.Extensions.Collections
             return ++i;
         }
 
+        public static int ParallelForEach<T>(this IEnumerable<T> source, Action<T> a)
+        {
+            int i = -1;
+            Parallel.ForEach(source, item =>
+            {
+                a(item);
+                ++i;
+            });
+
+            return ++i;
+        }
+
         public static async Task<int> ForEach<T>(this IEnumerable<T> source, Func<T, Task> a)
         {
             int i = -1;
@@ -243,6 +277,15 @@ namespace AsmodatStandard.Extensions.Collections
             }
 
             return ++i;
+        }
+
+        public static async Task ParallelForEach<T>(this IEnumerable<T> source, Func<T, Task> a)
+        {
+            var tasks = new List<Task>();
+            foreach (T item in source)
+                tasks.Add(a(item));
+
+            await Task.WhenAll(tasks);
         }
     }
 }
