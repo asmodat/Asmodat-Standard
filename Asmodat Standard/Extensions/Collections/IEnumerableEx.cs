@@ -7,10 +7,16 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class IEnumerableEx
     {
-        /// <summary>
-        /// splits source into (up to) n elemets
-        /// </summary>
-        public static List<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int n)
+        public static double AverageOrDefault(this IEnumerable<double> source, double @default = double.NaN)
+            => source.IsNullOrEmpty() ? @default : source.Average();
+
+        public static IEnumerable<T> SelectMany<T>(this IEnumerable<IEnumerable<T>> source)
+            => source?.SelectMany(x => x);
+        
+            /// <summary>
+            /// splits source into (up to) n elemets
+            /// </summary>
+            public static List<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int n)
         {
             var length = source.Count();
             var countPerSplit = (int)Math.Ceiling((double)length / n);

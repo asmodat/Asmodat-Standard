@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.0",
-    "signature": "56893a86237816e6eadc963a1c1dc2db5633099e"
+    "signature": "a48fb683b2978d0401573ccfd5169d15cf33436c"
   },
   "compilationOptions": {},
   "targets": {
@@ -17,7 +17,6 @@
           "AsmodatStandardTest.dll": {}
         }
       },
-      "7-Zip.x64/16.2.1": {},
       "Microsoft.CodeCoverage/1.0.3": {
         "runtime": {
           "lib/netstandard1.0/Microsoft.VisualStudio.CodeCoverage.Shim.dll": {}
@@ -1041,7 +1040,6 @@
       },
       "AsmodatStandard/1.0.0": {
         "dependencies": {
-          "7-Zip.x64": "16.2.1",
           "Microsoft.Win32.Registry": "4.4.0",
           "Newtonsoft.Json": "10.0.3",
           "System.Threading.AccessControl": "4.4.0",
@@ -1058,13 +1056,6 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
-    },
-    "7-Zip.x64/16.2.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-1QLIlbsF8V7qHmdqdLsRgCnqu16UapE6QKX3n/XroVZfBsIN6XLRUsWkofbPvdceUyKvxA5HQyrYssRg5rcEIw==",
-      "path": "7-zip.x64/16.2.1",
-      "hashPath": "7-zip.x64.16.2.1.nupkg.sha512"
     },
     "Microsoft.CodeCoverage/1.0.3": {
       "type": "package",
