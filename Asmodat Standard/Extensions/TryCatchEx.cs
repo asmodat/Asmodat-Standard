@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace AsmodatStandard.Extensions
 {
     
@@ -47,7 +50,62 @@ namespace AsmodatStandard.Extensions
             }
         }
 
+        public static T FuncRepeat<T>(this Func<T> func, int maxRepeats = 1)
+        {
+            var exceptions = new List<Exception>();
+            do
+            {
+                try
+                {
+                    return func();
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            } while (--maxRepeats > 0);
+
+            throw new AggregateException(exceptions);
+        }
+
+        public static async Task<T> FuncRepeatAsync<T>(this Func<Task<T>> func, int maxRepeats = 1)
+        {
+            var exceptions = new List<Exception>();
+            do
+            {
+                try
+                {
+                    return await func();
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            } while (--maxRepeats > 0);
+
+            throw new AggregateException(exceptions);
+        }
+
+
         public static bool Action(this Action action) => action.Action(out Exception ex);
+        public static void ActionRepeat(this Action action, int maxRepeats = 1)
+        {
+            var exceptions = new List<Exception>();
+            do
+            {
+                try
+                {
+                    action();
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            } while (--maxRepeats > 0);
+
+            throw new AggregateException(exceptions);
+        }
+
 
         public static bool Action(this Action action, out Exception exception)
         {

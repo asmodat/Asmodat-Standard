@@ -18,12 +18,13 @@ namespace AsmodatStandard.Extensions.Threading
         public static void For(int from, int to, Action<int> action)
             => ForEach(Enumerable.Range(from, to - from), action);
 
-        public static void ForEach<K>(IEnumerable<K> source, Action<K> action)
+        public static void ForEach<K>(IEnumerable<K> source, Action<K> action, ThreadPriority priority = ThreadPriority.Highest)
         {
             var threads = source.Select(k =>
             {
                 var t = new Thread(() => action(k));
-                t.IsBackground = true;
+                t.Priority = priority;
+                t.IsBackground = false;
                 t.Start();
                 return t;
             });

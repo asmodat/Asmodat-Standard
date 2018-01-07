@@ -34,14 +34,18 @@ namespace AsmodatStandard.Extensions
                File.ReadAllText(fileName).UnGZip(Encoding.UTF8) : 
                File.ReadAllText(fileName));
         }
-        /*{
+
+        /// <summary>
+        /// Deserializes large json file.
+        /// </summary>
+        public static T DeserialiseJsonLarge<T>(string fileName)
+        {
             JsonSerializer serializer = new JsonSerializer();
             using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
             using (var reader = new StreamReader(stream, Encoding.UTF8, false, 4096, false))
             using (var jsonReader = new JsonTextReader(reader))
                 return serializer.Deserialize<T>(jsonReader);
-        }*/
-        //
+        }
 
         public static T DeserialiseJson<T>(FileInfo fi) => DeserialiseJson<T>(fi.FullName);
 
@@ -50,7 +54,6 @@ namespace AsmodatStandard.Extensions
 
         public static bool IsEmptyOrWhiteSpace(this FileInfo fi) => string.IsNullOrWhiteSpace(File.ReadAllText(fi.FullName));
         public static bool IsEmpty(this FileInfo fi) => string.IsNullOrEmpty(File.ReadAllText(fi.FullName));
-
 
         public static string NameWithoutExtension(this FileInfo fi) => Path.GetFileNameWithoutExtension(fi.Name);
 
@@ -65,7 +68,7 @@ namespace AsmodatStandard.Extensions
                 {
                     var data = Encoding.UTF8.GetBytes(
                         compress == CompressionLevel.NoCompression ? 
-                        text : text.GZip(Encoding.UTF8, CompressionLevel.Optimal));
+                        text : text.GZip(Encoding.UTF8, compress));
 
                     fw.Write(data, 0, data.Length);
                 }
