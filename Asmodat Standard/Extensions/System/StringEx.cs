@@ -76,6 +76,7 @@ namespace AsmodatStandard.Extensions
             }
         }
 
+        public static string CoalesceIfEquals(this string str, string val, string replaceWith) => str == val ? replaceWith : str;
         public static string CoalesceNullOrEmpty(this string str, string value) => str.IsNullOrEmpty() ? value : str;
         public static string CoalesceNullOrWhitespace(this string str, string value) => str.IsNullOrWhitespace() ? value : str;
 

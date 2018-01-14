@@ -24,21 +24,42 @@ namespace AsmodatStandard.Extensions
             });
         }
 
+        public static string ReadAllAsString(string fileName)
+        {
+            StringBuilder sb = new StringBuilder();
+            int read;
+            var buffer = new char[4096];
+            using (FileStream fs = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (BufferedStream bs = new BufferedStream(fs))
+            using (StreamReader sr = new StreamReader(bs))
+            {
+                while ((read = sr.ReadBlock(buffer, 0, buffer.Length)) > 0)
+                    sb.Append(buffer, 0, read);
+            }
+
+            return sb.ToString();
+        }
+
         /// <summary>
         /// Deserializes Json Text File into .net type
         /// </summary>
         public static T DeserialiseJson<T>(string fileName, bool ungzip = false)
+            => ungzip ? DeserialiseJsonLargeGZipFile<T>(fileName) : DeserialiseJsonLargeFile<T>(fileName);
+
+        public static T DeserialiseJsonLargeGZipFile<T>(string fileName)
         {
-           return JsonConvert.DeserializeObject<T>(
-               ungzip ? 
-               File.ReadAllText(fileName).UnGZip(Encoding.UTF8) : 
-               File.ReadAllText(fileName));
+            JsonSerializer serializer = new JsonSerializer();
+            using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
+            using (var gzip = new GZipStream(stream, CompressionMode.Decompress))
+            using (var reader = new StreamReader(gzip, Encoding.UTF8, false, 4096, false))
+            using (var jsonReader = new JsonTextReader(reader))
+                return serializer.Deserialize<T>(jsonReader);
         }
 
         /// <summary>
         /// Deserializes large json file.
         /// </summary>
-        public static T DeserialiseJsonLarge<T>(string fileName)
+        public static T DeserialiseJsonLargeFile<T>(string fileName)
         {
             JsonSerializer serializer = new JsonSerializer();
             using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
@@ -54,9 +75,7 @@ namespace AsmodatStandard.Extensions
 
         public static bool IsEmptyOrWhiteSpace(this FileInfo fi) => string.IsNullOrWhiteSpace(File.ReadAllText(fi.FullName));
         public static bool IsEmpty(this FileInfo fi) => string.IsNullOrEmpty(File.ReadAllText(fi.FullName));
-
         public static string NameWithoutExtension(this FileInfo fi) => Path.GetFileNameWithoutExtension(fi.Name);
-
 
         /// <summary>
         /// overrides existing file or creates it and replaces the content with text using UTF8 encoding
@@ -73,9 +92,33 @@ namespace AsmodatStandard.Extensions
                     fw.Write(data, 0, data.Length);
                 }
         }
-        
+
+        public static void SerializeJsonLargeFile(string fileName, object obj, Formatting formatting = Formatting.None)
+        {
+            JsonSerializer serializer = new JsonSerializer() { Formatting = formatting };
+            using (var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
+            using (var writer = new StreamWriter(stream))
+            using (var jWriter = new JsonTextWriter(writer))
+                serializer.Serialize(jWriter, obj);
+        }
+
+        public static void SerializeJsonLargeGZipFile(string fileName, object obj, Formatting formatting = Formatting.None, CompressionLevel compress = CompressionLevel.NoCompression)
+        {
+            JsonSerializer serializer = new JsonSerializer() { Formatting = formatting };
+            using (var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
+            using (var gzip = new GZipStream(stream, compress))
+            using (var writer = new StreamWriter(gzip))
+            using (var jWriter = new JsonTextWriter(writer))
+                serializer.Serialize(jWriter, obj);
+        }
+
         public static void SerialiseJson(string fileName, object obj, Formatting formatting = Formatting.None, CompressionLevel compress = CompressionLevel.NoCompression)
-            => WriteAllText(fileName, JsonConvert.SerializeObject(obj, formatting), compress);
+        {
+            if (compress == CompressionLevel.NoCompression)
+                SerializeJsonLargeFile(fileName, obj, formatting);
+            else
+                SerializeJsonLargeGZipFile(fileName, obj, formatting, compress);
+        }
 
         public static void SerialiseJsons<T>(string dir, IEnumerable<T> items, Func<T, string> nameSelector, Formatting formatting = Formatting.None, int maxDegreeOfParallelism = 10)
             => Parallel.ForEach(items, new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism }, item => SerialiseJson(Path.Combine(dir, nameSelector(item)), item, formatting));

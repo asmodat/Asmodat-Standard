@@ -159,16 +159,16 @@ namespace AsmodatStandard.Types
         /// <summary>
         /// Waits until timeout is triggered
         /// </summary>
-        public void Wait()
+        public void Wait(int intensity_ms = 1)
         {
             while (!IsTriggered)
-                Thread.Sleep(1);
+                Thread.Sleep(intensity_ms);
         }
 
-        public async Task WaitAsync()
+        public async Task WaitAsync(int intensity_ms = 1)
         {
             while (!IsTriggered)
-                await Task.Delay(1);
+                await Task.Delay(intensity_ms);
         }
 
         /// <summary>
