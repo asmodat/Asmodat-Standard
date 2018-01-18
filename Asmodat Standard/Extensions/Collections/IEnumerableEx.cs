@@ -16,7 +16,7 @@ namespace AsmodatStandard.Extensions.Collections
             /// <summary>
             /// splits source into (up to) n elemets
             /// </summary>
-            public static List<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int n)
+        public static List<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int n)
         {
             var length = source.Count();
             var countPerSplit = (int)Math.Ceiling((double)length / n);
@@ -54,11 +54,14 @@ namespace AsmodatStandard.Extensions.Collections
         public static T SelectMax<T, K>(this IEnumerable<T> source, Func<T, K> keySelector)
             => source.SortDescending(keySelector).FirstOrDefault();
 
-        public static IEnumerable<T> Merge<T>(this IEnumerable<T> left, params T[] right) => (left?.ToArray()).Merge(right);
+        public static IEnumerable<T> Merge<T>(this IEnumerable<T> left, params T[] right) 
+            => (left?.ToArray()).Merge(right);
 
-        public static IEnumerable<T> Merge<T>(this IEnumerable<T> left, IEnumerable<T> right) => (left?.ToArray()).Merge(right?.ToArray());
+        public static IEnumerable<T> Merge<T>(this IEnumerable<T> left, IEnumerable<T> right) 
+            => (left?.ToArray()).Merge(right?.ToArray());
 
-        public static string JoinToString(this IEnumerable<char> coll) => coll == null ? null : new string(coll.ToArray());
+        public static string JoinToString(this IEnumerable<char> coll) 
+            => coll == null ? null : new string(coll.ToArray());
 
         /// <summary>
         /// returns common elements for two sets of enumerables
@@ -67,55 +70,16 @@ namespace AsmodatStandard.Extensions.Collections
             => e1.Intersection(new HashSet<T>(e2));
 
         public static IEnumerable<T> Intersection<T>(this IEnumerable<T> e1, HashSet<T> lookup)
-        {
-            if (e1 == null || lookup == null)
-                return null;
-
-            return e1.Where(lookup.Contains);
-        }
-
-        public static int TryCount<T>(this IEnumerable<T> enumerable, int _default = 0)
-        {
-            if (enumerable == null)
-                return _default;
-
-            try
-            {
-                return enumerable.Count();
-            }
-            catch
-            {
-                return _default;
-            }
-        }
-
-        public static long TryLongCount<T>(this IEnumerable<T> enumerable, long _default = 0)
-        {
-            if (enumerable == null)
-                return _default;
-
-            try
-            {
-                return enumerable.LongCount();
-            }
-            catch
-            {
-                return _default;
-            }
-        }
+            => (e1 == null || lookup == null) ? ( e1 == null && lookup == null ? null : new T[0]) : e1.Where(lookup.Contains);
 
         public static IEnumerable<T> Clone<T>(this IEnumerable<T> enumerable) where T : ICloneable
         {
             if (enumerable == null) return null;
             else return enumerable.Select(o => (T)o.Clone());
         }
-
-
+        
         public static TSource[] DistinctArray<TSource>(this IEnumerable<TSource> source)
-        {
-            if (source == null) return null;
-            else return source.Distinct().ToArray();
-        }
+            => source?.Distinct().ToArray();
 
         /// <summary>
         /// Checks if Enumerable is null or it's count is less or equal zero.
@@ -124,11 +88,7 @@ namespace AsmodatStandard.Extensions.Collections
         /// <param name="source"></param>
         /// <returns></returns>
         public static bool IsNullOrEmpty<T>(this IEnumerable<T> source)
-        {
-            if (source == null || source.Count() <= 0)
-                return true;
-            else return false;
-        }
+            => source == null || !source.Any();
 
         /// <summary>
         /// Checks if enumerable count is less then value
@@ -139,15 +99,20 @@ namespace AsmodatStandard.Extensions.Collections
         /// <returns></returns>
         public static bool IsCountLessThen<TSource>(this IEnumerable<TSource> source, int value)
         {
-            if (source == null || source.Count() < value)
-                return true;
-            else return false;
+            var cntr = -1;
+            foreach (var v in source)
+                if (++cntr > value)
+                    return false;
+            return true;
         }
 
         public static bool IsCountGreaterThen<TSource>(this IEnumerable<TSource> source, int value)
         {
-            int? cnt = source?.Count();
-            return cnt != null && cnt.Value > value;
+            var cntr = -1;
+            foreach (var v in source)
+                if (++cntr > value)
+                    return true;
+            return false;
         }
 
         /// <summary>
@@ -159,39 +124,30 @@ namespace AsmodatStandard.Extensions.Collections
         /// <returns></returns>
         public static bool IsCountLessOrEqual<TSource>(this IEnumerable<TSource> source, int value)
         {
-            if (source == null || source.Count() <= value)
-                return true;
-            else return false;
+            var cntr = -1;
+            foreach (var v in source)
+                if (++cntr >= value)
+                    return false;
+            return true;
         }
 
         public static bool IsCountGreaterOrEqual<TSource>(this IEnumerable<TSource> source, int value)
         {
-            int? cnt = source?.Count();
-            return cnt != null && cnt.Value >= value;
+            int cntr = -1;
+            foreach (var v in source)
+                if (++cntr >= value)
+                    return true;
+            return false;
         }
 
-        public static int GetCount<TSource>(this IEnumerable<TSource> source)
-        {
-            //IEnumerableEx.IsNullOrEmpty(source);
+        public static int CountOrDefault<TSource>(this IEnumerable<TSource> source)
+            => source.IsNullOrEmpty() ? 0 : source.Count();
 
-            if (source == null || source.LongCount() <= 0)
-                return 0;
-            else return source.Count();
-        }
-
-        public static long GetLongCount<TSource>(this IEnumerable<TSource> source)
-        {
-            if (source == null || source.LongCount() <= 0)
-                return 0;
-            else return source.LongCount();
-        }
+        public static long LongCountOrDefault<TSource>(this IEnumerable<TSource> source)
+            => source.IsNullOrEmpty() ? 0 : source.LongCount();
 
         public static bool IsCountEqual<TSource>(this IEnumerable<TSource> source, int value)
-        {
-            if (source != null && source.Count() == value)
-                return true;
-            else return false;
-        }
+            => source.Count() == value;
 
         /// <summary>
         /// Compares count of collections, 
