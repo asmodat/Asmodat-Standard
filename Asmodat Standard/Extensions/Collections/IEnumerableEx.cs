@@ -7,6 +7,36 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class IEnumerableEx
     {
+        public static IEnumerable<T> ConcatOrDefault<T>(this IEnumerable<T> left, IEnumerable<T> right)
+        {
+            if (left == null && right == null)
+                return null;
+
+            if (left == null)
+                return right;
+
+            if (right == null)
+                return left;
+
+            var list = new List<T>();
+            list.AddRange(right);
+            list.AddRange(left);
+            return list;
+        }
+
+        public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> collections)
+        {
+            if (collections == null)
+                return null;
+
+            var result = new List<T>();
+            foreach (var collection in collections)
+                if(collection != null)
+                    result.AddRange(collection);
+
+            return result;
+        }
+
         public static double AverageOrDefault(this IEnumerable<double> source, double @default = double.NaN)
             => source.IsNullOrEmpty() ? @default : source.Average();
 

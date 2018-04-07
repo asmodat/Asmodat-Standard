@@ -1,0 +1,2 @@
+﻿Usefull Nuggets:
+Costura.Fody - Allows To Embedd References Into Single Dll

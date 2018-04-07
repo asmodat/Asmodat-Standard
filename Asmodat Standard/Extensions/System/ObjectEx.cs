@@ -1,9 +1,15 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace AsmodatStandard.Extensions
 {
     public static class ObjectEx
     {
+        public static string JsonSerialize(this object obj, Formatting formatting = Formatting.None,
+            ReferenceLoopHandling referenceLoopHandling = ReferenceLoopHandling.Ignore)
+            => JsonConvert.SerializeObject(obj, formatting,
+                new JsonSerializerSettings { ReferenceLoopHandling = referenceLoopHandling });
+
         public static double ToDoubleOrNaN(this object obj)
         {
             if (obj == null)
