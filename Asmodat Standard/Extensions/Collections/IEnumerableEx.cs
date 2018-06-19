@@ -7,6 +7,8 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class IEnumerableEx
     {
+        public static IEnumerable<T> ToIEnumerable<T>(this IEnumerable<T> arr) => arr.Cast<T>();
+
         public static IEnumerable<T> ConcatOrDefault<T>(this IEnumerable<T> left, IEnumerable<T> right)
         {
             if (left == null && right == null)

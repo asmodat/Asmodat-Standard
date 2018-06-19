@@ -9,6 +9,9 @@ namespace AsmodatStandard.Extensions
 {
     public static class HttpHelper
     {
+        public static async Task<T> GET<T>(Uri uri, HttpStatusCode? ensureStatusCode = null, (string key, string value)[] defaultHeaders = null)
+            => await GET<T>(uri.ToString(), ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders);
+
         public static async Task<T> GET<T>(string requestUri, HttpStatusCode? ensureStatusCode = null, (string key, string value)[] defaultHeaders = null)
             => await SEND<T>(HttpMethod.Get, requestUri, content: null, ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders);
         public static async Task<T> POST<T>(string requestUri, HttpContent content, HttpStatusCode? ensureStatusCode = null, (string key, string value)[] defaultHeaders = null)
@@ -27,24 +30,39 @@ namespace AsmodatStandard.Extensions
 
         public static async Task<T> SEND<T>(HttpMethod method, string requestUri, HttpContent content = null, HttpStatusCode? ensureStatusCode = null, (string key, string value)[] defaultHeaders = null)
         {
-            using (var request = new HttpRequestMessage(method, requestUri))
-            {
-                if (content != null)
-                    request.Content = content; 
+            var result = await CURL(
+                               method: method,
+                               requestUri: requestUri,
+                               content: content,
+                               ensureStatusCode: ensureStatusCode,
+                               defaultHeaders: defaultHeaders);
 
-                using (var client = new HttpClient())
-                {
-                    defaultHeaders?.ForEach(header => { client.DefaultRequestHeaders.Add(header.key, header.value); });
+            var responseContentJson = await result.Response.Content?.ReadAsStringAsync();
 
-                    var response = await client.SendAsync(request);
-                    var responseContentJson = await response.Content.ReadAsStringAsync();
+            if (ensureStatusCode != null && result.Response.StatusCode != ensureStatusCode.Value)
+                throw new Exception($"Request failed: '{requestUri}', expected status code to be: '{ensureStatusCode.Value}', but was: '{result.Response.StatusCode}'. Content Body: '{responseContentJson}'");
 
-                    if (ensureStatusCode != null && response.StatusCode != ensureStatusCode.Value)
-                        throw new Exception($"Request failed: '{requestUri}', expected status code to be: '{ensureStatusCode.Value}', but was: '{response.StatusCode}'. Content Body: '{responseContentJson}'");
+            return typeof(T) == typeof(string) ? (T)(object)responseContentJson : JsonConvert.DeserializeObject<T>(responseContentJson);
+        }
 
-                    return typeof(T) == typeof(string) ? (T)(object)responseContentJson : JsonConvert.DeserializeObject<T>(responseContentJson);
-                }
-            }
+        public static Task<(HttpRequestMessage Request, HttpResponseMessage Response, HttpClient Client)> CURL(HttpMethod method, Uri url, HttpContent content = null, HttpStatusCode? ensureStatusCode = null, (string key, string value)[] defaultHeaders = null)
+            => CURL(
+               method: method,
+               requestUri: url.ToString(),
+               content: content,
+               ensureStatusCode: ensureStatusCode,
+               defaultHeaders: defaultHeaders);
+
+        public static async Task<(HttpRequestMessage Request, HttpResponseMessage Response, HttpClient Client)> CURL(HttpMethod method, string requestUri, HttpContent content = null, HttpStatusCode? ensureStatusCode = null, (string key, string value)[] defaultHeaders = null)
+        {
+            var request = new HttpRequestMessage(method, requestUri);
+
+            if (content != null)
+                request.Content = content;
+
+            var client = new HttpClient() { Timeout = TimeSpan.FromSeconds(150) };
+            defaultHeaders?.ForEach(header => { client.DefaultRequestHeaders.Add(header.key, header.value); });
+            return (request, await client.SendAsync(request), client);
         }
     }
 }

@@ -10,6 +10,16 @@ namespace AsmodatStandard.Extensions
 {
     public static class StringEx
     {
+
+        public static int ToIntOrDefault(this string s, int @default = default(int))
+            => int.TryParse(s, out var result) ? result : @default;
+
+        public static long ToLongOrDefault(this string s, long @default = default(long))
+            => long.TryParse(s, out var result) ? result : @default;
+
+        public static double ToDoubleOrDefault(this string s, double @default = default(double))
+            => double.TryParse(s,out var result) ? result : @default;
+
         public static string[] SplitByFirst(this string s, char c)
             => s.Split(new char[] { c }, 2);
 
