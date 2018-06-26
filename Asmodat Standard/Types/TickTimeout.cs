@@ -26,6 +26,8 @@ namespace AsmodatStandard.Types
 
     public partial class TickTimeout : ICloneable
     {
+        private readonly object locker = new object();
+
         public object Clone()
         {
             TickTimeout obj = new TickTimeout(this.Timeout, this.Unit, this.Enabled);
@@ -94,7 +96,6 @@ namespace AsmodatStandard.Types
         private TickTime _TiggerSpan = TickTime.Default;
         public TickTime TiggerSpan { get { return _TiggerSpan; } private set { _TiggerSpan = value; } }
 
-
         public bool IsTriggered
         {
             get
@@ -113,9 +114,6 @@ namespace AsmodatStandard.Types
                 return false;
             }
         }
-
-
-        private readonly object locker = new object();
 
         /// <summary>
         /// Returns true and resets timeout if it is triggered, else returns false
@@ -181,10 +179,8 @@ namespace AsmodatStandard.Types
         /// </summary>
         public bool Forced { get; set; } = false;
 
-
         private TickTime _Start = TickTime.Default;
         public TickTime Start { get { return _Start; } private set { _Start = value; } }
-
 
         public long Timeout { get; private set; }
         public TickTime.Unit Unit { get; private set; }

@@ -190,8 +190,7 @@ namespace AsmodatStandard.Types
         /// </summary>
         public long Span() => (Now.Ticks - this.Ticks);
         public decimal Span(Unit unit) => (decimal)(Now.Ticks - Ticks) / (decimal)unit;
-        
-
+ 
         public TickTime TickSpan { get => (Now - Ticks); }
 
         [IgnoreDataMember]
