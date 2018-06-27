@@ -6,7 +6,7 @@ namespace AsmodatStandard.Extensions.Threading
 {
     public static class SemaphoreSlimEx
     {
-        public static T Run<T>(this SemaphoreSlim ss, Func<T> func)
+        public static T Lock<T>(this SemaphoreSlim ss, Func<T> func)
         {
             try
             {
@@ -19,7 +19,7 @@ namespace AsmodatStandard.Extensions.Threading
             }
         }
 
-        public static void Run(this SemaphoreSlim ss, Action action)
+        public static void Lock(this SemaphoreSlim ss, Action action)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace AsmodatStandard.Extensions.Threading
             }
         }
 
-        public static async Task<T> RunAsync<T>(this SemaphoreSlim ss, Func<T> func)
+        public static async Task<T> LockAsync<T>(this SemaphoreSlim ss, Func<T> func)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace AsmodatStandard.Extensions.Threading
             }
         }
 
-        public static async Task RunAsync(this SemaphoreSlim ss, Action action)
+        public static async Task LockAsync(this SemaphoreSlim ss, Action action)
         {
             try
             {
@@ -58,7 +58,7 @@ namespace AsmodatStandard.Extensions.Threading
             }
         }
 
-        public static async Task Run<T>(this SemaphoreSlim ss, Func<Task> func)
+        public static async Task Lock<T>(this SemaphoreSlim ss, Func<Task> func)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace AsmodatStandard.Extensions.Threading
             }
         }
 
-        public static async Task<T> Run<T>(this SemaphoreSlim ss, Func<Task<T>> func)
+        public static async Task<T> Lock<T>(this SemaphoreSlim ss, Func<Task<T>> func)
         {
             try
             {

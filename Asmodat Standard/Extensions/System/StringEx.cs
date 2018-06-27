@@ -10,6 +10,8 @@ namespace AsmodatStandard.Extensions
 {
     public static class StringEx
     {
+        public static bool ToBoolOrDefault(this string s, bool @default = default(bool))
+            => bool.TryParse(s, out var result) ? result : @default;
 
         public static int ToIntOrDefault(this string s, int @default = default(int))
             => int.TryParse(s, out var result) ? result : @default;

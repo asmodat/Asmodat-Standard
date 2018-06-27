@@ -9,7 +9,7 @@ namespace AsmodatStandard.Extensions.Threading
         public static Semaphore GetNewOrOpen(string name, int initialCount, int maxCount)
             => Semaphore.TryOpenExisting(name, out var sem) ? sem : new Semaphore(initialCount, maxCount, name);
 
-        public static T Run<T>(this Semaphore s, Func<T> func)
+        public static T Lock<T>(this Semaphore s, Func<T> func)
         {
             try
             {
@@ -22,7 +22,7 @@ namespace AsmodatStandard.Extensions.Threading
             }
         }
 
-        public static void Run(this Semaphore s, Action action)
+        public static void Lock(this Semaphore s, Action action)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace AsmodatStandard.Extensions.Threading
             }
         }
 
-        public static async Task Run<T>(this Semaphore s, Func<Task> func)
+        public static async Task Lock<T>(this Semaphore s, Func<Task> func)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace AsmodatStandard.Extensions.Threading
             }
         }
 
-        public static async Task<T> Run<T>(this Semaphore s, Func<Task<T>> func)
+        public static async Task<T> Lock<T>(this Semaphore s, Func<Task<T>> func)
         {
             try
             {

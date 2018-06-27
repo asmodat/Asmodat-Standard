@@ -12,7 +12,7 @@ namespace AsmodatStandard.Types
 
             this.Message = ex.Message;
             this.Type = ex.GetType().FullName;
-
+            
             if (maxDepth > 0)
             {
                 if (ex.InnerException != null)
