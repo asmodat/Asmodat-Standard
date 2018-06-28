@@ -13,11 +13,11 @@ namespace AsmodatStandard.Extensions.IO
             if (fullName)
                 infos.SortByFullName();
             else
-                Array.Sort(infos, (f1, f2) => f1.Name.CompareTo(f2.Name));
+                Array.Sort(infos, (f1, f2) => f1.Name.ToLower().Trim(' ', '\\', '/').CompareTo(f2.Name.ToLower().Trim(' ', '\\', '/')));
         }
 
         public static void SortByFullName(this FileInfo[] infos)
-            => Array.Sort(infos, (f1, f2) => f1.FullName.CompareTo(f2.FullName));
+            => Array.Sort(infos, (f1, f2) => f1.FullName.ToLower().Trim(' ', '\\', '/').CompareTo(f2.FullName.ToLower().Trim(' ', '\\', '/')));
 
         public static void UnZip(this FileInfo info, string destination, Encoding encoding = null)
             => UnZip(info, new DirectoryInfo(destination), encoding);
