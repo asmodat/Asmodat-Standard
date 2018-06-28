@@ -10,6 +10,48 @@ namespace AsmodatStandard.Extensions
 {
     public static class StringEx
     {
+        public static bool EquailsAny(this string s, StringComparison comparison, params string[] others)
+        {
+            if (others.IsNullOrEmpty())
+                return false;
+
+            foreach (var other in others)
+                if ((other == null && s == null) || other.Equals(s, comparison))
+                    return true;
+
+            return false;
+        }
+
+        public static string ToHexString(this byte[] ba)
+        {
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            foreach (byte b in ba)
+                hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
+        }
+
+        public static byte[] HexToArray(this string hex)
+        {
+            if (hex.StartsWith("0x"))
+                hex = hex.Substring(2, hex.Length - 2);
+
+            byte[] bytes = new byte[hex.Length / 2];
+            for (int i = 0; i < hex.Length; i += 2)
+                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            return bytes;
+        }
+
+        public static bool HexEquals(this string hex1, string hex2) => HexToArray(hex1).SequenceEqual(HexToArray(hex2));
+        public static bool HexEquals(this string hex1, byte[] hex2) => HexToArray(hex1).SequenceEqual(hex2);
+        public static bool HexEquals(this byte[] hex1, byte[] hex2) => hex1.SequenceEqual(hex2);
+        public static bool HexEquals(this byte[] hex1, string hex2) => hex1.SequenceEqual(HexToArray(hex2));
+
+        /// <summary>
+        /// Converts string to byte array, default encoding is UTF8 if not specified
+        /// </summary>
+        public static byte[] ToByteArray(this string s, Encoding encoding = null)
+            => (encoding ?? Encoding.UTF8).GetBytes(s);
+
         public static bool ToBoolOrDefault(this string s, bool @default = default(bool))
             => bool.TryParse(s, out var result) ? result : @default;
 
@@ -35,7 +77,7 @@ namespace AsmodatStandard.Extensions
         /// Math Min of GZip'ed ShannonEntropy and ShannonEntropy on raw string, should provide more accurate entropy value on longer strings
         /// </summary>
         public static double ShannonGZipEntropy(this string str)
-            => Math.Min(str.GZip().ShannonEntropy(), str.ShannonEntropy());
+            => Math.Min(str.GZip(encoding: Encoding.UTF8, level: CompressionLevel.Optimal).ShannonEntropy(), str.ShannonEntropy());
  
         public static double ShannonEntropy(this string str)
         {

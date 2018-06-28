@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 
 namespace AsmodatStandard.Extensions.Collections
 {
@@ -42,6 +43,34 @@ namespace AsmodatStandard.Extensions.Collections
             }
 
             return output;
+        }
+
+        public static T[] Merge<T>(this T[] left, params T[][] right)
+            => left.Merge(right.Merge());
+
+        public static T[] Merge<T>(this T[][] arrays)
+        {
+            if (arrays == null)
+                throw new ArgumentNullException(nameof(arrays));
+
+            if (arrays.Length == 0)
+                return new T[0];
+
+            var result = new T[arrays.Select(x => x?.Length ?? 0).Sum()];
+            var position = 0;
+            for(int i = 0; i < arrays.Length; i++)
+            {
+                if (arrays[i] == null)
+                    continue;
+
+                Array.Copy(arrays[i], 0, result, position, arrays[i].Length);
+                position += arrays[i].Length;
+            }
+
+            if (position == 0 && arrays.All(x => x == null))
+                return null; //return null if all are null
+
+            return result;
         }
 
         /// <summary>
