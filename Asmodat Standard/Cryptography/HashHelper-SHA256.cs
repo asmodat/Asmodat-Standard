@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +9,7 @@ using AsmodatStandard.Threading;
 
 namespace AsmodatStandard.Cryptography
 {
-    public static class HashHelper
+    public static partial class HashHelper
     {
         public static byte[] SHA256(this string str, Encoding encoding = null)
             => str.ToByteArray(encoding ?? Encoding.UTF8).SHA256();
@@ -70,10 +69,10 @@ namespace AsmodatStandard.Cryptography
         public static byte[] SHA256(this FileInfo fi, Encoding encoding)
             => fi.SHA256().Merge(fi.Name.SHA256(encoding)).SHA256();
 
-        public static byte[] SHA256(this Stream s)
+        public static byte[] SHA256(this Stream s, int bufferSize = 65536)
         {
             using (var hm = new SHA256Managed())
-            using (var bs = new BufferedStream(s, 65536))
+            using (var bs = new BufferedStream(s, bufferSize))
             {
                 return hm.ComputeHash(bs);
             }
