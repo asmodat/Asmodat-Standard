@@ -21,8 +21,8 @@ namespace AsmodatStandard.Cryptography.HashHelperTest
 
             zip.UnZip(wkd);
 
-            string hash = "e8e2730bc929465dc1bd75e79597de3acb7c34152a96aac0ee481b19f470eb1b";
-            string hashRootLess = "f43dc22950545061fb493c82947dc0d0fc3bc64d624daec7140263a471a0c16c";
+            string hash = "832dd624016199838c0a3be552b4bb7e00254d8ea394226eb2881308a06902ef";
+            string hashRootLess = "500a49610e9db4a23976e8efe8b4ffe35af5bbdd1b2bfe47054aa351f819afbb";
 
             wkd.Refresh();
             DirectoryAssert.Exists(wkd);
@@ -75,8 +75,8 @@ namespace AsmodatStandard.Cryptography.HashHelperTest
 
             zip.UnZip(wkd);
 
-            string hash = "4fc5c30cf1e82d5d2b8fc135aef06a0c";
-            string hashRootLess = "fd7d410918e112e6393c71d9d5477dc4";
+            string hash = "1f49827d48429d5c30d5ef4be4453a76";
+            string hashRootLess = "ee24db1a413d193cdb4b480086732c4a";
 
             wkd.Refresh();
             DirectoryAssert.Exists(wkd);

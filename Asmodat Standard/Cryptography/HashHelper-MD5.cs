@@ -46,7 +46,7 @@ namespace AsmodatStandard.Cryptography
                     directory => MD5(di: directory, excludeRootName: false, recursive: true, encoding: encoding));
             else
                 dHashes = directories.ForEachAsync(
-                    directory => directory.Name.MD5(encoding));
+                    directory => directory.Name.ToLower().Trim(' ','\\','/').MD5(encoding));
 
             await Task.WhenAll(fHashes, dHashes);
 
@@ -57,7 +57,7 @@ namespace AsmodatStandard.Cryptography
                 return fHash.Merge(dHash).MD5();
             else
             {
-                var dnHash = di.Name.MD5(encoding: encoding);
+                var dnHash = di.Name.ToLower().Trim(' ', '\\', '/').MD5(encoding: encoding);
                 return dnHash.Merge(dHash, fHash).MD5();
             }
         }
@@ -67,7 +67,7 @@ namespace AsmodatStandard.Cryptography
         /// Final Hash = H(H(file).Combine(H(name/fullName)))
         /// </summary>
         public static byte[] MD5(this FileInfo fi, Encoding encoding)
-            => fi.MD5().Merge(fi.Name.MD5(encoding)).MD5();
+            => fi.MD5().Merge(fi.Name.ToLower().Trim(' ', '\\', '/').MD5(encoding)).MD5();
 
         public static byte[] MD5(this Stream s, int bufferSize = 65536)
         {

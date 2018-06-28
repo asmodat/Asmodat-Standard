@@ -46,7 +46,7 @@ namespace AsmodatStandard.Cryptography
                     directory => SHA256(di: directory, excludeRootName: false, recursive: true, encoding: encoding));
             else
                 dHashes = directories.ForEachAsync(
-                    directory => directory.Name.SHA256(encoding));
+                    directory => directory.Name.ToLower().Trim(' ', '\\', '/').SHA256(encoding));
 
             await Task.WhenAll(fHashes, dHashes);
 
@@ -57,7 +57,7 @@ namespace AsmodatStandard.Cryptography
                 return fHash.Merge(dHash).SHA256();
             else
             {
-                var dnHash = di.Name.SHA256(encoding: encoding);
+                var dnHash = di.Name.ToLower().Trim(' ', '\\', '/').SHA256(encoding: encoding);
                 return dnHash.Merge(dHash, fHash).SHA256();
             }
         }
@@ -67,7 +67,7 @@ namespace AsmodatStandard.Cryptography
         /// Final Hash = H(H(file).Combine(H(name/fullName)))
         /// </summary>
         public static byte[] SHA256(this FileInfo fi, Encoding encoding)
-            => fi.SHA256().Merge(fi.Name.SHA256(encoding)).SHA256();
+            => fi.SHA256().Merge(fi.Name.ToLower().Trim(' ', '\\', '/').SHA256(encoding)).SHA256();
 
         public static byte[] SHA256(this Stream s, int bufferSize = 65536)
         {
