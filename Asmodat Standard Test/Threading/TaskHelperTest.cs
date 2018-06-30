@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using AsmodatStandard.Extensions.Threading;
 using System.Diagnostics;
 using System;
+using AsmodatStandard.Threading;
 
-namespace AsmodatStandard.Threading.TaskHelperTest
+namespace AsmodatStandardTest.Threading.TaskHelperTest
 {
     [TestFixture]
     public class TaskHelperTest

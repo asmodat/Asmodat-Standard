@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
+using AsmodatStandard.Extensions;
 
-namespace AsmodatStandard.Extensions.StringExTests
+namespace AsmodatStandardTest.Extensions.StringExTests
 {
     [TestFixture]
     public class StringExTest

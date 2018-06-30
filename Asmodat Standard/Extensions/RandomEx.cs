@@ -8,10 +8,61 @@ namespace AsmodatStandard.Extensions
     {
         public static readonly Random Instance = new Random(Guid.NewGuid().GetHashCode());
 
+        public static DateTime DateTime(DateTimeKind kind = DateTimeKind.Utc)
+            => new DateTime(Next(0, (TimeSpan.TicksPerDay*(long)(365.25 * 9996))), kind);
+
+        public static bool NextBool()
+            => Instance.Next() % 2 == 0 ? true : false;
+
+        public static long Next(long min, long max)
+        {
+            if (max <= min)
+                throw new ArgumentOutOfRangeException($"max must be > min, Min: {min}, Max: {max}");
+
+            ulong uRange = (ulong)(max - min);
+
+            //Modolo bias; see https://stackoverflow.com/a/10984975/238419
+            ulong ulongRand;
+            do
+            {
+                var buf = new byte[8];
+                Instance.NextBytes(buf);
+                ulongRand = (ulong)BitConverter.ToInt64(buf, 0);
+            } while (ulongRand > ulong.MaxValue - ((ulong.MaxValue % uRange) + 1) % uRange);
+
+            return (long)(ulongRand % uRange) + min;
+        }
+
         /// <summary>
         /// Random value from the range of [min, max)
         /// </summary>
         public static int Next(int min, int max) => Instance.Next(min, max);
+
+        public static int NextEven(int min, int max)
+        {
+            if (min == (max-1) && min % 2 != 0)
+                throw new ArgumentException($"Not a single even value is present within range <{min};{max})");
+
+            var val = Instance.Next(min, max);
+
+            if (val % 2 == 0)
+                return val;
+
+            return (val + 1 >= max) ? --val : ++val;
+        }
+
+        public static int NextOdd(int min, int max)
+        {
+            if (min == (max - 1) && min % 2 == 0)
+                throw new ArgumentException($"Not a single odd value is present within range <{min};{max})");
+
+            var val = Instance.Next(min, max);
+
+            if (val % 2 != 0)
+                return val;
+
+            return (val + 1 >= max) ? --val : ++val;
+        }
 
         /// <summary>
         /// Random value from the range of [0, max)

@@ -1,9 +1,10 @@
-﻿using NUnit.Framework;
+﻿using AsmodatStandard.Extensions;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AsmodatStandard.Extensions.RandomExTests
+namespace AsmodatStandardTest.Extensions.RandomExTests
 {
     [TestFixture]
     public class RandomExTest

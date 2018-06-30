@@ -1,12 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace AsmodatStandard.Extensions.Collections
 {
     public static class IEnumerableEx
     {
+        public static T[] ToEvenArray<T>(this IEnumerable<T> values)
+        {
+            var arr = values.ToArray();
+
+            if (arr.Length <= 1)
+                return new T[0];
+
+            if (arr.Length % 2 == 0)
+                return arr;
+
+           return arr.SubArray(0, arr.Length - 1);
+        }
+
+        public static T[] ToOddArray<T>(this IEnumerable<T> values)
+        {
+            var arr = values.ToArray();
+
+            if (arr.Length <= 0)
+                return null;
+
+            if (arr.Length % 2 != 0)
+                return arr;
+
+            return arr.SubArray(0, arr.Length - 1);
+        }
+
+        public static string StringJoin<T>(this IEnumerable<T> values, string separator = ",")
+            => string.Join<T>(separator, values);
+
+        public static string StringPairJoin<T>(this IEnumerable<T> values, string pairSeparator = "-", string separator = ",")
+        {
+            var arr = values.ToArray();
+            if (arr.Length % 2 != 0)
+                throw new ArgumentException($"Can't pair join collection with odd number of items ({arr.Length})");
+
+            if (arr.Length == 0)
+                return string.Empty;
+
+            var sb = new StringBuilder();
+            for(int i = 0; i < arr.Length; i += 2)
+                sb.Append($"{arr[i]}{pairSeparator}{arr[i + 1]}{separator}");
+            
+            return sb.ToString().Substring(0, sb.Length - separator.Length);
+        }
+
         public static IEnumerable<T> ToIEnumerable<T>(this IEnumerable<T> arr) => arr.Cast<T>();
 
         public static IEnumerable<T> ConcatOrDefault<T>(this IEnumerable<T> left, IEnumerable<T> right)

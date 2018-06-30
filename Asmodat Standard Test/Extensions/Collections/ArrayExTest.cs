@@ -1,7 +1,8 @@
-﻿using NUnit.Framework;
+﻿using AsmodatStandard.Extensions.Collections;
+using NUnit.Framework;
 using System.Linq;
 
-namespace AsmodatStandard.Extensions.Collections.ArrayExTest
+namespace AsmodatStandardTest.Extensions.Collections.ArrayExTest
 {
     [TestFixture]
     public class ArrayExTest

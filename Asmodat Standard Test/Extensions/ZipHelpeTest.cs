@@ -1,10 +1,11 @@
-﻿using NUnit.Framework;
+﻿using AsmodatStandard.Extensions;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace AsmodatStandard.Extensions.StringExTests
+namespace AsmodatStandardTest.Extensions.StringExTests
 {
     [TestFixture]
     public class ZipHelperTest
