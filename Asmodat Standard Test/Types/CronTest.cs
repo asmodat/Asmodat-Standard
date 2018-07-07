@@ -225,5 +225,93 @@ namespace AsmodatStandardTest.Threading.CronTest
                 }
             }
         }
+
+        [Test]
+        public void RandomModuloCronTest()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                int m_mod = RandomEx.Next(1, 60);
+                int h_mod = RandomEx.Next(1, 24);
+                int d_mod = RandomEx.Next(1, 32);
+                int M_mod = RandomEx.Next(1, 13);
+                int D_mod = RandomEx.Next(1, 8);
+                int y_mod = RandomEx.Next(1, 100);
+
+                int m_shift = RandomEx.Next(1, 60);
+                int h_shift = RandomEx.Next(1, 24);
+                int d_shift = RandomEx.Next(1, 32);
+                int M_shift = RandomEx.Next(1, 13);
+                int D_shift = RandomEx.Next(1, 8);
+                int y_shift = RandomEx.Next(1, 100);
+
+                var mVal = RandomEx.NextBool() ? "*" : $"{m_shift}/{m_mod}";
+                var hVal = RandomEx.NextBool() ? "*" : $"{h_shift}/{h_mod}";
+                var dVal = RandomEx.NextBool() ? "*" : $"{d_shift}/{d_mod}";
+                var MVal = RandomEx.NextBool() ? "*" : $"{M_shift}/{M_mod}";
+                var DVal = RandomEx.NextBool() ? "*" : $"{D_shift}/{D_mod}";
+                var yVal = RandomEx.NextBool() ? "*" : $"{y_shift}/{y_mod}";
+
+                var c = CronEx.ToCron($"{mVal} {hVal} {dVal} {MVal} {DVal} {yVal}");
+
+                for (int i2 = 0; i2 < 1000; i2++)
+                {
+                    var dt = RandomEx.DateTime().Truncate(TimeSpan.FromMinutes(1));
+                    var cmp = c.Compare(dt);
+
+                    var mPass = mVal == "*";
+                    var hPass = hVal == "*";
+                    var dPass = dVal == "*";
+                    var MPass = MVal == "*";
+                    var DPass = DVal == "*";
+                    var yPass = yVal == "*";
+
+                    if (cmp == 0)
+                    {
+                        if (!mPass)
+                            Assert.IsTrue((dt.Minute - m_shift) % m_mod == 0);
+
+                        if (!hPass)
+                            Assert.IsTrue((dt.Hour - h_shift) % h_mod == 0);
+
+                        if (!dPass)
+                            Assert.IsTrue((dt.Day - d_shift) % d_mod == 0);
+
+                        if (!MPass)
+                            Assert.IsTrue((dt.Month - M_shift) % M_mod == 0);
+
+                        if (!DPass)
+                            Assert.IsTrue((((int)dt.DayOfWeek + 1) - D_shift) % D_mod == 0);
+
+                        if (!yPass)
+                            Assert.IsTrue((dt.Year - y_shift) % y_mod == 0);
+                    }
+                    else
+                    {
+                        bool fail = false;
+
+                        if (!mPass)
+                            fail = ((dt.Minute - m_shift) % m_mod != 0);
+
+                        if (!fail && !hPass)
+                            fail = ((dt.Hour - h_shift) % h_mod != 0);
+
+                        if (!fail && !dPass)
+                            fail = ((dt.Day - d_shift) != 0);
+
+                        if (!fail && !MPass)
+                            fail = ((dt.Month - M_shift) != 0);
+
+                        if (!fail && !DPass)
+                            fail = ((((int)dt.DayOfWeek + 1) - D_shift) % D_mod != 0);
+
+                        if (!fail && !yPass)
+                            fail = ((dt.Year - y_shift) % y_mod != 0);
+
+                        Assert.IsTrue(fail);
+                    }
+                }
+            }
+        }
     }
 }

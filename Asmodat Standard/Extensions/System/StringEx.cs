@@ -10,6 +10,9 @@ namespace AsmodatStandard.Extensions
 {
     public static class StringEx
     {
+        public static MemoryStream ToMemoryStream(this string s, Encoding encoding = null)
+            => new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(s));
+
         public static bool EquailsAny(this string s, StringComparison comparison, params string[] others)
         {
             if (others.IsNullOrEmpty())

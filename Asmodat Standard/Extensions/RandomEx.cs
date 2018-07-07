@@ -8,6 +8,14 @@ namespace AsmodatStandard.Extensions
     {
         public static readonly Random Instance = new Random(Guid.NewGuid().GetHashCode());
 
+        public static double NextDouble(double min, double max)
+        {
+            if (min > max)
+                throw new ArgumentException($"{nameof(min)} can't be gteater then {nameof(max)}, but was min: {min}, max: {max}");
+
+            return Instance.NextDouble() * (max - min) + min;
+        }
+
         public static DateTime DateTime(DateTimeKind kind = DateTimeKind.Utc)
             => new DateTime(Next(0, (TimeSpan.TicksPerDay*(long)(365.25 * 9996))), kind);
 

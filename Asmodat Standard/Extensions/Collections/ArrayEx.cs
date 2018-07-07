@@ -6,6 +6,15 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class ArrayEx
     {
+        public static void CopyTo<T>(this T[] source, T[] destination, int destinationIndex)
+            => Array.Copy(source, 0, destination, destinationIndex, source.Length);
+
+        public static void CopyTo<T>(this T[] source, int sourceIndex, T[] destination, int destinationIndex)
+            => Array.Copy(source, sourceIndex, destination, destinationIndex, source.Length - sourceIndex);
+
+        public static void CopyTo<T>(this T[] source, int sourceIndex, T[] destination, int destinationIndex, int length)
+            => Array.Copy(source, sourceIndex, destination, destinationIndex, length);
+
         public static T GetValueOrDefault<T>(this T[][] arr, int x, int y, T @default = default(T))
             => (arr.IsNullOrEmpty() ||  arr.Height() <= y || arr[y].Length <= x) ? @default : arr[y][x];
         
