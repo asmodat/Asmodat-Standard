@@ -4,11 +4,15 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace AsmodatStandard.Extensions
 {
     public static class HttpHelper
     {
+        public static string UriEncode(this string str) => HttpUtility.UrlEncode(str);
+        public static string UriDecode(this string str) => HttpUtility.UrlDecode(str);
+
         public static async Task<T> GET<T>(Uri uri, HttpStatusCode? ensureStatusCode = null, (string key, string value)[] defaultHeaders = null)
             => await GET<T>(uri.ToString(), ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders);
 

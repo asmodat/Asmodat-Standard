@@ -319,6 +319,30 @@ namespace AsmodatStandard.Extensions.Collections
             return ++i;
         }
 
+        /// <summary>
+        /// foreach that passess result of all previous operations back into the function
+        /// </summary>
+        public static IEnumerable<T2> ForEachWithAllPrevious<T1, T2>(this IEnumerable<T1> source, Func<T1, IEnumerable<T2>, T2> a)
+        {
+            var items = new List<T2>();
+            foreach (T1 item in source)
+                items.Add(a(item, items));
+
+            return items;
+        }
+
+        /// <summary>
+        /// ForEach that passess result of a previous operations back into the function and returns the last result
+        /// </summary>
+        public static T2 ForEachWithPrevious<T, T2>(this IEnumerable<T> source, Func<T, T2, T2> a, T2 initial = default(T2))
+        {
+            var previous = initial;
+            foreach (T item in source)
+                previous = a(item, previous);
+
+            return previous;
+        }
+
         public static async Task ParallelForEach<T>(this IEnumerable<T> source, Func<T, Task> a)
         {
             var tasks = new List<Task>();

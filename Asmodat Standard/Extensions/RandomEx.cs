@@ -1,12 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace AsmodatStandard.Extensions
 {
     public static class RandomEx
     {
         public static readonly Random Instance = new Random(Guid.NewGuid().GetHashCode());
+
+        public static string NextString(int length, int minCharCode, int maxCharCode)
+        {
+            var max = maxCharCode + 1;
+            var builder = new StringBuilder(length);
+            var random = new Random();
+            for (var i = 0; i < length; i++)
+                builder.Append((char)Next(minCharCode, max));
+            
+            return builder.ToString();
+        }
+
+        public static string NextStringASCI(int length)
+            => NextString(length, 0, 127);
 
         public static double NextDouble(double min, double max)
         {

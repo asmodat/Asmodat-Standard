@@ -10,6 +10,18 @@ namespace AsmodatStandard.Extensions
 {
     public static class StringEx
     {
+        public static string ReplaceMany(this string str, char with, params char[] chars)
+            => str.ReplaceMany(with.ToString(), chars);
+
+        public static string ReplaceMany(this string str, char with, params string[] strings)
+            => str.ReplaceMany(with.ToString(), strings);
+
+        public static string ReplaceMany(this string str, string with, params string[] strings)
+            => strings.ForEachWithPrevious((s, previous) => previous.Replace(s, with), str);
+
+        public static string ReplaceMany(this string str, string with, params char[] chars)
+            => chars.ForEachWithPrevious((c, previous) => previous.Replace(c.ToString(), with), str);
+
         public static MemoryStream ToMemoryStream(this string s, Encoding encoding = null)
             => new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(s));
 
@@ -20,6 +32,18 @@ namespace AsmodatStandard.Extensions
 
             foreach (var other in others)
                 if ((other == null && s == null) || other.Equals(s, comparison))
+                    return true;
+
+            return false;
+        }
+
+        public static bool ContainsAny(this string s, params string[] others)
+        {
+            if (others.IsNullOrEmpty())
+                return false;
+
+            foreach (var other in others)
+                if ((other == null && s == null) || s.Contains(other))
                     return true;
 
             return false;
