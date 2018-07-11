@@ -23,7 +23,7 @@ namespace AsmodatStandard.Extensions.IO
             return new MemoryStream(total == maxLength ? result : result.SubArray(0, total));
         }
 
-        public static MemoryStream CopyToMemoryStream(this Stream stream, int bufferSize = 128 * 1024)
+        public static byte[] ToArray(this Stream stream, int bufferSize = 256 * 1024)
         {
             int read = 0;
             var buffer = new byte[bufferSize];
@@ -31,7 +31,10 @@ namespace AsmodatStandard.Extensions.IO
             while ((read = stream.Read(buffer, 0, bufferSize)) > 0)
                 result.AddRange(buffer.SubArray(0, read));
 
-            return new MemoryStream(result.ToArray());
+            return result.ToArray();
         }
+
+        public static MemoryStream CopyToMemoryStream(this Stream stream, int bufferSize = 256 * 1024)
+            => new MemoryStream(stream.ToArray(bufferSize: bufferSize));
     }
 }
