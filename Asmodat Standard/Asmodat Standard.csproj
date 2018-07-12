@@ -10,13 +10,21 @@
     <PackageId>Asmodat.Standard</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageReleaseNotes>2018-07-10</PackageReleaseNotes>
-    <Version>1.0.0.5</Version>
+    <Version>1.0.0.6</Version>
     <PackageProjectUrl>https://github.com/asmodat/Asmodat-Standard</PackageProjectUrl>
     <PackageTags>Asmodat Standard, Asmodat, AsmodatStandard, Extensions, Standard</PackageTags>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Company>AsmodatStandard</Company>
     <PackageIconUrl>https://avatars3.githubusercontent.com/u/10515811</PackageIconUrl>
     <Authors>AsmodatStandard</Authors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

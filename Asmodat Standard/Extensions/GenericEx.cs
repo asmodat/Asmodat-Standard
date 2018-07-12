@@ -15,6 +15,42 @@ namespace AsmodatStandard.Extensions
         public static bool EquailsAny<T>(this T o, params T[] others) where T : IEquatable<T>
             => o.EquailsAny<T, T>(others);
 
+        /// <summary>
+        /// checks if all elements of sequence a2 are contained in a1
+        /// </summary>
+        public static bool ContainsAll<T>(this T[] a1, params T[] a2) where T : IEquatable<T>
+        {
+            var dA1 = a1.Distinct();
+            var dA2 = a2.Distinct();
+
+            if (dA2.Length != dA2.Length)
+                return false;
+
+            foreach (var v in dA1)
+                if (!v.EquailsAny<T>(dA2))
+                    return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// checks if all elements of sequence a2 are contained in a1
+        /// </summary>
+        public static bool ContainsAll<T1, T2>(this T1[] a1, params T2[] a2) where T1 : IEquatable<T2>
+        {
+            var dA1 = a1.Distinct();
+            var dA2 = a2.Distinct();
+
+            if (dA2.Length != dA2.Length)
+                return false;
+
+            foreach (var v in dA1)
+                if (!v.EquailsAny(dA2))
+                    return false;
+
+            return true;
+        }
+
         public static bool EquailsAny<T1, T2>(this T1 o, params T2[] others) where T1 : IEquatable<T2>
         {
             if (others.IsNullOrEmpty())
