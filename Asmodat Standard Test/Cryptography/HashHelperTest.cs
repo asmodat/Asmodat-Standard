@@ -5,7 +5,7 @@ using AsmodatStandard.Extensions.IO;
 using System.Threading.Tasks;
 using AsmodatStandard.Cryptography;
 
-namespace AsmodatStandardTest.Cryptography.HashHelperTest
+namespace AsmodatStandardTest.Cryptography
 {
     [TestFixture]
     public class HashHelperTest

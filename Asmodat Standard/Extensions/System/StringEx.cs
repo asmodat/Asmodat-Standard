@@ -10,6 +10,19 @@ namespace AsmodatStandard.Extensions
 {
     public static class StringEx
     {
+        public static bool StartsAndEndsWith(this string str, string subStr)
+            => str.StartsWith(subStr) && str.EndsWith(subStr);
+
+        public static bool StartsOrEndsWith(this string str, string subStr)
+            => str.StartsWith(subStr) || str.EndsWith(subStr);
+
+        public static string SetChar(this string s, int index, char c)
+        {
+            var arr = s.ToCharArray();
+            arr[index] = c;
+            return new string(arr);
+        }
+
         public static string ReplaceMany(this string str, char with, params char[] chars)
             => str.ReplaceMany(with.ToString(), chars);
 
@@ -21,6 +34,12 @@ namespace AsmodatStandard.Extensions
 
         public static string ReplaceMany(this string str, string with, params char[] chars)
             => chars.ForEachWithPrevious((c, previous) => previous.Replace(c.ToString(), with), str);
+
+        public static string ReplaceMany(this string str, params (string oldStr, string newStr)[] reps)
+        {
+            reps.ForEach(r => str = str.Replace(r.oldStr, r.newStr));
+            return str;
+        }
 
         public static MemoryStream ToMemoryStream(this string s, Encoding encoding = null)
             => new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(s));
@@ -78,6 +97,8 @@ namespace AsmodatStandard.Extensions
         /// </summary>
         public static byte[] ToByteArray(this string s, Encoding encoding = null)
             => (encoding ?? Encoding.UTF8).GetBytes(s);
+
+        public static bool ToBool(this string s)  => bool.Parse(s);
 
         public static bool ToBoolOrDefault(this string s, bool @default = default(bool))
             => bool.TryParse(s, out var result) ? result : @default;

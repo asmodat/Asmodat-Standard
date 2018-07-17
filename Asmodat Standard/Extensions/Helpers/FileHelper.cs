@@ -68,7 +68,7 @@ namespace AsmodatStandard.Extensions
                 return serializer.Deserialize<T>(jsonReader);
         }
 
-        public static T DeserialiseJson<T>(FileInfo fi) => DeserialiseJson<T>(fi.FullName);
+        public static T DeserialiseJson<T>(this FileInfo fi) => DeserialiseJson<T>(fi.FullName);
 
         public static bool IsEmptyOrWhiteSpace(string path) => new FileInfo(path).IsEmptyOrWhiteSpace();
         public static bool IsEmpty(string path) => new FileInfo(path).IsEmpty();
@@ -76,6 +76,9 @@ namespace AsmodatStandard.Extensions
         public static bool IsEmptyOrWhiteSpace(this FileInfo fi) => string.IsNullOrWhiteSpace(File.ReadAllText(fi.FullName));
         public static bool IsEmpty(this FileInfo fi) => string.IsNullOrEmpty(File.ReadAllText(fi.FullName));
         public static string NameWithoutExtension(this FileInfo fi) => Path.GetFileNameWithoutExtension(fi.Name);
+
+        public static void WriteAllText(this FileInfo fileInfo, string text, CompressionLevel compress = CompressionLevel.NoCompression)
+            => WriteAllText(fileInfo.FullName, text, compress);
 
         /// <summary>
         /// overrides existing file or creates it and replaces the content with text using UTF8 encoding
@@ -138,7 +141,7 @@ namespace AsmodatStandard.Extensions
             var di = new DirectoryInfo(path);
             var files = di.GetFiles(searchPattern, searchOption);
             var result = new Dictionary<FileInfo, T>();
-            files?.ForEach(file => result.Add(file, DeserialiseJson<T>(file)));
+            files?.ForEach(file => result.Add(file, file.DeserialiseJson<T>()));
             return result;
         }
     }

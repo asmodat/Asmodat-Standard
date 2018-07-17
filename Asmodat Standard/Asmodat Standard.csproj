@@ -9,8 +9,8 @@
     <Description>Multipurpose .NET Standard Extensions</Description>
     <PackageId>Asmodat.Standard</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <PackageReleaseNotes>2018-07-12</PackageReleaseNotes>
-    <Version>1.0.0.7</Version>
+    <PackageReleaseNotes>2018-07-17</PackageReleaseNotes>
+    <Version>1.0.0.8</Version>
     <PackageProjectUrl>https://github.com/asmodat/Asmodat-Standard</PackageProjectUrl>
     <PackageTags>Asmodat Standard, Asmodat, AsmodatStandard, Extensions, Standard</PackageTags>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>

@@ -9,6 +9,23 @@ namespace AsmodatStandard.Extensions
     {
         public static readonly Random Instance = new Random(Guid.NewGuid().GetHashCode());
 
+        public static byte[] NextBytes(int length)
+        {
+            var arr = new byte[length];
+            Instance.NextBytes(arr);
+            return arr;
+        }
+
+        public static string NextHexString(int digits)
+        {
+            byte[] buffer = new byte[digits / 2];
+            Instance.NextBytes(buffer);
+            string result = String.Concat(buffer.Select(x => x.ToString("X2")).ToArray());
+            if (digits % 2 == 0)
+                return result;
+            return result + Instance.Next(16).ToString("X");
+        }
+
         public static string NextString(int length, int minCharCode, int maxCharCode)
         {
             var max = maxCharCode + 1;
@@ -17,6 +34,27 @@ namespace AsmodatStandard.Extensions
             for (var i = 0; i < length; i++)
                 builder.Append((char)Next(minCharCode, max));
             
+            return builder.ToString();
+        }
+
+        public static string NextAlphanumeric(int length)
+        {
+            var builder = new StringBuilder(length);
+            var random = new Random();
+            int iChar;
+            for (var i = 0; i < length; i++)
+            {
+                do
+                {
+                    iChar = Next(48, 123);
+                } while (
+                !((iChar >= 48 && iChar <= 57) || //number
+                (iChar >= 65 && iChar <= 90) || //uppercase
+                (iChar >= 97 && iChar <= 122))); //lowercase
+
+                builder.Append((char)iChar);
+            }
+
             return builder.ToString();
         }
 

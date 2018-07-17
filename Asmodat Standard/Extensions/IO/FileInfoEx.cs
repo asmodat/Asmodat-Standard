@@ -6,6 +6,23 @@ namespace AsmodatStandard.Extensions.IO
 {
     public static class FileInfoEx
     {
+        public static bool TryDelete(this FileInfo fileInfo)
+        {
+            if (fileInfo == null)
+                throw new ArgumentNullException($"{nameof(TryDelete)} failed, {nameof(fileInfo)} was null.");
+
+            try
+            {
+                fileInfo.Delete();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+
+        }
+
         public static FileInfo ToFileInfo(this string file) => file == null ? null : new FileInfo(file);
 
         public static void SortByName(this FileInfo[] infos, bool fullName = false)
