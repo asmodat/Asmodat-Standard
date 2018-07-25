@@ -9,8 +9,8 @@
     <Description>Multipurpose .NET Standard Extensions</Description>
     <PackageId>Asmodat.Standard</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <PackageReleaseNotes>2018-07-17</PackageReleaseNotes>
-    <Version>1.0.0.8</Version>
+    <PackageReleaseNotes>2018-07-25</PackageReleaseNotes>
+    <Version>1.0.0.9</Version>
     <PackageProjectUrl>https://github.com/asmodat/Asmodat-Standard</PackageProjectUrl>
     <PackageTags>Asmodat Standard, Asmodat, AsmodatStandard, Extensions, Standard</PackageTags>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
@@ -30,6 +30,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="NUnit" Version="3.10.1" />
     <PackageReference Include="protobuf-net" Version="2.3.3" />
     <PackageReference Include="System.IO.Compression.ZipFile" Version="4.3.0" />
     <PackageReference Include="System.Threading.AccessControl" Version="4.4.0" />
