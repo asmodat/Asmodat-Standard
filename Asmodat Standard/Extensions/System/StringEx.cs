@@ -10,6 +10,36 @@ namespace AsmodatStandard.Extensions
 {
     public static class StringEx
     {
+        public static string TrimStartSingle(this string target, string trim)
+            => target.TrimStart(trim, count: 1);
+
+        public static string TrimEndSingle(this string target, string trim)
+            => target.TrimStart(trim, count: 1);
+
+        public static string TrimStart(this string target, string trim, int count = int.MaxValue)
+        {
+            if (trim.IsNullOrEmpty())
+                return target;
+
+            var result = target;
+            while (--count >= 0 && result.StartsWith(trim))
+                result = result.Substring(trim.Length);
+
+            return result;
+        }
+
+        public static string TrimEnd(this string target, string trim, int count = int.MaxValue)
+        {
+            if (trim.IsNullOrEmpty())
+                return target;
+
+            var result = target;
+            while (--count >= 0 && result.EndsWith(trim))
+                result = result.Substring(0, result.Length - trim.Length);
+
+            return result;
+        }
+
         public static bool StartsAndEndsWith(this string str, string subStr)
             => str.StartsWith(subStr) && str.EndsWith(subStr);
 
@@ -112,8 +142,24 @@ namespace AsmodatStandard.Extensions
         public static double ToDoubleOrDefault(this string s, double @default = default(double))
             => double.TryParse(s,out var result) ? result : @default;
 
+        /// <summary>
+        /// Splits sting by the first occurence of 'c'
+        /// </summary>
         public static string[] SplitByFirst(this string s, char c)
             => s.Split(new char[] { c }, 2);
+
+        public static string[] SplitByLast(this string s, char c)
+        {
+            int idx = s.LastIndexOf(c);
+
+            if ((idx + 1) == s.Length)
+                return new string[] { s.Substring(0, idx), null };
+
+            if (idx != -1)
+                return new string[] { s.Substring(0, idx), s.Substring(idx + 1) };
+            else
+                return new string[] { s };
+        }
 
         public static string Replace(this string str, params (string to, string with)[] replace)
         {

@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Globalization;
 
 namespace AsmodatStandard.Extensions
 {
     public static class DateTimeEx
     {
+        public static string ToRfc3339String(this DateTime dt)
+            => dt.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz", DateTimeFormatInfo.InvariantInfo);
+        
         public static DateTime Truncate(this DateTime dateTime, TimeSpan timeSpan)
         {
             if (timeSpan == TimeSpan.Zero)

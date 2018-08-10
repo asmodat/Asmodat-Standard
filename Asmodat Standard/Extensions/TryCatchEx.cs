@@ -8,6 +8,28 @@ namespace AsmodatStandard.Extensions
 
     public static class TryCatchEx
     {
+        public static Task<Exception> CatchExceptionAsync(this Task task, bool catchDisable = false)
+            => task.CatchExceptionAsync<Exception>(catchDisable: catchDisable);
+
+        public static async Task<E> CatchExceptionAsync<E>(this Task task, bool catchDisable = false) where E : Exception
+        {
+            if (catchDisable)
+            {
+                await task;
+                return null;
+            }
+
+            try
+            {
+                await task;
+                return null;
+            }
+            catch (E exception)
+            {
+                return exception;
+            }
+        }
+
         public static T? FuncNullable<T>(this Func<T> func, T? @default = null) where T : struct
             => (func.Func(out T val, out Exception ex, @default ?? default(T))) ? val : @default;
 
