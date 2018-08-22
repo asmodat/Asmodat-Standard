@@ -53,17 +53,17 @@ namespace AsmodatStandard.Extensions
             return new string(arr);
         }
 
-        public static string ReplaceMany(this string str, char with, params char[] chars)
-            => str.ReplaceMany(with.ToString(), chars);
+        public static string ReplaceMany(this string str, char newValue, params char[] oldValues)
+            => str.ReplaceMany(newValue.ToString(), oldValues);
 
-        public static string ReplaceMany(this string str, char with, params string[] strings)
-            => str.ReplaceMany(with.ToString(), strings);
+        public static string ReplaceMany(this string str, char newValue, params string[] oldValues)
+            => str.ReplaceMany(newValue.ToString(), oldValues);
 
-        public static string ReplaceMany(this string str, string with, params string[] strings)
-            => strings.ForEachWithPrevious((s, previous) => previous.Replace(s, with), str);
+        public static string ReplaceMany(this string str, string newValue, params string[] oldValues)
+            => oldValues.ForEachWithPrevious((s, previous) => previous.Replace(s, newValue), str);
 
-        public static string ReplaceMany(this string str, string with, params char[] chars)
-            => chars.ForEachWithPrevious((c, previous) => previous.Replace(c.ToString(), with), str);
+        public static string ReplaceMany(this string str, string newValue, params char[] chars)
+            => chars.ForEachWithPrevious((c, previous) => previous.Replace(c.ToString(), newValue), str);
 
         public static string ReplaceMany(this string str, params (string oldStr, string newStr)[] reps)
         {

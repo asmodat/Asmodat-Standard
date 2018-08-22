@@ -91,9 +91,9 @@ namespace AsmodatStandard.Extensions.Collections
         public static IEnumerable<T> SelectMany<T>(this IEnumerable<IEnumerable<T>> source)
             => source?.SelectMany(x => x);
         
-            /// <summary>
-            /// splits source into (up to) n elemets
-            /// </summary>
+        /// <summary>
+        /// splits source into (up to) n elemets
+        /// </summary>
         public static List<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int n)
         {
             var length = source.Count();
@@ -111,6 +111,30 @@ namespace AsmodatStandard.Extensions.Collections
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Slices collection into groups of max n elements each
+        /// </summary>
+        public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int count)
+        {
+            if (count <= 0)
+                throw new ArgumentException($"count can't be less or equal 0, but was {count}");
+
+            var list = new List<T>();
+            foreach(var e in source)
+            {
+                list.Add(e);
+
+                if (list.Count == count)
+                {
+                    yield return list;
+                    list = new List<T>();
+                }
+            }
+
+            if (!list.IsNullOrEmpty())
+                yield return list;
         }
 
         public static async Task<IEnumerable<K>> SelectManyAsync<T, K>(this IEnumerable<T> enumeration, Func<T, Task<IEnumerable<K>>> func)

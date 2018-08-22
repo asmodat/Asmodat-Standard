@@ -6,6 +6,9 @@ namespace AsmodatStandard.Extensions.IO
 {
     public static class FileInfoEx
     {
+        public static void Copy(this FileInfo source, FileInfo destination, bool @override = false)
+            => File.Copy(source.FullName, destination.FullName, @override);
+
         public static bool TryDelete(this FileInfo fileInfo)
         {
             if (fileInfo == null)
@@ -21,6 +24,17 @@ namespace AsmodatStandard.Extensions.IO
                 return false;
             }
 
+        }
+
+        public static string ToLinuxPath(this string path)
+        {
+            if (path.IsNullOrEmpty())
+                throw new ArgumentNullException($"{nameof(path)}");
+
+            if (path.Length >= 2 && path[1] == ':')
+                return "/" + path.ReplaceMany("/", "\\", ":");
+            else
+                return path.Replace("\\","/");
         }
 
         public static FileInfo ToFileInfo(this string file) => file == null ? null : new FileInfo(file);

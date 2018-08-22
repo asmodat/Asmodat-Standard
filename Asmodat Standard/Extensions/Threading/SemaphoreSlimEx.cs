@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -58,6 +59,32 @@ namespace AsmodatStandard.Extensions.Threading
             }
         }
 
+        public static async Task<T> LockAsync<T>(this SemaphoreSlim ss, Task<T> task)
+        {
+            try
+            {
+                await ss.WaitAsync();
+                return await task;
+            }
+            finally
+            {
+                ss.Release();
+            }
+        }
+
+        public static async Task LockAsync(this SemaphoreSlim ss, Task task)
+        {
+            try
+            {
+                await ss.WaitAsync();
+                await task;
+            }
+            finally
+            {
+                ss.Release();
+            }
+        }
+
         public static async Task Lock<T>(this SemaphoreSlim ss, Func<Task> func)
         {
             try
@@ -80,6 +107,44 @@ namespace AsmodatStandard.Extensions.Threading
             }
             finally
             {
+                ss.Release();
+            }
+        }
+
+        public static async Task TimeLock<T>(this Stopwatch sw, int rateLimit_ms, SemaphoreSlim ss, Func<Task> func)
+        {
+            try
+            {
+                await ss.WaitAsync();
+                await func();
+            }
+            finally
+            {
+                var left = rateLimit_ms - sw.ElapsedMilliseconds;
+
+                if (left > 0)
+                    await Task.Delay((int)left);
+
+                sw.Restart();
+                ss.Release();
+            }
+        }
+
+        public static async Task<T> TimeLock<T>(this Stopwatch sw, int rateLimit_ms, SemaphoreSlim ss, Func<Task<T>> func)
+        {
+            try
+            {
+                await ss.WaitAsync();
+                return await func();
+            }
+            finally
+            {
+                var left = rateLimit_ms - sw.ElapsedMilliseconds;
+
+                if (left > 0)
+                    await Task.Delay((int)left);
+
+                sw.Restart();
                 ss.Release();
             }
         }

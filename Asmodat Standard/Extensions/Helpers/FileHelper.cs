@@ -13,6 +13,22 @@ namespace AsmodatStandard.Extensions
 {
     public static class FileHelper
     {
+        public static bool IsDirectory(this string path)
+        {
+            if (!Directory.Exists(path) && !File.Exists(path))
+                throw new Exception($"Directory '{path}' does NOT exist.");
+
+            return File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+        }
+
+        public static bool IsFile(this string path)
+        {
+            if (!File.Exists(path) && !Directory.Exists(path))
+                throw new Exception($"File '{path}' does NOT exist.");
+
+            return !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+        }
+
         public static void FileNamesReplace(string path, string to_replace, string to_replace_with, string seachPattern = "*", SearchOption options = SearchOption.AllDirectories)
         {
             var files = (new DirectoryInfo(path)).GetFiles(seachPattern, options).Where(file => file.Name.Contains(to_replace)).ToArray();

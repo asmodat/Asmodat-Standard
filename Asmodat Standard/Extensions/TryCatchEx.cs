@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace AsmodatStandard.Extensions
 {
-    
-
     public static class TryCatchEx
     {
         public static Task<Exception> CatchExceptionAsync(this Task task, bool catchDisable = false)
@@ -90,7 +89,10 @@ namespace AsmodatStandard.Extensions
             throw new AggregateException(exceptions);
         }
 
-        public static async Task<T> FuncRepeatAsync<T>(this Func<Task<T>> func, int maxRepeats = 1)
+        public static Task<T> FuncRepeatAsync<T>(this Func<Task<T>> func, int maxRepeats = 1, int delay = 1000)
+            => FuncRepeatAsync<T, Exception>(func, maxRepeats: maxRepeats, delay: delay);
+
+        public static async Task<T> FuncRepeatAsync<T, E>(this Func<Task<T>> func, int maxRepeats, int delay) where E : Exception
         {
             var exceptions = new List<Exception>();
             do
@@ -99,15 +101,77 @@ namespace AsmodatStandard.Extensions
                 {
                     return await func();
                 }
-                catch (Exception ex)
+                catch (E ex)
                 {
                     exceptions.Add(ex);
+
+                    if ((maxRepeats - 1) > 0)
+                        await Task.Delay(delay);
                 }
             } while (--maxRepeats > 0);
 
             throw new AggregateException(exceptions);
         }
 
+        public static Task TryCatchRetryAsync(this Task task, int maxRepeats = 1, int delay = 1000)
+            => TryCatchRetryAsync<Exception>(task, maxRepeats: maxRepeats, delay: delay);
+
+        public static async Task TryCatchRetryAsync<E>(this Task task, int maxRepeats, int delay) where E : Exception
+        {
+            E exception = null;
+            do
+            {
+                try
+                {
+                    await task;
+                    return;
+                }
+                catch (E ex)
+                {
+                    exception = ex;
+
+                    if ((maxRepeats - 1) > 0)
+                        await Task.Delay(delay);
+                }
+            } while (--maxRepeats > 0);
+
+            throw exception;
+        }
+
+        public static Task<T> TryCatchRetryAsync<T>(this Task<T> task, int maxRepeats = 1, int delay = 1000, int delayIncrement = 10, int timeout_ms = int.MaxValue)
+            => TryCatchRetryAsync<T, Exception>(task, maxRepeats: maxRepeats, delay: delay, delayIncrement: delayIncrement, timeout_ms: timeout_ms);
+
+        public static async Task<T> TryCatchRetryAsync<T, E>(this Task<T> task, 
+            int maxRepeats, 
+            int delay,
+            int delayIncrement,
+            int timeout_ms) where E : Exception
+        {
+            var sw = Stopwatch.StartNew();
+            E exception = null;
+            do
+            {
+                try
+                {
+                    return await task;
+                }
+                catch (E ex)
+                {
+                    exception = ex;
+
+                    if ((maxRepeats - 1) > 0)
+                    {
+                        await Task.Delay(delay);
+                        delay += delayIncrement;
+                    }
+
+                    if (sw.ElapsedMilliseconds > timeout_ms)
+                        throw ex;
+                }
+            } while (--maxRepeats > 0);
+
+            throw exception;
+        }
 
         public static bool Action(this Action action) => action.Action(out Exception ex);
         public static void ActionRepeat(this Action action, int maxRepeats = 1)
