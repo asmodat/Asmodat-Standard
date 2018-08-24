@@ -15,6 +15,19 @@ namespace AsmodatStandardTest.Threading.CronTest
     public class CronTest
     {
         [Test]
+        public void RangeCronTest()
+        {
+            var c = CronEx.ToCron("50-10 * * * * *");
+            var d = new DateTime(1, 1, 1, 1, 5, 0, DateTimeKind.Utc);
+
+            Assert.AreEqual(0, c.Compare(d));
+
+            d = new DateTime(1, 1, 1, 1, 15, 0, DateTimeKind.Utc);
+
+            Assert.AreNotEqual(0, c.Compare(d));
+        }
+
+        [Test]
         public void RandomCompareCronTest()
         {
             for (int i = 0; i < 1000; i++)

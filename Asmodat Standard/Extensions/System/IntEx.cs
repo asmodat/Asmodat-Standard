@@ -1,10 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace AsmodatStandard.Extensions
 {
     public static class IntEx
     {
+#warning IsPowerOf2 method has no unit tests
+        public static bool IsPowerOf2(this int v)
+        {
+            if (v < 0)
+                throw new Exception("Value can't be negative");
+
+            return v != 0 && (v & (v - 1)) == 0;
+        }
+
         public static int[] GetBitShiftPositions(this int i)
         {
             if (i == 0)

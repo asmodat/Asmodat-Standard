@@ -6,9 +6,13 @@ namespace AsmodatStandard.Extensions
     public static class ObjectEx
     {
         public static string JsonSerialize(this object obj, Formatting formatting = Formatting.None,
-            ReferenceLoopHandling referenceLoopHandling = ReferenceLoopHandling.Ignore)
+            ReferenceLoopHandling referenceLoopHandling = ReferenceLoopHandling.Ignore,
+            NullValueHandling nullValueHandling = NullValueHandling.Include)
             => JsonConvert.SerializeObject(obj, formatting,
-                new JsonSerializerSettings { ReferenceLoopHandling = referenceLoopHandling });
+                new JsonSerializerSettings {
+                    ReferenceLoopHandling = referenceLoopHandling,
+                    NullValueHandling = nullValueHandling
+                });
 
         public static double ToDoubleOrNaN(this object obj)
         {
