@@ -36,5 +36,8 @@ namespace AsmodatStandard.Extensions.IO
 
         public static MemoryStream CopyToMemoryStream(this Stream stream, int bufferSize = 256 * 1024)
             => new MemoryStream(stream.ToArray(bufferSize: bufferSize));
+
+        public static BufferedStream ToBufferedStream(this Stream stream, int bufferSize = 256 * 1024)
+            => new BufferedStream(stream, bufferSize);
     }
 }

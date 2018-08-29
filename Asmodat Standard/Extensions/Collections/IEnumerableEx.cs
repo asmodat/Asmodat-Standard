@@ -8,6 +8,14 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class IEnumerableEx
     {
+        public static bool IntersectAny<T>(this IEnumerable<T> e1, IEnumerable<T> e2)
+        {
+            if (e1.IsNullOrEmpty() || e2.IsNullOrEmpty())
+                return false;
+
+            return e1.Intersect(e2).Any();
+        }
+
         public static T[] ToEvenArray<T>(this IEnumerable<T> values)
         {
             var arr = values.ToArray();

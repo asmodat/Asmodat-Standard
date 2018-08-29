@@ -12,6 +12,9 @@ namespace AsmodatStandard.Types
         public int Line { get; set; }
         public int Column { get; set; }
         public string MethodName { get; set; }
+
+        public override string ToString()
+            => $"{Name} => {MethodName}() l:{Line} c:{Column}";
     }
 
     public class PreetyException
@@ -26,7 +29,7 @@ namespace AsmodatStandard.Types
 
             if (stackTraceMaxDepth > 0 && ex.StackTrace != null)
             {
-                var stackList = new List<PreetyExceptionStackTrace>();
+                var stackList = new List<string>();
                 var stack = new StackTrace(ex, true);
 
                 for (int i = 0; i < stackTraceMaxDepth; i++)
@@ -44,7 +47,7 @@ namespace AsmodatStandard.Types
                         MethodName = frame.GetMethod()?.Name
                     };
 
-                    stackList.Add(trace);
+                    stackList.Add(trace.ToString());
                 }
 
                 if (!stackList.IsNullOrEmpty())
@@ -74,7 +77,7 @@ namespace AsmodatStandard.Types
             }
         }
 
-        public PreetyExceptionStackTrace[] StackTrace { get; set; }
+        public string[] StackTrace { get; set; }
         public string Type { get; set; }
         public string Message { get; set; }
         public PreetyException InnerException { get; set; }

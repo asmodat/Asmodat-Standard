@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AsmodatStandard.Extensions.Types;
 
 namespace AsmodatStandard.Extensions
 {
@@ -66,12 +67,17 @@ namespace AsmodatStandard.Extensions
             return false;
         }
 
-        public static string JsonSerializeAsPrettyException<T>(this T ex, Formatting formatting = Formatting.Indented, int maxDepth = 1000) where T : Exception
+        public static string JsonSerializeAsPrettyException<T>(this T ex, 
+            Formatting formatting = Formatting.Indented, 
+            int maxDepth = 1000,
+            int stackTraceMaxDepth = 1000
+            ) where T : Exception
         {
+            
             if (ex == null)
                 return null;
 
-            return (new PreetyException(ex, maxDepth)).JsonSerialize(formatting);
+            return ex.ToPreetyException(maxDepth: maxDepth, stackTraceMaxDepth: stackTraceMaxDepth).ToString(formatting);
         }
 
         public static T Max<T>(params T[] parameters) where T : IEnumerable<T> => parameters.Max();

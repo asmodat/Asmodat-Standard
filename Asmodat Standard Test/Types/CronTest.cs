@@ -17,14 +17,30 @@ namespace AsmodatStandardTest.Threading.CronTest
         [Test]
         public void RangeCronTest()
         {
-            var c = CronEx.ToCron("50-10 * * * * *");
-            var d = new DateTime(1, 1, 1, 1, 5, 0, DateTimeKind.Utc);
+            void Test(string cron, DateTime d, bool equal)
+            {
+                var c = CronEx.ToCron(cron);
+                if(equal)
+                    Assert.AreEqual(0, c.Compare(d));
+                else
+                    Assert.AreNotEqual(0, c.Compare(d));
+            }
 
-            Assert.AreEqual(0, c.Compare(d));
+            Test("5-5 * * * * *",
+                new DateTime(1, 1, 1, 1, 5, 0, DateTimeKind.Utc),
+                true);
 
-            d = new DateTime(1, 1, 1, 1, 15, 0, DateTimeKind.Utc);
+            Test("* 6-6 * * * *",
+                new DateTime(1, 1, 1, 5, 5, 0, DateTimeKind.Utc),
+                false);
 
-            Assert.AreNotEqual(0, c.Compare(d));
+            Test("50-10 * * * * *",
+                new DateTime(1, 1, 1, 1, 5, 0, DateTimeKind.Utc),
+                true);
+
+            Test("50-10 * * * * *",
+                new DateTime(1, 1, 1, 1, 15, 0, DateTimeKind.Utc),
+                false);
         }
 
         [Test]

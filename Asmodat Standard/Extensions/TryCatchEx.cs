@@ -1,6 +1,8 @@
-﻿using System;
+﻿using AsmodatStandard.Extensions.Collections;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsmodatStandard.Extensions
@@ -174,7 +176,7 @@ namespace AsmodatStandard.Extensions
         }
 
         public static bool Action(this Action action) => action.Action(out Exception ex);
-        public static void ActionRepeat(this Action action, int maxRepeats = 1)
+        public static void ActionRepeat(this Action action, int maxRepeats = 1, int onErrorAwait_ms = 1000)
         {
             var exceptions = new List<Exception>();
             do
@@ -182,14 +184,18 @@ namespace AsmodatStandard.Extensions
                 try
                 {
                     action();
+                    return;
                 }
                 catch (Exception ex)
                 {
                     exceptions.Add(ex);
+                    if (onErrorAwait_ms > 0 && (maxRepeats - 1) > 0)
+                        Thread.Sleep(onErrorAwait_ms);
                 }
             } while (--maxRepeats > 0);
 
-            throw new AggregateException(exceptions);
+            if(!exceptions.IsNullOrEmpty())
+                throw new AggregateException(exceptions);
         }
 
 

@@ -6,6 +6,9 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class ArrayEx
     {
+        public static string ToString(this byte[] source, Encoding encoding)
+            => encoding.GetString(source);
+
         public static void CopyTo<T>(this T[] source, T[] destination, int destinationIndex)
             => Array.Copy(source, 0, destination, destinationIndex, source.Length);
 

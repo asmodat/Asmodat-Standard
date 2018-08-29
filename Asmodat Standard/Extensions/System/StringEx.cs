@@ -1,5 +1,7 @@
 ﻿using AsmodatStandard.Extensions.Collections;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -10,6 +12,17 @@ namespace AsmodatStandard.Extensions
 {
     public static class StringEx
     {
+        public static int ContainsCount(this string s, string pattern)
+        {
+            int count = 0, i = 0;
+            while ((i = s.IndexOf(pattern, i)) != -1)
+            {
+                i += pattern.Length;
+                count++;
+            }
+            return count;
+        }
+
         public static string TrimStartSingle(this string target, string trim)
             => target.TrimStart(trim, count: 1);
 
@@ -87,6 +100,9 @@ namespace AsmodatStandard.Extensions
         }
 
         public static bool ContainsAny(this string s, params string[] others)
+            => ContainsAny(s: s, others: others?.ToIEnumerable());
+
+        public static bool ContainsAny(this string s, IEnumerable<string> others)
         {
             if (others.IsNullOrEmpty())
                 return false;
