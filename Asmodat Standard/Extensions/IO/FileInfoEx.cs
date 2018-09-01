@@ -6,6 +6,19 @@ namespace AsmodatStandard.Extensions.IO
 {
     public static class FileInfoEx
     {
+        public static string ReadAllText(this FileInfo source, Encoding encoding = null)
+            => encoding == null ? 
+            File.ReadAllText(source.FullName) : 
+            File.ReadAllText(source.FullName, encoding);
+
+        public static void WriteAllText(this FileInfo source, string contents, Encoding encoding = null)
+        {
+            if (encoding == null)
+                File.WriteAllText(source.FullName, contents);
+            else
+                File.WriteAllText(source.FullName, contents, encoding);
+        }
+
         public static void Copy(this FileInfo source, FileInfo destination, bool @override = false)
             => File.Copy(source.FullName, destination.FullName, @override);
 

@@ -1,11 +1,35 @@
 ﻿using AsmodatStandard.Extensions.Collections;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace AsmodatStandard.Extensions.IO
 {
     public static class DirectoryInfoEx
     {
+        public static FileInfo[] GetFilesRecursive(this DirectoryInfo info)
+        {
+            var files = new List<FileInfo>();
+            files.AddRange(info.GetFiles());
+
+            foreach(var dir in info.GetDirectories())
+                files.AddRange(GetFilesRecursive(dir));
+
+            return files.ToArray();
+        }
+
+        public static DirectoryInfo[] GetDirectoriesRecursive(this DirectoryInfo info)
+        {
+            var result = new List<DirectoryInfo>();
+            var directories = info.GetDirectories();
+            result.AddRange(directories);
+
+            foreach (var dir in directories)
+                result.AddRange(GetDirectoriesRecursive(dir));
+
+            return result.ToArray();
+        }
+
         public static string Combine(this DirectoryInfo info, params string[] paths)
             => Path.Combine(new string[] { info.FullName }.Merge(paths));
 

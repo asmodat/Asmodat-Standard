@@ -93,7 +93,7 @@ namespace AsmodatStandard.Extensions
         public static bool IsEmpty(this FileInfo fi) => string.IsNullOrEmpty(File.ReadAllText(fi.FullName));
         public static string NameWithoutExtension(this FileInfo fi) => Path.GetFileNameWithoutExtension(fi.Name);
 
-        public static void WriteAllText(this FileInfo fileInfo, string text, CompressionLevel compress = CompressionLevel.NoCompression)
+        public static void WriteAllText(this FileInfo fileInfo, string text, CompressionLevel compress)
             => WriteAllText(fileInfo.FullName, text, compress);
 
         /// <summary>

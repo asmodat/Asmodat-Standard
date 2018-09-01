@@ -12,8 +12,14 @@ namespace AsmodatStandard.Extensions
 {
     public static class StringEx
     {
-        public static int ContainsCount(this string s, string pattern)
+        public static int Count(this string s, string pattern)
         {
+            if (s.IsNullOrEmpty())
+                return 0;
+
+            if (pattern.IsNullOrEmpty())
+                throw new ArgumentException("Count pattern can't be null or empty.");
+
             int count = 0, i = 0;
             while ((i = s.IndexOf(pattern, i)) != -1)
             {

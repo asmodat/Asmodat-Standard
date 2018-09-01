@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using AsmodatStandard.Extensions;
 using AsmodatStandard.Extensions.Collections;
 using Renci.SshNet;
@@ -25,6 +26,8 @@ namespace AsmodatStandard.Networking.SSH
     public class SSHManaged
     {
         private SshClient _client;
+
+        public Encoding Encoding => _client?.ConnectionInfo?.Encoding;
 
         public SSHManaged(string host, string username, FileInfo key)
         {
@@ -53,7 +56,11 @@ namespace AsmodatStandard.Networking.SSH
         public SshCommandResult ExecuteCommand(string commandText, int commandTimeout_ms)
             => ExecuteCommands(new string[] { commandText }, commandTimeout_ms).Single();
 
-        public SshCommandResult[] ExecuteCommands(IEnumerable<string> commands, int commandTimeout_ms, int maxConnectionRetry = 5, int maxConnectionRetryDelay = 5000)
+        public SshCommandResult[] ExecuteCommands(
+            IEnumerable<string> commands, 
+            int commandTimeout_ms, 
+            int maxConnectionRetry = 5, 
+            int maxConnectionRetryDelay = 5000)
         {
             try
             {
@@ -97,69 +104,118 @@ namespace AsmodatStandard.Networking.SSH
             }
         }
 
-        public SshCommandResult[] ExecuteShellCommands(IEnumerable<string> commands, int commandTimeout_ms, int maxConnectionRetry = 5, int maxConnectionRetryDelay = 5000)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="commands"></param>
+        /// <param name="commandTimeout_ms"></param>
+        /// <param name="maxConnectionRetry"></param>
+        /// <param name="maxConnectionRetryDelay"></param>
+        /// <param name="outputStream"></param>
+        /// <param name="failSequence">Throws is sequence occurs in the output</param>
+        /// <param name="breakSequence">Breaks execution if sequence occurs</param>
+        /// <param name="passSequence">Throws is sequence does not occur by the ond of execution of the last command (if there were any)</param>
+        /// <returns></returns>
+        public SshCommandResult[] ExecuteShellCommands(
+            IEnumerable<string> commands, 
+            int commandTimeout_ms, 
+            int maxConnectionRetry = 5, 
+            int maxConnectionRetryDelay = 5000, 
+            Stream outputStream = null)
         {
-            var eosMessage = "<End-Of-Stream/>";
             Exception error = null;
+            ShellStream stream;
+            Stopwatch sw;
             var dataList = new List<byte>();
+            var consoleBuffer = new List<byte>();
             var responseList = new List<SshCommandResult>();
-
-            void Stream_ErrorOccurred(object sender, Renci.SshNet.Common.ExceptionEventArgs e) => error = e.Exception;
-            void Stream_DataReceived(object sender, Renci.SshNet.Common.ShellDataEventArgs e)
-            {
-                if (!e.Data.IsNullOrEmpty())
-                    dataList.AddRange(e.Data);
-            }
 
             try
             {
                 this.Connect(maxConnectionRetry: maxConnectionRetry, maxConnectionRetryDelay: maxConnectionRetryDelay);
-                var stream = _client.CreateShellStream("xterm", 80, 24, 800, 600, 1024*1024);
-                Stopwatch sw;
+                stream = _client.CreateShellStream("xterm", 80, 24, 800, 600, 1024*1024);
+                var encoding = this.Encoding;
+
+                void Stream_ErrorOccurred(object sender, Renci.SshNet.Common.ExceptionEventArgs e) => error = e.Exception;
+                void Stream_DataReceived(object sender, Renci.SshNet.Common.ShellDataEventArgs e)
+                {
+                    if (!e.Data.IsNullOrEmpty())
+                        dataList.AddRange(e.Data);
+
+                    if (outputStream != null)
+                        outputStream.Write(e.Data, 0, e.Data.Length);
+                }
+
+                void TimeoutCheck(string command, string operation)
+                {
+                    if (sw.ElapsedMilliseconds > commandTimeout_ms)
+                        throw new Exception($"Command '{command}' timed out during WRITE operation, elapsed: {sw.ElapsedMilliseconds}/{commandTimeout_ms} [ms]. Result: '{responseList.JsonSerialize(Newtonsoft.Json.Formatting.Indented)}");
+                }
 
                 void WriteCommand(string command)
                 {
                     stream.WriteLine(command);
                     while (error == null && stream.Length == 0)
                     {
-                        if (sw.ElapsedMilliseconds > commandTimeout_ms)
-                            throw new Exception($"Command '{command}' timed out during WRITE operation, elapsed: {sw.ElapsedMilliseconds}/{commandTimeout_ms} [ms].");
-                        else
-                            Thread.Sleep(500);
+                        TimeoutCheck(command, "WRITE");
+                        Thread.Sleep(500);
                     }
                 }
 
                 stream.DataReceived += Stream_DataReceived;
                 stream.ErrorOccurred += Stream_ErrorOccurred;
+                var count = 0;
+
+                var commandFailureSequence = Guid.NewGuid().ToString();
+                var endOfCommand = Guid.NewGuid().ToString();
+
+                Thread.Sleep(1000);
+                dataList = new List<byte>(); //cleanup after connection initiation
 
                 foreach (var command in commands)
                 {
                     sw = Stopwatch.StartNew();
                     var dtRequest = DateTime.UtcNow;
+                    ++count;
+                    var commandCheck = $"if [ $? -ne 0 ]; then for n in {{1..3}}; do echo {commandFailureSequence}; done ; else for n in {{1..3}}; do echo {endOfCommand}; done ; fi";
+                    
                     WriteCommand(command);
-                    WriteCommand($"echo '{eosMessage}'");
+
+                    while(dataList.Count <= 0)
+                    {
+                        TimeoutCheck(command, "PUSH");
+                        Thread.Sleep(500);
+                    }
+
+                    Thread.Sleep(1000);
+                    WriteCommand(commandCheck);
 
                     string result = null;
-                    while (error == null && ((result = dataList.ToArray().ToString(Encoding.UTF8)).ContainsCount(eosMessage) < 2))
+                    while (
+                        error == null && 
+                        (result.Count(endOfCommand) < 3) && 
+                        (result.Count(commandFailureSequence) < 3))
                     {
-                        if (sw.ElapsedMilliseconds > commandTimeout_ms)
-                            throw new Exception($"Command '{command}' timed out during WRITE operation, elapsed: {sw.ElapsedMilliseconds}/{commandTimeout_ms} [ms].");
-                        else
-                            Thread.Sleep(500);
+                        result = dataList.ToArray().ToString(encoding);
+                        TimeoutCheck(command, "READ");
+                        Thread.Sleep(500);
                     }
+
+                    var response = dataList.ToArray().ToString(this.Encoding);
 
                     responseList.Add(new SshCommandResult()
                     {
                         RequestTime = dtRequest,
                         ResponseTime = dtRequest.AddTicks(sw.ElapsedTicks),
                         Request = command,
-                        Response = dataList.ToArray().ToString(Encoding.UTF8),
+                        Response = response,
                         ExitStatus = error == null ? 0 : 1,
                         Error = error.JsonSerializeAsPrettyException()
                     });
 
-                    if (error != null)
-                        throw new Exception($"SSH Command Failed With Error: '{error.JsonSerializeAsPrettyException()}', Result: '{responseList.JsonSerialize(Newtonsoft.Json.Formatting.Indented)}'.");
+                    var failSerquenceFound = result.Count(commandFailureSequence) >= 3;
+                    if (error != null || failSerquenceFound)
+                        throw new Exception($"SSH Command {count} Failed, Error Occured: {error != null}, Command Failed: {failSerquenceFound} [{result.Count(commandFailureSequence)}], Curent Command: '{command}', Error: '{error.JsonSerializeAsPrettyException()}', End Sequences: {result.Count(endOfCommand)}.");
 
                     dataList = new List<byte>();
                 }

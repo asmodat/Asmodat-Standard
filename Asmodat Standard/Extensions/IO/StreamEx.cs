@@ -12,11 +12,12 @@ namespace AsmodatStandard.Extensions.IO
         {
             int read = 0;
             int total = 0;
+            int remaining;
             var buffer = new byte[bufferSize];
             var result = new byte[maxLength];
-            while((read = stream.Read(buffer, 0, bufferSize)) > 0)
+            while((remaining = maxLength - total) > 0 && (read = stream.Read(buffer, 0, Math.Min(bufferSize, remaining))) > 0)
             {
-                buffer.CopyTo(result, total);
+                buffer.CopyTo(0, result, total, read);
                 total += read;
             }
 
