@@ -1,7 +1,7 @@
 ﻿using AsmodatStandard.IO;
 using NUnit.Framework;
 
-namespace AsmodatStandardTest.IO.CLIHelperTest
+namespace AsmodatStandardTest.IO
 {
     [TestFixture]
     public class CLIHelperTest

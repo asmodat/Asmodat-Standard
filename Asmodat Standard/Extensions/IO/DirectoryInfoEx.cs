@@ -2,32 +2,134 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace AsmodatStandard.Extensions.IO
 {
     public static class DirectoryInfoEx
     {
-        public static FileInfo[] GetFilesRecursive(this DirectoryInfo info)
+        public static bool HasSubDirectory(this DirectoryInfo source, DirectoryInfo subDir)
         {
-            var files = new List<FileInfo>();
-            files.AddRange(info.GetFiles());
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
-            foreach(var dir in info.GetDirectories())
-                files.AddRange(GetFilesRecursive(dir));
+            if (source.FullName == subDir.FullName)
+                return true;
 
-            return files.ToArray();
+            var rootSourceDir = source?.Root?.FullName;
+            var rootSubSourceDir = subDir?.Root?.FullName;
+
+            if (rootSourceDir != rootSubSourceDir || rootSubSourceDir.IsNullOrEmpty() || rootSubSourceDir.IsNullOrEmpty())
+                return false;
+
+            var subDirFullName = subDir.FullName.TrimEnd('/', '\\');
+            var sourceDirectory = source.FullName.ToDirectoryInfo();
+
+            while (sourceDirectory != null && sourceDirectory.FullName.TrimEnd('/', '\\').Length >= subDirFullName.Length)
+            {
+                if (sourceDirectory.FullName.TrimEnd('/', '\\') == subDirFullName)
+                    return true;
+
+                sourceDirectory = sourceDirectory.Parent;
+            }
+
+            return false;
         }
+
+        public static FileInfo[] GetFiles(this DirectoryInfo info, string pattern, bool recursive)
+            => recursive ? info.GetFilesRecursive(new string[] { pattern }) : info.GetFiles(pattern);
+
+        public static FileInfo[] GetFiles(this DirectoryInfo info, string[] patterns, bool recursive)
+            => recursive ? info.GetFilesRecursive(patterns) : info.GetFiles(patterns);
+
+        public static FileInfo[] GetFiles(this DirectoryInfo info, string[] patterns)
+        {
+            if (patterns == null)
+                throw new ArgumentNullException($"{nameof(patterns)}");
+
+            var locker = new object();
+            var files = new List<FileInfo>();
+
+            patterns.ParallelForEach(pattern => {
+                var rootResult = info.GetFiles(pattern, SearchOption.TopDirectoryOnly);
+
+                lock (locker)
+                    files.AddRange(rootResult);
+            });
+
+            return files.DistinctBy(x => x.FullName).ToArray();
+        }
+
+        public static FileInfo[] GetFilesRecursive(this DirectoryInfo info)
+            => GetFilesRecursive(info, new string[] { "*" });
+
+        public static FileInfo[] GetFilesRecursive(this DirectoryInfo info, string[] patterns)
+        {
+            if (patterns == null)
+                throw new ArgumentNullException($"{nameof(patterns)}");
+
+            var locker = new object();
+            var files = new List<FileInfo>();
+
+            patterns.ParallelForEach(pattern => {
+                var rootResult = info.GetFiles(pattern, SearchOption.TopDirectoryOnly);
+
+                if(!rootResult.IsNullOrEmpty())
+                    lock(locker)
+                        files.AddRange(rootResult);
+
+                foreach (var dir in info.GetDirectories())
+                {
+                    var leafResults = GetFilesRecursive(dir, new string[] { pattern });
+
+                    if(!leafResults.IsNullOrEmpty())
+                        lock (locker)
+                            files.AddRange(leafResults);
+                }
+            });
+
+            return files.DistinctBy(x => x.FullName).ToArray();
+        }
+
+        public static FileInfo[] GetFiles(this DirectoryInfo info, 
+            bool recursive,
+            IEnumerable<string> inclusivePatterns,
+            IEnumerable<string> exclusivePatterns)
+        {
+            if (inclusivePatterns == null)
+                throw new ArgumentNullException($"{nameof(inclusivePatterns)}");
+
+            if (exclusivePatterns == null)
+                throw new ArgumentNullException($"{nameof(exclusivePatterns)}");
+
+            var locker = new object();
+            var include = GetFiles(info, patterns: inclusivePatterns.ToArray(), recursive: recursive);
+            var exclude = GetFiles(info, patterns: inclusivePatterns.ToArray(), recursive: recursive);
+
+            var result = include.Where(iFile => !exclude.Any(eFile => eFile.FullName == iFile.FullName));
+            return result.DistinctBy(x => x.FullName).ToArray();
+        }
+
+        public static DirectoryInfo[] GetDirectories(this DirectoryInfo info, bool recursive)
+            => recursive ? info.GetDirectoriesRecursive() : info.GetDirectories();
 
         public static DirectoryInfo[] GetDirectoriesRecursive(this DirectoryInfo info)
         {
             var result = new List<DirectoryInfo>();
-            var directories = info.GetDirectories();
+            var locker = new object();
+
+            var directories = info.GetDirectories(searchPattern: "*", SearchOption.TopDirectoryOnly);
             result.AddRange(directories);
 
-            foreach (var dir in directories)
-                result.AddRange(GetDirectoriesRecursive(dir));
+            directories.ParallelForEach(directory => {
+                var arr = GetDirectoriesRecursive(directory);
 
-            return result.ToArray();
+                if(!arr.IsNullOrEmpty())
+                    lock (arr)
+                        result.AddRange(arr);
+            });
+            
+            return result.DistinctBy(x => x.FullName).ToArray();
         }
 
         public static string Combine(this DirectoryInfo info, params string[] paths)

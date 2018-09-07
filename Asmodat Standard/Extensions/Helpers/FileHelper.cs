@@ -8,11 +8,59 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AsmodatStandard.Extensions.IO;
 
 namespace AsmodatStandard.Extensions
 {
     public static class FileHelper
     {
+        const byte CR = 0x0D;
+        const byte LF = 0x0A;
+
+        public static FileInfo[] GetFiles(string input, string pattern = "*", bool recursive = false)
+        {
+            if (IsDirectory(input))
+            {
+                return input.ToDirectoryInfo().GetFiles(
+                    pattern: pattern,
+                    recursive: recursive);
+            }
+            else if (IsFile(input))
+            {
+                return new FileInfo[] { input.ToFileInfo() };
+            }
+            else
+                throw new Exception($"Input '{input}' in not a file nor a directory.");
+        }
+
+        public static void ConvertDosToUnix(this FileInfo fi)
+        {
+            if (!fi.Exists)
+                throw new ArgumentException($"File '{fi.FullName}' doesn't exists, can't convert.");
+            
+            var data = fi.ReadAllBytes();
+            using (var fileStream = fi.OpenWrite())
+            {
+                var bw = new BinaryWriter(fileStream);
+                var position = 0;
+                var index = 0;
+                do
+                {
+                    index = Array.IndexOf(data, CR, position);
+                    if ((index >= 0) && (data[index + 1] == LF))
+                    {
+                        // Write before the CR
+                        bw.Write(data, position, index - position);
+                        // from LF
+                        position = index + 1;
+                    }
+                }
+                while (index >= 0);
+                bw.Write(data, position, data.Length - position);
+                fileStream.SetLength(fileStream.Position);
+            }
+        }
+
         public static bool IsDirectory(this string path)
         {
             if (!Directory.Exists(path) && !File.Exists(path))

@@ -6,12 +6,43 @@ namespace AsmodatStandard.Extensions.IO
 {
     public static class FileInfoEx
     {
+        public static bool HasSubDirectory(this FileInfo source, DirectoryInfo subDir)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            var subDirFullName = subDir.FullName;
+            var sourceDirectory = source.Directory;
+
+            var rootSourceDir = sourceDirectory?.Root?.FullName;
+            var rootSubSourceDir = subDir?.Root?.FullName;
+
+            if (rootSourceDir != rootSubSourceDir || rootSubSourceDir.IsNullOrEmpty() || rootSubSourceDir.IsNullOrEmpty())
+                return false;
+
+            while(sourceDirectory != null && sourceDirectory.FullName.Length >= subDirFullName.Length)
+            {
+                if (sourceDirectory.FullName == subDirFullName)
+                    return true;
+
+                sourceDirectory = sourceDirectory.Parent;
+            }
+
+            return false;
+        }
+
+        public static byte[] ReadAllBytes(this FileInfo source, Encoding encoding = null)
+            => File.ReadAllBytes(source?.FullName);
+
         public static string ReadAllText(this FileInfo source, Encoding encoding = null)
             => encoding == null ? 
             File.ReadAllText(source.FullName) : 
             File.ReadAllText(source.FullName, encoding);
 
-        public static void WriteAllText(this FileInfo source, string contents, Encoding encoding = null)
+        public static void WriteAllText(this FileInfo source, string contents)
+            => File.WriteAllText(source.FullName, contents);
+        
+        public static void WriteAllText(this FileInfo source, string contents, Encoding encoding)
         {
             if (encoding == null)
                 File.WriteAllText(source.FullName, contents);

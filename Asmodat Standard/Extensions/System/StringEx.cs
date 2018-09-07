@@ -12,6 +12,21 @@ namespace AsmodatStandard.Extensions
 {
     public static class StringEx
     {
+        /// <summary>
+        /// Repeats string n times
+        /// </summary>
+        public static string Repeat(this string s, int n)
+        {
+            if (n < 0)
+                throw new ArgumentException("Sequence can't be repeated negative times.");
+
+            var result = string.Empty;
+            for (int i = 0; i < n; i++)
+                result += s;
+
+            return result;
+        }
+
         public static int Count(this string s, string pattern)
         {
             if (s.IsNullOrEmpty())
