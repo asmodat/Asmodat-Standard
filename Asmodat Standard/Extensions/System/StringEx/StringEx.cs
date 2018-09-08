@@ -10,8 +10,23 @@ using System.Text.RegularExpressions;
 
 namespace AsmodatStandard.Extensions
 {
-    public static class StringEx
+    public static partial class StringEx
     {
+        /// <summary>
+        /// Splits sting by character but allows for escaping
+        /// </summary>
+        public static string[] EscapedSplit(this string s, char splitChar, char escapeChar = '\\')
+        {
+            var escapedSequence = $"{escapeChar}{splitChar}";
+            var replacement = Guid.NewGuid().ToString().ReplaceMany("", $"{splitChar}", $"{escapeChar}", "-");
+            var newString = s.Replace(escapedSequence, replacement);
+            var result = newString.Split(splitChar);
+            for (var i = 0; i < result.Length; i++)
+                result[i] = result[i].Replace(replacement, $"{splitChar}");
+
+            return result;
+        }
+
         /// <summary>
         /// Repeats string n times
         /// </summary>

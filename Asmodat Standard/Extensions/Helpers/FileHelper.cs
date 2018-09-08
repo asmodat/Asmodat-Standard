@@ -17,20 +17,35 @@ namespace AsmodatStandard.Extensions
         const byte CR = 0x0D;
         const byte LF = 0x0A;
 
-        public static FileInfo[] GetFiles(string input, string pattern = "*", bool recursive = false)
+        public static FileInfo[] GetFiles(string path, string pattern = "*", bool recursive = false)
         {
-            if (IsDirectory(input))
+            if (path.IsNullOrEmpty())
+                throw new ArgumentException(nameof(path));
+
+            if (IsDirectory(path))
             {
-                return input.ToDirectoryInfo().GetFiles(
+                return path.ToDirectoryInfo().GetFiles(
                     pattern: pattern,
                     recursive: recursive);
             }
-            else if (IsFile(input))
+            else if (IsFile(path))
             {
-                return new FileInfo[] { input.ToFileInfo() };
+                var f = path.ToFileInfo();
+
+                if (!f.Exists)
+                    return new FileInfo[0];
+
+                var files = f.Directory?.GetFiles(
+                    pattern: pattern,
+                    recursive: false);
+
+                if(files.Any(file => file.FullName == f.FullName))
+                    return new FileInfo[] { f };
+                else
+                    return new FileInfo[0];
             }
             else
-                throw new Exception($"Input '{input}' in not a file nor a directory.");
+                throw new Exception($"Input '{path}' is not an existing file or directory.");
         }
 
         public static void ConvertDosToUnix(this FileInfo fi)
@@ -64,7 +79,7 @@ namespace AsmodatStandard.Extensions
         public static bool IsDirectory(this string path)
         {
             if (!Directory.Exists(path) && !File.Exists(path))
-                throw new Exception($"Directory '{path}' does NOT exist.");
+                throw new Exception($"DIRECTORY or File '{path}' does NOT exist.");
 
             return File.GetAttributes(path).HasFlag(FileAttributes.Directory);
         }
@@ -72,7 +87,7 @@ namespace AsmodatStandard.Extensions
         public static bool IsFile(this string path)
         {
             if (!File.Exists(path) && !Directory.Exists(path))
-                throw new Exception($"File '{path}' does NOT exist.");
+                throw new Exception($"FILE or Directory '{path}' does NOT exist.");
 
             return !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
         }

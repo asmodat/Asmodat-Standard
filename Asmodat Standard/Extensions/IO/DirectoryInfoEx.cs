@@ -104,7 +104,7 @@ namespace AsmodatStandard.Extensions.IO
 
             var locker = new object();
             var include = GetFiles(info, patterns: inclusivePatterns.ToArray(), recursive: recursive);
-            var exclude = GetFiles(info, patterns: inclusivePatterns.ToArray(), recursive: recursive);
+            var exclude = GetFiles(info, patterns: exclusivePatterns.ToArray(), recursive: recursive);
 
             var result = include.Where(iFile => !exclude.Any(eFile => eFile.FullName == iFile.FullName));
             return result.DistinctBy(x => x.FullName).ToArray();
@@ -118,7 +118,7 @@ namespace AsmodatStandard.Extensions.IO
             var result = new List<DirectoryInfo>();
             var locker = new object();
 
-            var directories = info.GetDirectories(searchPattern: "*", SearchOption.TopDirectoryOnly);
+            var directories = info.GetDirectories();
             result.AddRange(directories);
 
             directories.ParallelForEach(directory => {
