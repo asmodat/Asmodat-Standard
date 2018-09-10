@@ -120,7 +120,8 @@ namespace AsmodatStandard.Networking.SSH
             IEnumerable<string> commands, 
             int commandTimeout_ms, 
             int maxConnectionRetry = 5, 
-            int maxConnectionRetryDelay = 5000, 
+            int maxConnectionRetryDelay = 5000,
+            int checkDelay = 500,
             Stream outputStream = null)
         {
             Exception error = null;
@@ -158,7 +159,7 @@ namespace AsmodatStandard.Networking.SSH
                     while (error == null && stream.Length == 0)
                     {
                         TimeoutCheck(command, "WRITE");
-                        Thread.Sleep(500);
+                        Thread.Sleep(checkDelay);
                     }
                 }
 
@@ -169,7 +170,7 @@ namespace AsmodatStandard.Networking.SSH
                 var commandFailureSequence = Guid.NewGuid().ToString();
                 var endOfCommand = Guid.NewGuid().ToString();
 
-                Thread.Sleep(1000);
+                Thread.Sleep(checkDelay);
                 dataList = new List<byte>(); //cleanup after connection initiation
 
                 foreach (var command in commands)
@@ -184,10 +185,10 @@ namespace AsmodatStandard.Networking.SSH
                     while(dataList.Count <= 0)
                     {
                         TimeoutCheck(command, "PUSH");
-                        Thread.Sleep(500);
+                        Thread.Sleep(checkDelay);
                     }
 
-                    Thread.Sleep(1000);
+                    Thread.Sleep(checkDelay);
                     WriteCommand(commandCheck);
 
                     string result = null;
@@ -198,7 +199,7 @@ namespace AsmodatStandard.Networking.SSH
                     {
                         result = dataList.ToArray().ToString(encoding);
                         TimeoutCheck(command, "READ");
-                        Thread.Sleep(500);
+                        Thread.Sleep(checkDelay);
                     }
 
                     var response = dataList.ToArray().ToString(this.Encoding);

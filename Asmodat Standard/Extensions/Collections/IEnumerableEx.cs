@@ -149,12 +149,7 @@ namespace AsmodatStandard.Extensions.Collections
             => (await Task.WhenAll(enumeration.Select(func))).SelectMany(s => s);
 
         public static IEnumerable<T> DistinctBy<T, K>(this IEnumerable<T> source, Func<T, K> keySelector)
-        {
-            var hashSet = new HashSet<K>();
-            foreach (T item in source)
-                if (hashSet.Add(keySelector(item)))
-                    yield return item;
-        }
+            => source.GroupBy(keySelector).Select(x => x.First());
 
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source) => new HashSet<T>(source);
 

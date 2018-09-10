@@ -1,5 +1,6 @@
 ﻿using AsmodatStandard.Extensions.Collections;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -47,17 +48,16 @@ namespace AsmodatStandard.Extensions.IO
             if (patterns == null)
                 throw new ArgumentNullException($"{nameof(patterns)}");
 
-            var locker = new object();
-            var files = new List<FileInfo>();
+            var bag = new ConcurrentBag<FileInfo>();
 
             patterns.ParallelForEach(pattern => {
                 var rootResult = info.GetFiles(pattern, SearchOption.TopDirectoryOnly);
 
-                lock (locker)
-                    files.AddRange(rootResult);
+                if(!rootResult.IsNullOrEmpty())
+                    bag.AddRange(rootResult);
             });
 
-            return files.DistinctBy(x => x.FullName).ToArray();
+            return bag.DistinctBy(x => x.FullName).ToArray();
         }
 
         public static FileInfo[] GetFilesRecursive(this DirectoryInfo info)
@@ -68,27 +68,24 @@ namespace AsmodatStandard.Extensions.IO
             if (patterns == null)
                 throw new ArgumentNullException($"{nameof(patterns)}");
 
-            var locker = new object();
-            var files = new List<FileInfo>();
-
-            patterns.ParallelForEach(pattern => {
+            var bag = new ConcurrentBag<FileInfo>();
+            patterns.ParallelForEach(pattern =>
+            {
                 var rootResult = info.GetFiles(pattern, SearchOption.TopDirectoryOnly);
 
-                if(!rootResult.IsNullOrEmpty())
-                    lock(locker)
-                        files.AddRange(rootResult);
+                if (!rootResult.IsNullOrEmpty())
+                    bag.AddRange(rootResult);
 
                 foreach (var dir in info.GetDirectories())
                 {
                     var leafResults = GetFilesRecursive(dir, new string[] { pattern });
 
-                    if(!leafResults.IsNullOrEmpty())
-                        lock (locker)
-                            files.AddRange(leafResults);
+                    if (!leafResults.IsNullOrEmpty())
+                        bag.AddRange(leafResults);
                 }
             });
 
-            return files.DistinctBy(x => x.FullName).ToArray();
+            return bag.DistinctBy(x => x.FullName).ToArray();
         }
 
         public static FileInfo[] GetFiles(this DirectoryInfo info, 
@@ -111,25 +108,31 @@ namespace AsmodatStandard.Extensions.IO
         }
 
         public static DirectoryInfo[] GetDirectories(this DirectoryInfo info, bool recursive)
-            => recursive ? info.GetDirectoriesRecursive() : info.GetDirectories();
+        {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
+            info.Refresh();
+
+            return recursive? info.GetDirectoriesRecursive() : info.GetDirectories();
+        }
 
         public static DirectoryInfo[] GetDirectoriesRecursive(this DirectoryInfo info)
         {
-            var result = new List<DirectoryInfo>();
-            var locker = new object();
-
+            var bag = new ConcurrentBag<DirectoryInfo>();
             var directories = info.GetDirectories();
-            result.AddRange(directories);
+
+            if (!directories.IsNullOrEmpty())
+                bag.AddRange(directories);
 
             directories.ParallelForEach(directory => {
                 var arr = GetDirectoriesRecursive(directory);
 
-                if(!arr.IsNullOrEmpty())
-                    lock (arr)
-                        result.AddRange(arr);
+                if (!arr.IsNullOrEmpty())
+                    bag.AddRange(arr);
             });
-            
-            return result.DistinctBy(x => x.FullName).ToArray();
+
+            return bag.DistinctBy(x => x.FullName).ToArray();
         }
 
         public static string Combine(this DirectoryInfo info, params string[] paths)

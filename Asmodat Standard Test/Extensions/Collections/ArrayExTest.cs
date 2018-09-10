@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using System.Linq;
 
-namespace AsmodatStandardTest.Extensions.Collections.ArrayExTest
+namespace AsmodatStandardTest.Extensions.Collections
 {
     [TestFixture]
     public class ArrayExTest
