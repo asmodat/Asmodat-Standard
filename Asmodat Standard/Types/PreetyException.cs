@@ -3,6 +3,7 @@ using AsmodatStandard.Extensions.Collections;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace AsmodatStandard.Types
 {
@@ -27,6 +28,17 @@ namespace AsmodatStandard.Types
             this.Message = ex.Message;
             this.Type = ex.GetType().FullName;
 
+            if (ex?.Data?.Keys != null)
+            {
+                this.Data = new Dictionary<object, object>();
+                foreach (var k in ex.Data.Keys)
+                    if (k?.ToString()?.StartsWith("UserDefined_") == true && ex.Data[k] != null)
+                        this.Data.Add(k, ex.Data[k]);
+
+                if (this.Data.IsNullOrEmpty())
+                    this.Data = null;
+            }
+
             if (stackTraceMaxDepth > 0 && ex.StackTrace != null)
             {
                 var stackList = new List<string>();
@@ -46,6 +58,16 @@ namespace AsmodatStandard.Types
                         Column = frame.GetFileColumnNumber(),
                         MethodName = frame.GetMethod()?.Name
                     };
+
+                    if (trace.Name.IsNullOrEmpty() && trace.Line == 0 && trace.Column == 0 &&
+                        trace.MethodName.EquailsAny(StringComparison.InvariantCultureIgnoreCase, 
+                        "HandleNonSuccessAndDebuggerNotification", 
+                        "MoveNext", 
+                        "Throw", 
+                        "Wait",
+                        "GetResultCore",
+                        "ThrowIfExceptional"))
+                        continue;
 
                     stackList.Add(trace.ToString());
                 }
@@ -80,6 +102,7 @@ namespace AsmodatStandard.Types
         public string[] StackTrace { get; set; }
         public string Type { get; set; }
         public string Message { get; set; }
+        public Dictionary<object, object> Data { get; set; }
         public PreetyException InnerException { get; set; }
         public PreetyException[] InnerExceptions { get; set; }
 
