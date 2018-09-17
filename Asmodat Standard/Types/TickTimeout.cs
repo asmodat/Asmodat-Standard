@@ -5,25 +5,6 @@ using System.Threading.Tasks;
 
 namespace AsmodatStandard.Types
 {
-    public static partial class TickTimeoutEx
-    {
-        public static TickTimeout Copy(this TickTimeout timeout)
-        {
-            if (timeout == null)
-                return null;
-
-            return (TickTimeout)timeout.Clone();
-        }
-
-        public static bool IsEnabled(this TickTimeout timeout)
-        {
-            if (timeout == null || !timeout.Enabled)
-                return false;
-
-            return true;
-        }
-    }
-
     public partial class TickTimeout : ICloneable
     {
         private readonly object locker = new object();
