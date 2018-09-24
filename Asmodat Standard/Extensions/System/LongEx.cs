@@ -1,7 +1,11 @@
-﻿namespace AsmodatStandard.Extensions
+﻿using System;
+
+namespace AsmodatStandard.Extensions
 {
     public static class LongEx
     {
+        public static byte[] ToByteArray(this long l) => BitConverter.GetBytes(l);
+
         public static double Average(this long[] input)
         {
             long sum = input[0];

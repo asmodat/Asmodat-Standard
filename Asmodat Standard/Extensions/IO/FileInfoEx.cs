@@ -81,6 +81,18 @@ namespace AsmodatStandard.Extensions.IO
                 return path.Replace("\\","/");
         }
 
+        public static FileInfo ToFileInfo(this string file, bool throwIfNotFound)
+        {
+            if (file.IsNullOrEmpty())
+                throw new ArgumentException($"File NOT found, file name is null or empty.");
+
+            var fi = file.ToFileInfo();
+            if (fi == null || !fi.Exists)
+                throw new Exception($"File NOT found: '{fi?.FullName ?? null}'.");
+
+            return fi;
+        }
+
         public static FileInfo ToFileInfo(this string file) => file == null ? null : new FileInfo(file);
 
         public static void SortByName(this FileInfo[] infos, bool fullName = false)

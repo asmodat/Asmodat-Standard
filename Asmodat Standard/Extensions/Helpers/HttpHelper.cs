@@ -36,6 +36,9 @@ namespace AsmodatStandard.Extensions
         public static string UriEncode(this string str) => HttpUtility.UrlEncode(str);
         public static string UriDecode(this string str) => HttpUtility.UrlDecode(str);
 
+        public static string HtmlEncode(this string str) => HttpUtility.HtmlEncode(str);
+        public static string HtmlDecode(this string str) => HttpUtility.HtmlDecode(str);
+
         public static async Task<T> GET<T>(Uri uri, HttpStatusCode? ensureStatusCode = null, params (string key, string value)[] defaultHeaders)
             => await GET<T>(uri.ToString(), ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders);
 

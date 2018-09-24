@@ -1,12 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using AsmodatStandard.Extensions.Collections;
 
 namespace AsmodatStandard.Extensions.Threading
 {
     public static class SemaphoreSlimEx
     {
+        public static bool IsLocked(this SemaphoreSlim ss)
+        {
+            if (ss.Wait(0))
+            {
+                ss.Release();
+                return false;
+            }
+
+            return true;
+        }
+
         public static T Lock<T>(this SemaphoreSlim ss, Func<T> func)
         {
             try
@@ -72,6 +85,35 @@ namespace AsmodatStandard.Extensions.Threading
             }
         }
 
+        public static async Task<T> MultiLockAsync<T>(this IEnumerable<SemaphoreSlim> locks, Task<T> task)
+        {
+            if (locks == null)
+                throw new ArgumentException("Locks can't be undefined.");
+
+            var locked = new List<SemaphoreSlim>();
+            try
+            {
+                foreach (var @lock in locks)
+                {
+                    try
+                    {
+                        await @lock.WaitAsync();
+                    }
+                    finally
+                    {
+                        locked.Add(@lock);
+                    }
+                }
+
+                return await task;
+            }
+            finally
+            {
+                foreach (var @lock in locked)
+                    @lock.Release();
+            }
+        }
+
         public static async Task LockAsync(this SemaphoreSlim ss, Task task)
         {
             try
@@ -98,6 +140,35 @@ namespace AsmodatStandard.Extensions.Threading
             }
         }
 
+        public static async Task MultiLockAsync(this IEnumerable<SemaphoreSlim> locks, Func<Task> func)
+        {
+            if (locks == null)
+                throw new ArgumentException("Locks can't be undefined.");
+
+            var locked = new List<SemaphoreSlim>();
+            try
+            {
+                foreach (var @lock in locks)
+                {
+                    try
+                    {
+                        await @lock.WaitAsync();
+                    }
+                    finally
+                    {
+                        locked.Add(@lock);
+                    }
+                }
+
+                await func();
+            }
+            finally
+            {
+                foreach (var @lock in locked)
+                    @lock.Release();
+            }
+        }
+
         public static async Task<T> Lock<T>(this SemaphoreSlim ss, Func<Task<T>> func)
         {
             try
@@ -108,6 +179,35 @@ namespace AsmodatStandard.Extensions.Threading
             finally
             {
                 ss.Release();
+            }
+        }
+
+        public static async Task<T> MultiLockAsync<T>(this IEnumerable<SemaphoreSlim> locks, Func<Task<T>> func)
+        {
+            if (locks == null)
+                throw new ArgumentException("Locks can't be undefined.");
+
+            var locked = new List<SemaphoreSlim>();
+            try
+            {
+                foreach (var @lock in locks)
+                {
+                    try
+                    {
+                        await @lock.WaitAsync();
+                    }
+                    finally
+                    {
+                        locked.Add(@lock);
+                    }
+                }
+
+                return await func();
+            }
+            finally
+            {
+                foreach (var @lock in locked)
+                    @lock.Release();
             }
         }
 

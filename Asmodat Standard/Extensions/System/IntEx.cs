@@ -28,5 +28,8 @@ namespace AsmodatStandard.Extensions
 
             return positions.ToArray();
         }
+
+        public static byte[] ToByteArray(this int i) => BitConverter.GetBytes(i);
+        
     }
 }

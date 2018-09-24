@@ -10,9 +10,6 @@ namespace AsmodatStandard.Extensions
 {
     public static class GenericEx
     {
-        public static T JsonDeserialize<T>(this string json)
-            => JsonConvert.DeserializeObject<T>(json);
-
         public static bool IsDefault<T>(this T value) where T : struct
             => value.Equals(default(T));
 

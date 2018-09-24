@@ -10,6 +10,21 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class ConcurrentDictionaryEx
     {
+        public static bool[] TryRemove<K,V>(this ConcurrentDictionary<K, V> dict, IEnumerable<K> keys, out V[] values)
+        {
+            values = null;
+            var results = new List<bool>();
+            var outResults = new List<V>();
+            foreach (var k in keys)
+            {
+               var result = dict.TryRemove(k, out V val);
+                results.Add(result);
+                outResults.Add(val);
+            }
+
+            return results.ToArray();
+        }
+
         public static Dictionary<K,V> ToDictionary<K,V>(this ConcurrentDictionary<K, V> dict)
             => dict.ToDictionary(x => x.Key, x => x.Value);
 

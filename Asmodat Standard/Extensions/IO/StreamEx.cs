@@ -2,12 +2,27 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using AsmodatStandard.Extensions.Collections;
 
 namespace AsmodatStandard.Extensions.IO
 {
     public static class StreamEx
     {
+        public static Task<string> ToStringAsync(this Stream stream, Encoding encoding = null)
+            => (encoding == null ?
+            new StreamReader(stream) :
+            new StreamReader(stream, encoding))
+            .ReadToEndAsync();
+
+        public static Task<string> ToStringAsync(this Stream stream, Encoding encoding, bool detectEncodingFromByteOrderMarks)
+            => (encoding == null ? 
+            new StreamReader(stream,
+                detectEncodingFromByteOrderMarks: detectEncodingFromByteOrderMarks) :
+            new StreamReader(stream, encoding, 
+                detectEncodingFromByteOrderMarks: detectEncodingFromByteOrderMarks))
+            .ReadToEndAsync();
+
         public static MemoryStream ToMemoryBlob(this Stream stream, int maxLength, int bufferSize = 128 * 1024)
         {
             int read = 0;

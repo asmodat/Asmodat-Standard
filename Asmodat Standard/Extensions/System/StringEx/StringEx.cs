@@ -7,11 +7,97 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace AsmodatStandard.Extensions
 {
     public static partial class StringEx
     {
+        public static async Task<T> JsonDeserializeAsync<T>(this Task<string> json)
+            => JsonConvert.DeserializeObject<T>(await json);
+
+        public static T JsonDeserialize<T>(this string json)
+            => JsonConvert.DeserializeObject<T>(json);
+
+        public static string Reverse(this string s)
+        {
+            if (s.IsNullOrEmpty())
+                return s;
+
+            var arr = s.ToCharArray();
+            Array.Reverse(arr);
+            return new string(arr);
+        }
+
+        public static IEnumerable<string> DistinctSubstrings(this string s)
+        {
+            if (s == null)
+                return null;
+
+            if (s.IsEmpty())
+                return new string[0];
+
+            List<string> list = new List<string>();
+            for (int i = 0; i < s.Length; i++)
+                for (int j = i; j < s.Length; j++)
+                {
+                    string ss = s.Substring(i, j - i + 1);
+                    list.Add(ss);
+                }
+
+            return list.Distinct().ToArray();
+        }
+
+        /// <summary>
+        /// http://www.asciitable.com/
+        /// True if all characters are in [32, 126] decimal range
+        /// </summary>
+        public static bool AllVisibleAscii(this string s)
+        {
+            if (s.IsNullOrEmpty())
+                return false;
+
+            if (s.Any(c => c < 32 || c > 126))
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// http://www.asciitable.com/
+        /// True is string has special ASCII characters in following ranges:
+        /// {[32-47], [58-64], [91,96], [123-126]}
+        /// </summary>
+        public static bool AnySpecialAscii(this string s)
+        {
+            if (s.IsNullOrEmpty())
+                return false;
+
+            if (s.Any(c => 
+            (c >= 32 && c <= 47) || 
+            (c >= 58 && c <= 64) || 
+            (c >= 91 && c <= 96) || 
+            (c >= 123 && c <= 126)))
+                return true;
+
+            return false;
+        }
+
+        public static bool AnyDigits(this string s)
+            => !s.IsNullOrEmpty() && s.Any(char.IsDigit);
+
+        public static bool AnyUpper(this string s)
+            => !s.IsNullOrEmpty() && s.Any(char.IsUpper);
+
+        public static bool AnyLower(this string s)
+            => !s.IsNullOrEmpty() && s.Any(char.IsLower);
+
+        public static bool IsAlphaNumericAscii(this string s)
+            => !s.IsNullOrEmpty() && new Regex("^[a-zA-Z][a-zA-Z0-9]*$").IsMatch(s);
+
+        public static bool IsAlphanumericUnicode(this string s)
+            => !s.IsNullOrEmpty() && s.Any(char.IsLetterOrDigit);
+
         /// <summary>
         /// Splits sting by character but allows for escaping
         /// </summary>
