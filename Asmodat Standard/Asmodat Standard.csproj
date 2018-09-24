@@ -29,6 +29,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Asmodat.BouncyCastle" Version="1.0.0.1" />
     <PackageReference Include="Asmodat.Standard.SSH.NET" Version="1.0.0.1" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />

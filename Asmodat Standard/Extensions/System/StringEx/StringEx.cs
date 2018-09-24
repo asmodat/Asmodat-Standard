@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -220,6 +221,11 @@ namespace AsmodatStandard.Extensions
 
             return false;
         }
+
+        public static bool Contains(this string s, string substring, CompareOptions compareOptions, CultureInfo cultureInfo = null) =>
+            !s.IsNullOrEmpty() && !substring.IsNullOrEmpty() &&
+            (cultureInfo ?? CultureInfo.CurrentCulture)
+            .CompareInfo.IndexOf(s, substring, compareOptions) >= 0;
 
         public static bool ContainsAny(this string s, params string[] others)
             => ContainsAny(s: s, others: others?.ToIEnumerable());
