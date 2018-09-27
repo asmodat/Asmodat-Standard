@@ -48,12 +48,7 @@ namespace AsmodatStandardTest.Cryptography
 
             foreach (var algo in EnumEx.ToArray<RSA.Algorithm>())
             {
-                int size;
-                if (algo.ToString().ContainsAny("RAW", "DSA", "GOST", "MGF1"))
-                    continue;
-                else
-                    size = RandomEx.Next(4096, 256 * 1024);
-
+                var size = RandomEx.Next(32 * 1024, 256 * 1024);
                 var arr1 = RandomEx.NextBytes(size);
                 var arr2 = arr1.Merge(new byte[1] { 0 });
 

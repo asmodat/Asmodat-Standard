@@ -9,6 +9,7 @@ using AsmodatStandard.Cryptography;
 using AsmodatStandard.Extensions;
 using AsmodatStandard.Extensions.Collections;
 using AsmodatStandard.Extensions.IO;
+using Microsoft.IdentityModel.Tokens;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
@@ -110,6 +111,36 @@ namespace AsmodatStandard.Cryptography
             }
         }
 
+        public static RSAParameters PemToRSAParameters(string pem)
+        {
+            if (pem.Contains("private", CompareOptions.IgnoreCase))
+            {
+                var rsaPCKP = PemToPrivateCipherKeyParameter(pem) as RsaPrivateCrtKeyParameters;
+                return DotNetUtilities.ToRSAParameters(rsaPCKP);
+            }
+            if (pem.Contains("public", CompareOptions.IgnoreCase))
+            {
+                var rsaKP = PemToPublicCipherKeyParameter(pem) as RsaKeyParameters;
+                var rsaCSP = new RSACryptoServiceProvider();
+                return new RSAParameters()
+                {
+
+                    Modulus = rsaKP.Modulus.ToByteArrayUnsigned(),
+                    Exponent = rsaKP.Exponent.ToByteArrayUnsigned()
+                };
+            }
+            else
+                throw new Exception("Failed RSA Parameters extraction, could not determine if PEM file is a PUBLIC or PRIVATE key.");
+        }
+
+        public static RsaSecurityKey ToRsaSecurityKey(this RSAParameters rsaParams)
+        {
+            var rsaCSP = new RSACryptoServiceProvider();
+            rsaCSP.ImportParameters(rsaParams);
+            return new RsaSecurityKey(rsaCSP);
+        }
+
+        public static RsaSecurityKey PemToRsaSecurityKey(string pem) => PemToRSAParameters(pem).ToRsaSecurityKey();
 
         public static byte[] Sign(byte[] input, ICipherParameters privateKey, Algorithm algorithm)
         {
