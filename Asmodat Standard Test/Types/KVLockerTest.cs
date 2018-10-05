@@ -9,7 +9,6 @@ using AsmodatStandard.Types;
 using AsmodatStandard.Extensions;
 using AsmodatStandard.Extensions.Collections;
 using AsmodatStandard.Extensions.Types;
-using AsmodatStandard.Extensions.Threading;
 
 namespace AsmodatStandardTest.Types
 {
