@@ -37,7 +37,7 @@ namespace AsmodatStandardTest.Cryptography
             var issuer = "issuer-1";
             var audience = "audience-1";
 
-            var token1 = JwtHelper.GenerateTokenPEMRSA(
+            var token1 = JwtHelper.GenerateTokenPEMRS256(
                 issuer: issuer,
                 audience: audience,
                 new[] { new Claim(ClaimTypes.Name, "user-1") },
@@ -45,7 +45,7 @@ namespace AsmodatStandardTest.Cryptography
                 expires: DateTime.UtcNow.AddHours(1));
 
             var issued = DateTime.UtcNow;
-            var tokenExpired = JwtHelper.GenerateTokenPEMRSA(
+            var tokenExpired = JwtHelper.GenerateTokenPEMRS256(
                 issuer: issuer,
                 audience: audience,
                 new[] { new Claim(ClaimTypes.Name, "user-1") },

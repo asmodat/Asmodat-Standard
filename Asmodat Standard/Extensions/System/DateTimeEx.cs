@@ -5,6 +5,10 @@ namespace AsmodatStandard.Extensions
 {
     public static class DateTimeEx
     {
+        private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        public static long UnixTimestampNow() => (long)(DateTime.UtcNow - UnixEpoch).TotalSeconds;
+        public static DateTime ToDateTimeFromUnixTimestamp(this long seconds) => UnixEpoch.AddSeconds(seconds);
+
         public static string ToRfc3339String(this DateTime dt)
             => dt.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz", DateTimeFormatInfo.InvariantInfo);
         

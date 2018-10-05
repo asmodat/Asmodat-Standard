@@ -24,19 +24,15 @@ namespace AsmodatStandard.Cryptography
 {
     public static class JwtHelper
     {
-        public static string GenerateTokenPEMRSA(
+        public static string GenerateTokenPEMRS256(
             string issuer,
             string audience,
             IEnumerable<Claim> claims,
             string privatePemKey,
             DateTime? expires,
             DateTime? issuedAt = null,
-            DateTime? notBefore = null,
-            string algorithm = SecurityAlgorithms.RsaSha256Signature)
+            DateTime? notBefore = null)
         {
-            if (!algorithm.Contains("rsa-sha", CompareOptions.IgnoreCase))
-                throw new ArgumentException($"Algorithm must an RSA-SHAXXX, but was: {algorithm}");
-
             if (claims.IsNullOrEmpty())
                 throw new ArgumentException("At least one claim must be specified such for example: User Name.");
 
@@ -52,7 +48,7 @@ namespace AsmodatStandard.Cryptography
             {
                 Subject = new ClaimsIdentity(
                 claims.ToArray()),
-                SigningCredentials = new SigningCredentials(rsaSK, algorithm),
+                SigningCredentials = new SigningCredentials(rsaSK, SecurityAlgorithms.RsaSha256Signature),
                 IssuedAt = issuedAtDateTime,
                 NotBefore = notBefore ?? issuedAtDateTime,
                 Expires = expires,
@@ -101,11 +97,51 @@ namespace AsmodatStandard.Cryptography
             }
             catch(Exception ex)
             {
-
                 return false;
             }
 
             return true;
+        }
+
+        public static SecurityToken ToSecurityTokenPEMRSA(string token, string publiPemKey = null)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = (JwtSecurityToken)handler.ReadToken(token);
+            var tvp = new TokenValidationParameters()
+            {
+                IssuerSigningKey = publiPemKey.IsNullOrEmpty() ? null : RSA.PemToRsaSecurityKey(publiPemKey),
+                RequireExpirationTime = false,
+                ValidateLifetime = false,
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                RequireSignedTokens = !publiPemKey.IsNullOrEmpty(),
+                ValidateActor = false,
+                ValidateIssuerSigningKey = !publiPemKey.IsNullOrEmpty(),
+                ValidateTokenReplay = false
+            };
+
+            var principal = handler.ValidateToken(token, tvp, out var securityToken);
+            return securityToken;
+        }
+
+        public static ClaimsPrincipal ToClaimsPrincipalPEMRSA(string token, string publiPemKey = null)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = (JwtSecurityToken)handler.ReadToken(token);
+            var tvp = new TokenValidationParameters()
+            {
+                IssuerSigningKey = publiPemKey.IsNullOrEmpty() ? null : RSA.PemToRsaSecurityKey(publiPemKey),
+                RequireExpirationTime = false,
+                ValidateLifetime = false,
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                RequireSignedTokens = !publiPemKey.IsNullOrEmpty(),
+                ValidateActor = false,
+                ValidateIssuerSigningKey = !publiPemKey.IsNullOrEmpty(),
+                ValidateTokenReplay = false
+            };
+
+            return handler.ValidateToken(token, tvp, out var securityToken);
         }
     }
 }

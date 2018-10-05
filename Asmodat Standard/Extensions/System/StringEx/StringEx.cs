@@ -203,8 +203,26 @@ namespace AsmodatStandard.Extensions
 
         public static string ReplaceMany(this string str, params (string oldStr, string newStr)[] reps)
         {
-            reps.ForEach(r => str = str.Replace(r.oldStr, r.newStr));
-            return str;
+            var result = str;
+            reps.ForEach(r => result = result.Replace(r.oldStr, r.newStr));
+            return result;
+        }
+
+        public static string TrimStartMany(this string str, IEnumerable<string> trim)
+            => str.TrimStartMany(trim.ToArray());
+
+        public static string TrimStartMany(this string str, params string[] trim)
+        {
+            var result = str;
+            foreach (var sub in trim)
+            {
+                result = result.TrimStart(sub);
+
+                if (result.IsNullOrEmpty())
+                    return result;
+            }
+
+            return result;
         }
 
         public static MemoryStream ToMemoryStream(this string s, Encoding encoding = null)
