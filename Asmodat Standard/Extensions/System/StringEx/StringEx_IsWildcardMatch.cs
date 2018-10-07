@@ -7,12 +7,25 @@ namespace AsmodatStandard.Extensions
         /// <summary>
         /// * matches zero or more characters.
         /// ? matches exactly one character.
+        /// to escape wildcard use \? or \* within 'wildcardString'
         /// </summary>
         /// <param name="text"></param>
         /// <param name="wildcardString"></param>
         /// <returns>true if matches, false if not</returns>
         public static bool IsWildcardMatch(this string text, string wildcardString)
         {
+            if(wildcardString.Contains("\\?") && text.Contains("?"))
+            {
+                text = text.Replace("?", "!");
+                wildcardString = wildcardString.Replace("\\?", "!");
+            }
+
+            if (wildcardString.Contains("\\*") && text.Contains("*"))
+            {
+                text = text.Replace("*", "@");
+                wildcardString = wildcardString.Replace("\\*", "@");
+            }
+
             var isLike = true;
             byte matchCase = 0;
             char[] filter, reversedFilter, reversedWord, word;

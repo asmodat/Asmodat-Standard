@@ -24,15 +24,21 @@ namespace AsmodatStandardTest.Extensions.StringExTests
             Assert.IsTrue("".IsWildcardMatch(""));
             Assert.IsTrue("1".IsWildcardMatch("?"));
             Assert.IsTrue("".IsWildcardMatch("*"));
+            Assert.IsTrue("a".IsWildcardMatch("a*"));
+            Assert.IsTrue("?a".IsWildcardMatch("\\?a*"));
+            Assert.IsTrue("bla*a".IsWildcardMatch("bla\\*a*"));
             Assert.IsTrue("?*?".IsWildcardMatch("?*?"));
+            Assert.IsTrue("?*a".IsWildcardMatch("\\?\\*?"));
             Assert.IsTrue("XYZ".IsWildcardMatch("???"));
             Assert.IsTrue("XYZ".IsWildcardMatch("?YZ"));
             Assert.IsTrue("XYZ".IsWildcardMatch("X?Z"));
             Assert.IsTrue("XYZ".IsWildcardMatch("*"));
             Assert.IsTrue("XYZ".IsWildcardMatch("*Z"));
+            Assert.IsFalse("bla*a".IsWildcardMatch("ble\\*a*"));
             Assert.IsFalse("XYZ".IsWildcardMatch("Y*"));
             Assert.IsFalse("XYZ".IsWildcardMatch("?YX"));
             Assert.IsFalse("".IsWildcardMatch("?"));
+            Assert.IsFalse("a".IsWildcardMatch("a?"));
         }
 
         [Test]
