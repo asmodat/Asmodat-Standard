@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AsmodatStandard.Extensions;
 using AsmodatStandard.Extensions.Collections;
@@ -11,6 +12,9 @@ namespace AsmodatStandard.Cryptography
 {
     public static partial class HashHelper
     {
+        public static bool IsValidSHA256Hex(this string digest)
+            => !digest.IsNullOrEmpty() && Regex.Match(input: digest, pattern: "\\b[A-Fa-f0-9]{64}\\b").Success;
+
         public static byte[] SHA256(this string str, Encoding encoding = null)
             => str.ToByteArray(encoding ?? Encoding.UTF8).SHA256();
 
