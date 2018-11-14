@@ -54,9 +54,7 @@ namespace AsmodatStandard.Cryptography
             SHA512WITHRSAANDMGF1,
             RIPEMD128WITHRSA,
             RIPEMD160WITHRSA,
-            RIPEMD256WITHRSA,
-            RAWRSA,
-            RAWRSAPSS
+            RIPEMD256WITHRSA
         }
 
         public static AsymmetricCipherKeyPair GenerateKey(int size)
