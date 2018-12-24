@@ -161,16 +161,16 @@ namespace AsmodatStandard.Extensions
             using (var fw = File.Open(fileInfo.FullName, FileMode.Create, FileAccess.Write, FileShare.Read))
                 fw.Write(data, 0, data.Length);
         }
-
-        public static void WriteAllText(this FileInfo fileInfo, string text, CompressionLevel compress)
-            => WriteAllText(fileInfo.FullName, text, compress);
+        
+        public static void WriteAllText(this FileInfo fileInfo, string text, CompressionLevel compress, FileMode mode = FileMode.Create)
+            => WriteAllText(fileInfo.FullName, text, compress, mode);
 
         /// <summary>
         /// overrides existing file or creates it and replaces the content with text using UTF8 encoding
         /// </summary>
-        public static void WriteAllText(string fileName, string text, CompressionLevel compress = CompressionLevel.NoCompression)
+        public static void WriteAllText(string fileName, string text, CompressionLevel compress = CompressionLevel.NoCompression, FileMode mode = FileMode.Create)
         {
-            using (var fw = File.Open(fileName, FileMode.Create, FileAccess.Write, FileShare.Read))
+            using (var fw = File.Open(fileName, mode, FileAccess.Write, FileShare.Read))
                 if (!string.IsNullOrEmpty(text))
                 {
                     var data = Encoding.UTF8.GetBytes(

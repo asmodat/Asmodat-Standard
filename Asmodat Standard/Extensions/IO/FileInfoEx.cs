@@ -70,17 +70,6 @@ namespace AsmodatStandard.Extensions.IO
 
         }
 
-        public static string ToLinuxPath(this string path)
-        {
-            if (path.IsNullOrEmpty())
-                throw new ArgumentNullException($"{nameof(path)}");
-
-            if (path.Length >= 2 && path[1] == ':')
-                return "/" + path.ReplaceMany("/", "\\", ":");
-            else
-                return path.Replace("\\","/");
-        }
-
         public static FileInfo ToFileInfo(this string file, bool throwIfNotFound)
         {
             if (file.IsNullOrEmpty())

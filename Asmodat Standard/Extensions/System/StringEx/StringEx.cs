@@ -14,6 +14,21 @@ namespace AsmodatStandard.Extensions
 {
     public static partial class StringEx
     {
+        public static string TrimOrDefault(this string s, char trim, string @default = default(string))
+        {
+            if (s == null)
+                return @default;
+
+            try
+            {
+                return s.Trim(trim);
+            }
+            catch
+            {
+                return @default;
+            }
+        }
+
         public static async Task<T> JsonDeserializeAsync<T>(this Task<string> json)
             => JsonConvert.DeserializeObject<T>(await json);
 
@@ -144,6 +159,19 @@ namespace AsmodatStandard.Extensions
                 count++;
             }
             return count;
+        }
+
+        public static string Trim(this string target, string trim, int count = int.MaxValue)
+        {
+            if (trim.IsNullOrEmpty())
+                return target;
+
+            target = target.TrimStart(trim, count: count);
+
+            if (trim.IsNullOrEmpty())
+                return target;
+
+            return target.TrimEnd(trim, count: count);
         }
 
         public static string TrimStartSingle(this string target, string trim)
