@@ -43,12 +43,12 @@ namespace AsmodatStandardTest.Cryptography
         [Test]
         public void SignAndVerifyTest()
         {
-            var ackp = RSA.GenerateKey(1024);
-            var ackp2 = RSA.GenerateKey(1024);
+            var ackp = RSA.GenerateKey(2048);
+            var ackp2 = RSA.GenerateKey(2048);
 
             foreach (var algo in EnumEx.ToArray<RSA.Algorithm>())
             {
-                var size = RandomEx.Next(32 * 1024, 256 * 1024);
+                var size = RandomEx.Next(1 * 1024, 2 * 1024);
                 var arr1 = RandomEx.NextBytes(size);
                 var arr2 = arr1.Merge(new byte[1] { 0 });
 

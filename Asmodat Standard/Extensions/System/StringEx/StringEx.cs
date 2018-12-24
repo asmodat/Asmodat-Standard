@@ -14,7 +14,8 @@ namespace AsmodatStandard.Extensions
 {
     public static partial class StringEx
     {
-        public static string TrimOrDefault(this string s, char trim, string @default = default(string))
+        public static string ConcatNullOrEmpty(this string str1, string str2) => str1.IsNullOrEmpty() ? str2 : str1;
+        public static string ConcatNullOrWhitespace(this string str1, string str2) => str1.IsNullOrWhitespace() ? str2 : str1;        public static string TrimOrDefault(this string s, char trim, string @default = default(string))
         {
             if (s == null)
                 return @default;

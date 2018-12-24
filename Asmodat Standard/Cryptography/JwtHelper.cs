@@ -1,24 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
-using AsmodatStandard.Cryptography;
 using AsmodatStandard.Extensions;
 using AsmodatStandard.Extensions.Collections;
 using AsmodatStandard.Extensions.IO;
 using Microsoft.IdentityModel.Tokens;
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.Security;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-using Newtonsoft.Json.Linq;
 
 namespace AsmodatStandard.Cryptography
 {
@@ -29,28 +17,30 @@ namespace AsmodatStandard.Cryptography
             string audience,
             IEnumerable<Claim> claims,
             string privatePemKey,
-            DateTime? expires,
-            DateTime? issuedAt = null,
-            DateTime? notBefore = null)
+            DateTime expires,
+            DateTime issuedAt,
+            DateTime notBefore)
         {
             if (claims.IsNullOrEmpty())
                 throw new ArgumentException("At least one claim must be specified such for example: User Name.");
 
-            if (issuedAt != null && !issuedAt.Value.IsUTC())
-                throw new ArgumentException($"Issuance Date Time must have an UTC format.");
+            if (!issuedAt.IsUTC())
+                throw new ArgumentException($"Issuance Date Time (issuedAt) must have an UTC format.");
 
-            if (expires != null && !expires.Value.IsUTC())
-                throw new ArgumentException($"Expiration Date Time must have an UTC format.");
+            if (!expires.IsUTC())
+                throw new ArgumentException($"Expiration Date Time (expires) must have an UTC format.");
 
-            var issuedAtDateTime = issuedAt ?? DateTime.UtcNow;
+            if (!notBefore.IsUTC())
+                throw new ArgumentException($"Not Before Date Time (notBefore) must have an UTC format.");
+
             var rsaSK = RSA.PemToRsaSecurityKey(privatePemKey);
             var descriptor = new SecurityTokenDescriptor()
             {
                 Subject = new ClaimsIdentity(
                 claims.ToArray()),
                 SigningCredentials = new SigningCredentials(rsaSK, SecurityAlgorithms.RsaSha256Signature),
-                IssuedAt = issuedAtDateTime,
-                NotBefore = notBefore ?? issuedAtDateTime,
+                IssuedAt = issuedAt,
+                NotBefore = notBefore,
                 Expires = expires,
                 Audience = audience,
                 Issuer = issuer,

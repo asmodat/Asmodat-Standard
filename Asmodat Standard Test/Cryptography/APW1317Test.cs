@@ -5,6 +5,7 @@ using AsmodatStandard.Extensions.IO;
 using System.Threading.Tasks;
 using AsmodatStandard.Cryptography;
 using AsmodatStandard.Extensions.Cryptography;
+using System.Collections.Generic;
 
 namespace AsmodatStandardTest.Cryptography
 {
@@ -20,6 +21,22 @@ namespace AsmodatStandardTest.Cryptography
 
             Assert.IsTrue(APW1317.Verify(pass, secret, dificulty));
             Assert.IsFalse(APW1317.Verify("ble", secret, dificulty));
+        }
+
+        [Test]
+        public void EdgeCaseTesting()
+        {
+            var dificulty = 30;
+            var testCase = "I^24r6i2";
+            var dict = new Dictionary<string, string>();
+            var cntr = 0;
+
+            while(dict.Count < dificulty)
+            {
+                var secret = APW1317.Generate(testCase, dificulty);
+                dict[secret] = "testCase-" + ++cntr;
+                Assert.IsTrue(APW1317.Verify(testCase, secret, dificulty));
+            }
         }
 
         [Test]

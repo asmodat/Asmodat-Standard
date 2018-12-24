@@ -11,6 +11,19 @@ namespace AsmodatStandardTest.Cryptography
     public class HashHelperTest
     {
         [Test]
+        public void IsValidSHA256Hex()
+        {
+            Assert.IsTrue("7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069".IsValidSHA256Hex());
+            Assert.IsTrue("7f83b1657ff1fc53b92dc18148a1d65dfC2d4b1fa3d677284addd200126d9069".IsValidSHA256Hex());
+            Assert.IsFalse("87f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069".IsValidSHA256Hex());
+            Assert.IsFalse("f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069".IsValidSHA256Hex());
+            Assert.IsFalse("f83b1657ff1fc53b92dc18148a1d65dfc2dg4b1fa3d677284addd200126d9069".IsValidSHA256Hex());
+            Assert.IsFalse("f83b1657ff1fc53b92dc18148a1d65dfc2d-4b1fa3d677284addd200126d9069".IsValidSHA256Hex());
+            Assert.IsFalse("".IsValidSHA256Hex());
+            Assert.IsFalse((null as string).IsValidSHA256Hex());
+        }
+
+        [Test]
         public async Task HashDirectorySHA256()
         {
             var dir = Directory.GetCurrentDirectory();
