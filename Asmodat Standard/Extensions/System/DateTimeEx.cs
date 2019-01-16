@@ -6,7 +6,14 @@ namespace AsmodatStandard.Extensions
     public static class DateTimeEx
     {
         private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        public static long UnixTimestampNow() => (long)(DateTime.UtcNow - UnixEpoch).TotalSeconds;
+
+        /// <summary>
+        /// UTC Unix Timestamp, dt is converted to UTC if its not UTC
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns>UTC Unix Timestamp</returns>
+        public static long ToUnixTimestamp(this DateTime dt) => (long)((dt.IsUTC() ? dt : dt.ToUniversalTime()) - UnixEpoch).TotalSeconds;
+        public static long UnixTimestampNow() => DateTime.UtcNow.ToUnixTimestamp();
         public static DateTime ToDateTimeFromUnixTimestamp(this long seconds) => UnixEpoch.AddSeconds(seconds);
 
         public static string ToRfc3339String(this DateTime dt)
