@@ -135,9 +135,6 @@ namespace AsmodatStandard.Extensions.IO
             return bag.DistinctBy(x => x.FullName).ToArray();
         }
 
-        public static string Combine(this DirectoryInfo info, params string[] paths)
-            => Path.Combine(new string[] { info.FullName }.Merge(paths));
-
         public static DirectoryInfo ToDirectoryInfo(this string dir) => dir == null ? null : new DirectoryInfo(dir);
 
         public static void SortByName(this DirectoryInfo[] infos, bool fullName = false)

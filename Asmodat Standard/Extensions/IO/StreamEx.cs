@@ -55,5 +55,11 @@ namespace AsmodatStandard.Extensions.IO
 
         public static BufferedStream ToBufferedStream(this Stream stream, int bufferSize = 256 * 1024)
             => new BufferedStream(stream, bufferSize);
+
+        public static StreamWriter ToStreamWriter(this Stream stream, Encoding encoding = null)
+            => encoding == null ? new StreamWriter(stream) : new StreamWriter(stream, encoding);
+
+        public static StreamWriter ToStreamWriter(this Stream stream, Encoding encoding, int bufferSize)
+            => new StreamWriter(stream, encoding, bufferSize);
     }
 }

@@ -14,8 +14,24 @@ namespace AsmodatStandard.Extensions
 {
     public static partial class StringEx
     {
+        public static string Base64Encode(this string s, System.Text.Encoding encoding = null) => System.Convert.ToBase64String((encoding ?? System.Text.Encoding.UTF8).GetBytes(s));
+        public static string Base64Decode(this string s, System.Text.Encoding encoding = null) => (encoding ?? Encoding.UTF8).GetString(System.Convert.FromBase64String(s));
+
         public static string ConcatNullOrEmpty(this string str1, string str2) => str1.IsNullOrEmpty() ? str2 : str1;
-        public static string ConcatNullOrWhitespace(this string str1, string str2) => str1.IsNullOrWhitespace() ? str2 : str1;
+        public static string ConcatNullOrWhitespace(this string str1, string str2) => str1.IsNullOrWhitespace() ? str2 : str1;        public static string TrimOrDefault(this string s, char trim, string @default = default(string))
+        {
+            if (s == null)
+                return @default;
+
+            try
+            {
+                return s.Trim(trim);
+            }
+            catch
+            {
+                return @default;
+            }
+        }
 
         public static async Task<T> JsonDeserializeAsync<T>(this Task<string> json)
             => JsonConvert.DeserializeObject<T>(await json);
@@ -147,6 +163,19 @@ namespace AsmodatStandard.Extensions
                 count++;
             }
             return count;
+        }
+
+        public static string Trim(this string target, string trim, int count = int.MaxValue)
+        {
+            if (trim.IsNullOrEmpty())
+                return target;
+
+            target = target.TrimStart(trim, count: count);
+
+            if (trim.IsNullOrEmpty())
+                return target;
+
+            return target.TrimEnd(trim, count: count);
         }
 
         public static string TrimStartSingle(this string target, string trim)
