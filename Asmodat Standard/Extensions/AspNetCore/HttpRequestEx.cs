@@ -39,7 +39,7 @@ namespace AsmodatStandard.Extensions.AspNetCore
 
             var decodedCredentials = secret.Base64Decode().Split(':');
 
-            if (decodedCredentials.Length != 1)
+            if (decodedCredentials.Length != 2)
                 throw new Exception($"Decoded Basic Auth Secret must contain exactly one ':' separator, but had {decodedCredentials.Length}.");
 
             return (decodedCredentials[0], decodedCredentials[1]);
