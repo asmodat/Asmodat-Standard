@@ -12,6 +12,19 @@ namespace AsmodatStandardTest.Cryptography
     [TestFixture]
     public class APW1317Test
     {
+        /*/// 
+        [Test]
+        public void PassGenTest()
+        {
+            var dificulty = 997;
+            var pass = "Z35mwUIoZjZ4SVRUkrUaDReQ4xyz4JfTAb6WVC8ILXDtJibTzVR0CWGvj2UdzZUZ".SHA256().ToHexString();
+            var secret = APW1317.Generate(pass, dificulty);
+
+            Assert.IsTrue(APW1317.Verify(pass, secret, dificulty));
+            Assert.IsFalse(APW1317.Verify("ble", secret, dificulty));
+        }
+        //*///
+
         [Test]
         public void CreateAndVerifyManual()
         {

@@ -17,6 +17,20 @@ namespace AsmodatStandard.Extensions
         public static string Base64Encode(this string s, System.Text.Encoding encoding = null) => System.Convert.ToBase64String((encoding ?? System.Text.Encoding.UTF8).GetBytes(s));
         public static string Base64Decode(this string s, System.Text.Encoding encoding = null) => (encoding ?? Encoding.UTF8).GetString(System.Convert.FromBase64String(s));
 
+        /// <summary>
+        /// Checks is string is a valid base 64 string
+        /// </summary>
+        /// <param name="s">base 64 string</param>
+        /// <returns>true if string is base64 encoded, otherwise false</returns>
+        public static bool IsBase64(this string s)
+        {
+            if (s.IsNullOrWhitespace())
+                return false;
+
+            s = s.Trim();
+            return (s.Length % 4 == 0) && Regex.IsMatch(s, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
+        }
+
         public static string ConcatNullOrEmpty(this string str1, string str2) => str1.IsNullOrEmpty() ? str2 : str1;
         public static string ConcatNullOrWhitespace(this string str1, string str2) => str1.IsNullOrWhitespace() ? str2 : str1;        public static string TrimOrDefault(this string s, char trim, string @default = default(string))
         {
