@@ -63,7 +63,7 @@ namespace AsmodatStandard.Extensions.IO
             return path.TrimOrDefault(' ');
         }
 
-        public static string CombineWindows(params string[] paths)
+        public static string Combinewindows(params string[] paths)
         {
             paths = paths?.Where(x => !x.IsNullOrWhitespace()).ToArray();
 
@@ -126,12 +126,6 @@ namespace AsmodatStandard.Extensions.IO
 
         public static string Combine(this DirectoryInfo info, params string[] paths)
             => PathEx.Combine(new string[] { info.FullName }.Merge(paths));
-
-        public static string Combine(bool isWindowsRuntime, params string[] paths)
-            => isWindowsRuntime ? CombineWindows(paths) : CombineLinux(paths);
-
-        public static string RuntimeCombine(params string[] paths)
-            => Combine(RuntimeEx.IsWindows(), paths);
 
         public static string Combine(params string[] paths)
         {

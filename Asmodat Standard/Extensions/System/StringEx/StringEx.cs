@@ -325,6 +325,22 @@ namespace AsmodatStandard.Extensions
             return bytes;
         }
 
+        public static int HexToInt(this string hex)
+        {
+            if (hex.StartsWith("0x"))
+                hex = hex.Substring(2, hex.Length - 2);
+
+            return int.Parse(hex, NumberStyles.HexNumber);
+        }
+
+        public static long HexToLong(this string hex)
+        {
+            if (hex.StartsWith("0x"))
+                hex = hex.Substring(2, hex.Length - 2);
+
+            return long.Parse(hex, NumberStyles.HexNumber);
+        }
+
         public static bool HexEquals(this string hex1, string hex2) => HexToArray(hex1).SequenceEqual(HexToArray(hex2));
         public static bool HexEquals(this string hex1, byte[] hex2) => HexToArray(hex1).SequenceEqual(hex2);
         public static bool HexEquals(this byte[] hex1, byte[] hex2) => hex1.SequenceEqual(hex2);
