@@ -21,9 +21,9 @@ namespace AsmodatStandardTest.IO
             Assert.AreEqual(PathEx.Combine(" a", " b "), "a\\b");
             Assert.AreEqual(PathEx.Combine("a", "b", "/" , "c"), "a\\b\\c");
             Assert.AreEqual(PathEx.Combine("a", "b", "\\", "c"), "a\\b\\c");
-            Assert.AreEqual(PathEx.Combine(isWindowsRuntime: false, "/a/b/c/d/e/f", "/g", "h"), "/a/b/c/d/e/f/g/h");
-            Assert.AreEqual(PathEx.Combine(isWindowsRuntime: false, "/a/b/////c/d/e/f", "/   g", "//h"), "/a/b/c/d/e/f/g/h");
-            Assert.AreEqual(PathEx.Combine(isWindowsRuntime: false, "a/b/c/d/e/f", "/g", "h"), "a/b/c/d/e/f/g/h");
+            Assert.AreEqual(PathEx.CombineLinux("/a/b/c/d/e/f", "/g", "h"), "/a/b/c/d/e/f/g/h");
+            Assert.AreEqual(PathEx.CombineLinux("/a/b/////c/d/e/f", "/   g", "//h"), "/a/b/c/d/e/f/g/h");
+            Assert.AreEqual(PathEx.CombineLinux("a/b/c/d/e/f", "/g", "h"), "a/b/c/d/e/f/g/h");
         }
     }
 }

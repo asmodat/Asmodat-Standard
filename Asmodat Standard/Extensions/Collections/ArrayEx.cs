@@ -6,6 +6,34 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class ArrayEx
     {
+        /// <summary>
+        /// Takes last 'n' values starting at position 'position' excluding 'position' index itself
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arr"></param>
+        /// <param name="n"></param>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        public static T[] TakeLastWithRotation<T>(this T[] arr, int n, int position)
+        {
+            if (n > arr.Length)
+                throw new ArgumentException("TakeLastWithRotation, parameter n can't be greater then arr length");
+
+            if (n == 0)
+                return new T[0];
+
+            var shift = Math.Max(position - n, 0);
+            var fromBeggining = arr.SubArray(shift, position - shift);
+
+            if (n <= position)
+                return fromBeggining;
+
+            var fromEnd = arr.SubArray(arr.Length - (n - position), n - position);
+
+            return fromEnd.Merge(fromBeggining);
+        }
+
+
         public static string ToString(this byte[] source, Encoding encoding)
             => encoding.GetString(source);
 
@@ -121,6 +149,7 @@ namespace AsmodatStandard.Extensions.Collections
 
             if (length < 0)
                 throw new ArgumentException("length cannot be negative");
+
             else if (length == 0)
                 return new T[0];
 

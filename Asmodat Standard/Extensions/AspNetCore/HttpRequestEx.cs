@@ -28,7 +28,9 @@ namespace AsmodatStandard.Extensions.AspNetCore
         }
 
         public static string GetBasicAuthSecret(this HttpRequest request) 
-            => request.GetAuthorizationHeader()?.TrimStartMany("Bearer ", "bearer ").Replace(" ", "");
+            => request.GetAuthorizationHeader()
+            ?.Trim()?.TrimStartMany("Basic ", "basic ", "Bearer ", "bearer ")
+            .Replace(" ", "");
 
         public static (string login, string password) GetBasicAuthCredentials(this HttpRequest request)
         {

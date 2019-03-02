@@ -1,11 +1,57 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace AsmodatStandard.Extensions.IO
 {
     public static class FileInfoEx
     {
+        public static void TrimEnd(this FileInfo source, long bytes)
+        {
+            using (FileStream fs = source.Open(FileMode.Open))
+            {
+                fs.SetLength(Math.Max(0, source.Length - bytes));
+                fs.Close();
+            }
+        }
+
+        public static bool TryCreate(this FileInfo source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            if (source.Exists)
+                return true;
+
+            try
+            {
+                if (!source.Directory.Exists)
+                    source.Directory.Create();
+
+                source.Create().Close();
+                source.Refresh();
+                Thread.Sleep(1);
+
+                return source.Exists;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static void AppendAllText(this FileInfo source, string contents, bool tryCreateSubdirectories = false)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            if(tryCreateSubdirectories)
+                source.TryCreate();
+
+            File.AppendAllText(source.FullName, contents);
+        }
+
         public static bool HasSubDirectory(this FileInfo source, DirectoryInfo subDir)
         {
             if (source == null)
