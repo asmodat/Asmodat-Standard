@@ -14,6 +14,9 @@ namespace AsmodatStandard.Extensions
                     NullValueHandling = nullValueHandling
                 });
 
+        public static bool JsonEquals(this object o1, object o2) 
+            => o1.JsonSerialize() == o2.JsonSerialize();
+
         public static double ToDoubleOrNaN(this object obj)
         {
             if (obj == null)

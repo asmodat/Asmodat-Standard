@@ -6,11 +6,11 @@ using AsmodatStandard.Extensions;
 
 namespace AsmodatStandard.Types
 {
-    public static class SerializableFileInfoEx
+    public static class SilyFileInfoEx
     {
-        public static SerializableFileInfo ToSerializableFileInfo(this FileInfo fi, string md5)
+        public static SilyFileInfo ToSilyFileInfo(this FileInfo fi, string md5)
         {
-            var sfi = new SerializableFileInfo();
+            var sfi = new SilyFileInfo();
             sfi.Attributes = fi.Attributes;
             sfi.CreationTime = fi.CreationTimeUtc.ToUnixTimestamp();
             sfi.LastAccessTime = fi.LastAccessTimeUtc.ToUnixTimestamp();
@@ -31,7 +31,7 @@ namespace AsmodatStandard.Types
         }
     }
 
-    public class SerializableFileInfo
+    public class SilyFileInfo
     {
         public FileAttributes Attributes { get; set; }
 

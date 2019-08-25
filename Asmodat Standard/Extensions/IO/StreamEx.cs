@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using AsmodatStandard.Cryptography;
 using AsmodatStandard.Extensions.Collections;
 
 namespace AsmodatStandard.Extensions.IO
@@ -31,6 +32,22 @@ namespace AsmodatStandard.Extensions.IO
             var buffer = new byte[bufferSize];
             var result = new byte[maxLength];
             while((remaining = maxLength - total) > 0 && (read = stream.Read(buffer, 0, Math.Min(bufferSize, remaining))) > 0)
+            {
+                buffer.CopyTo(0, result, total, read);
+                total += read;
+            }
+
+            return new MemoryStream(total == maxLength ? result : result.SubArray(0, total));
+        }
+
+        public static MemoryStream ToMemoryBlob(this HashStream stream, int maxLength, int bufferSize = 128 * 1024)
+        {
+            int read = 0;
+            int total = 0;
+            int remaining;
+            var buffer = new byte[bufferSize];
+            var result = new byte[maxLength];
+            while ((remaining = maxLength - total) > 0 && (read = stream.Read(buffer, 0, Math.Min(bufferSize, remaining))) > 0)
             {
                 buffer.CopyTo(0, result, total, read);
                 total += read;

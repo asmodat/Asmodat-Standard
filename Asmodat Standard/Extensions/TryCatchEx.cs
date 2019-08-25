@@ -11,6 +11,7 @@ namespace AsmodatStandard.Extensions
 {
     public static class TryCatchEx
     {
+
         public static Task<Exception> CatchExceptionAsync(this Task task, bool catchDisable = false)
             => task.CatchExceptionAsync<Exception>(catchDisable: catchDisable);
 

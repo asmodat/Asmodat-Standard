@@ -4,11 +4,42 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace AsmodatStandard.Extensions.IO
 {
     public static class DirectoryInfoEx
     {
+        /// <summary>
+        /// Tries to create directory
+        /// This method throws is source is null
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns>true if directory exists or was created and false if not</returns>
+        public static bool TryCreate(this DirectoryInfo source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            if (source.Exists)
+                return true;
+
+            try
+            {
+                if (!source.Exists)
+                    source.Create();
+
+                source.Refresh();
+                Thread.Sleep(1);
+
+                return source.Exists;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static bool HasSubDirectory(this DirectoryInfo source, DirectoryInfo subDir)
         {
             if (source == null)

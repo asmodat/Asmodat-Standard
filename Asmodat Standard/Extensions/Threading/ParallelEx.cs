@@ -24,7 +24,7 @@ namespace AsmodatStandard.Extensions.Threading
                 if (list.Count >= maxDegreeOfParallelism)
                 {
                     await Task.WhenAll(list.Select(x => func(x)));
-                    list.Clear();
+                    list = new List<K>();
                 }
             }
 
