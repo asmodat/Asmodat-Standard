@@ -6,7 +6,7 @@ namespace AsmodatStandard.Extensions
     public static class DateTimeEx
     {
         private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        private static readonly string LongDateTimeFormat = "yyyyMMddHHmmssfff";
+        private static readonly string TimestampFormat = "yyyyMMddHHmmss";
 
         /// <summary>
         /// UTC Unix Timestamp, dt is converted to UTC if its not UTC
@@ -16,17 +16,17 @@ namespace AsmodatStandard.Extensions
         public static long ToUnixTimestamp(this DateTime dt) => (long)((dt.IsUTC() ? dt : dt.ToUniversalTime()) - UnixEpoch).TotalSeconds;
         public static long UnixTimestampNow() => DateTime.UtcNow.ToUnixTimestamp();
 
-        public static long ToLongTimestamp(this DateTime dt) => 
+        public static long ToTimestamp(this DateTime dt) => 
             long.Parse((dt.IsUTC() ? dt : dt.ToUniversalTime())
-                .ToString(LongDateTimeFormat, DateTimeFormatInfo.InvariantInfo));
+                .ToString(TimestampFormat, DateTimeFormatInfo.InvariantInfo));
 
-        public static long LongTimestampNow() => DateTime.UtcNow.ToLongTimestamp();
+        public static long TimestampNow() => DateTime.UtcNow.ToTimestamp();
 
         public static DateTime ToDateTimeFromUnixTimestamp(this long seconds) => UnixEpoch.AddSeconds(seconds);
 
-        public static DateTime ToDateTimeFromLongTimestamp(this long timestamp)
+        public static DateTime ToDateTimeFromTimestamp(this long timestamp)
         {
-            DateTime.TryParseExact(timestamp.ToString(), LongDateTimeFormat, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out var result);
+            DateTime.TryParseExact(timestamp.ToString(), TimestampFormat, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out var result);
             result = DateTime.SpecifyKind(result, DateTimeKind.Utc);
             return result;
         }

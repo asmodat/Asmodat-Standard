@@ -3,11 +3,22 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using AsmodatStandard.Extensions;
+using AsmodatStandard.Cryptography;
 
 namespace AsmodatStandard.Types
 {
     public static class SilyFileInfoEx
     {
+        public static SilyFileInfo ToSilyFileInfo(this FileInfo fi)
+        {
+            fi.Refresh();
+            string md5 = null;
+            if (fi.Exists)
+                md5 = fi.MD5().ToHexString();
+
+            return fi.ToSilyFileInfo(md5: md5);
+        }
+
         public static SilyFileInfo ToSilyFileInfo(this FileInfo fi, string md5)
         {
             var sfi = new SilyFileInfo();
@@ -35,8 +46,17 @@ namespace AsmodatStandard.Types
     {
         public FileAttributes Attributes { get; set; }
 
+        /// <summary>
+        /// unix timestamp
+        /// </summary>
         public long CreationTime { get; set; }
+        /// <summary>
+        /// unix timestamp
+        /// </summary>
         public long LastAccessTime { get; set; }
+        /// <summary>
+        /// unix timestamp
+        /// </summary>
         public long LastWriteTime { get; set; }
         public string Name { get; set; }
 
