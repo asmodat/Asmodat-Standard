@@ -25,7 +25,7 @@ namespace AsmodatStandard.Cryptography
         /// </summary>
         public static byte[] MD5(this FileInfo fi)
         {
-            using (var fs = File.OpenRead(fi.FullName))
+            using (var fs = File.Open(fi.FullName, FileMode.Open, FileAccess.ReadWrite))
                 return fs.MD5();
         }
 
