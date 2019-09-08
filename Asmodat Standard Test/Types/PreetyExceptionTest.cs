@@ -20,7 +20,6 @@ namespace AsmodatStandardTest.Types
         {
             void test()
             {
-                int i = 0;
                 throw new Exception("bla", new AggregateException("ble"));
             }
 
@@ -40,7 +39,7 @@ namespace AsmodatStandardTest.Types
         {
             async Task test()
             {
-                int i = 0;
+                await Task.Delay(1);
                 throw new Exception("bla", new AggregateException("ble"));
             }
 

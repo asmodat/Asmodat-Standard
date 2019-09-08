@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>AsmodatStandard</AssemblyName>
     <RootNamespace>AsmodatStandard</RootNamespace>
     <Platforms>AnyCPU;x64</Platforms>
@@ -9,15 +9,15 @@
     <Description>Multipurpose .NET Standard Extensions</Description>
     <PackageId>Asmodat.Standard</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <PackageReleaseNotes>2019-09-04</PackageReleaseNotes>
-    <Version>1.0.0.16</Version>
+    <PackageReleaseNotes>2019-09-07</PackageReleaseNotes>
+    <Version>1.0.0.18</Version>
     <PackageProjectUrl>https://github.com/asmodat/Asmodat-Standard</PackageProjectUrl>
     <PackageTags>Asmodat Standard, Asmodat, AsmodatStandard, Extensions, Standard</PackageTags>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Company>AsmodatStandard</Company>
     <PackageIconUrl>https://avatars3.githubusercontent.com/u/10515811</PackageIconUrl>
     <Authors>AsmodatStandard</Authors>
-    <AssemblyVersion>1.0.0.16</AssemblyVersion>
+    <AssemblyVersion>1.0.0.18</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

@@ -8,6 +8,18 @@ namespace AsmodatStandardTest.Extensions.StringExTests
     public class IntExTest
     {
         [Test]
+        public void IsPowerOf2()
+        {
+            Assert.IsTrue(2.IsPowerOf2());
+            Assert.IsFalse(3.IsPowerOf2());
+            Assert.IsTrue(4.IsPowerOf2());
+            Assert.IsFalse(5.IsPowerOf2());
+            Assert.IsFalse(6.IsPowerOf2());
+            Assert.IsFalse(7.IsPowerOf2());
+            Assert.IsTrue(8.IsPowerOf2());
+        }
+
+        [Test]
         public void GetBitShiftPositions()
         {
             void Test(int v, params int[] positions)

@@ -85,7 +85,7 @@ namespace AsmodatStandard.Cryptography
                 if(verifyIfNotExpired && securityToken.ValidTo < DateTime.UtcNow)
                         return false;
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 return false;
             }

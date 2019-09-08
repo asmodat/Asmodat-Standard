@@ -72,7 +72,7 @@ namespace AsmodatStandardTest.Threading.CronTest
                             var ticks = dt.Ticks;
                             success = true;
                         }
-                        catch (ArgumentOutOfRangeException ex)
+                        catch (ArgumentOutOfRangeException)
                         {
                             continue;
                         }

@@ -6,7 +6,6 @@ namespace AsmodatStandard.Extensions
 {
     public static class IntEx
     {
-#warning IsPowerOf2 method has no unit tests
         public static bool IsPowerOf2(this int v)
         {
             if (v < 0)

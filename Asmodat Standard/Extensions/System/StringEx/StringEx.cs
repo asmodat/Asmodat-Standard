@@ -31,6 +31,25 @@ namespace AsmodatStandard.Extensions
             return (s.Length % 4 == 0) && Regex.IsMatch(s, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
         }
 
+        /// <summary>
+        /// Checks if string is a hex string
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public static bool IsHex(this string s, bool ignorePrefix = true, bool trim = false)
+        {
+            if (trim)
+                s = s?.Trim();
+
+            if (ignorePrefix)
+                s = s?.TrimStart("0x");
+
+            if (s.IsNullOrEmpty())
+                return false;
+
+            return Regex.IsMatch(s, @"\A\b[0-9a-fA-F]+\b\Z");
+        }
+
         public static string ConcatNullOrEmpty(this string str1, string str2) => str1.IsNullOrEmpty() ? str2 : str1;
         public static string ConcatNullOrWhitespace(this string str1, string str2) => str1.IsNullOrWhitespace() ? str2 : str1;        public static string TrimOrDefault(this string s, char trim, string @default = default(string))
         {
