@@ -151,6 +151,21 @@ namespace AsmodatStandard.Extensions
         public static bool IsAlphanumericUnicode(this string s)
             => !s.IsNullOrEmpty() && s.Any(char.IsLetterOrDigit);
 
+        public static string ToAlphanumeric(this string s, params char[] whitelist)
+        {
+            if (s.IsNullOrEmpty())
+                return s;
+
+            if (whitelist == null)
+                whitelist = new char[0];
+
+            char[] arr = s.Where(c => char.IsLetterOrDigit(c) ||
+                             char.IsWhiteSpace(c) ||
+                             whitelist.Any(subc => subc == c)).ToArray();
+
+           return new string(arr);
+        }
+
         /// <summary>
         /// Splits sting by character but allows for escaping
         /// </summary>

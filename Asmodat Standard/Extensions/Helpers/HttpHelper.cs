@@ -39,36 +39,43 @@ namespace AsmodatStandard.Extensions
         public static string HtmlEncode(this string str) => HttpUtility.HtmlEncode(str);
         public static string HtmlDecode(this string str) => HttpUtility.HtmlDecode(str);
 
-        public static async Task<T> GET<T>(Uri uri, HttpStatusCode? ensureStatusCode = null, params (string key, string value)[] defaultHeaders)
-            => await GET<T>(uri.ToString(), ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders);
+        public static async Task<T> GET<T>(Uri uri, HttpStatusCode? ensureStatusCode = null, int timeoutSeconds = 150, params (string key, string value)[] defaultHeaders)
+            => await GET<T>(uri.ToString(), ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders, timeoutSeconds: timeoutSeconds);
 
-        public static async Task<T> GET<T>(string requestUri, HttpStatusCode? ensureStatusCode = null, (string key, string value)[] defaultHeaders = null)
-            => await SEND<T>(HttpMethod.Get, requestUri, content: null, ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders);
+        public static async Task<T> GET<T>(string requestUri, HttpStatusCode? ensureStatusCode = null, int timeoutSeconds = 150, (string key, string value)[] defaultHeaders = null)
+            => await SEND<T>(HttpMethod.Get, requestUri, content: null, ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders, timeoutSeconds: timeoutSeconds);
 
-        public static async Task<T> POST<T>(string requestUri, HttpContent content, HttpStatusCode? ensureStatusCode = null, params (string key, string value)[] defaultHeaders)
-            => await SEND<T>(HttpMethod.Post, requestUri, content: content, ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders);
-        public static async Task<T> POST<T>(string requestUri, string content, Encoding encoding, string mediaType, HttpStatusCode? ensureStatusCode = null, params (string key, string value)[] defaultHeaders)
-            => await SEND<T>(HttpMethod.Post, requestUri, content: new StringContent(content, encoding, mediaType), ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders);
+        public static async Task<T> POST<T>(string requestUri, HttpContent content, HttpStatusCode? ensureStatusCode = null, int timeoutSeconds = 150, params (string key, string value)[] defaultHeaders)
+            => await SEND<T>(HttpMethod.Post, requestUri, content: content, ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders, timeoutSeconds: timeoutSeconds);
+        public static async Task<T> POST<T>(string requestUri, string content, Encoding encoding, string mediaType, HttpStatusCode? ensureStatusCode = null, int timeoutSeconds = 150, params (string key, string value)[] defaultHeaders)
+            => await SEND<T>(HttpMethod.Post, requestUri, content: new StringContent(content, encoding, mediaType), ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders, timeoutSeconds: timeoutSeconds);
 
         public static async Task<T> PUT<T>(string requestUri, HttpContent content, HttpStatusCode? ensureStatusCode = null, params (string key, string value)[] defaultHeaders)
             => await SEND<T>(HttpMethod.Put, requestUri, content: content, ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders);
 
-        public static async Task<string> GET(string requestUri, HttpStatusCode? ensureStatusCode = null, params (string key, string value)[] defaultHeaders) 
-            => await SEND(HttpMethod.Get, requestUri, content: null, ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders);
-        public static async Task<string> POST(string requestUri, HttpContent content, HttpStatusCode? ensureStatusCode = null, bool addHeadersWithoutValidation = false, params (string key, string value)[] defaultHeaders) 
-            => await SEND(HttpMethod.Post, requestUri, content: content, ensureStatusCode: ensureStatusCode, addHeadersWithoutValidation: addHeadersWithoutValidation, defaultHeaders: defaultHeaders);
+        public static async Task<string> GET(string requestUri, HttpStatusCode? ensureStatusCode = null, int timeoutSeconds = 150, params (string key, string value)[] defaultHeaders) 
+            => await SEND(HttpMethod.Get, requestUri, content: null, ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders, timeoutSeconds: timeoutSeconds);
+        public static async Task<string> POST(string requestUri, HttpContent content, HttpStatusCode? ensureStatusCode = null, bool addHeadersWithoutValidation = false, int timeoutSeconds = 150, params (string key, string value)[] defaultHeaders) 
+            => await SEND(HttpMethod.Post, requestUri, content: content, ensureStatusCode: ensureStatusCode, addHeadersWithoutValidation: addHeadersWithoutValidation, defaultHeaders: defaultHeaders, timeoutSeconds: timeoutSeconds);
 
-        public static async Task<string> DELETE(string requestUri, HttpContent content, HttpStatusCode? ensureStatusCode = null, bool addHeadersWithoutValidation = false, params (string key, string value)[] defaultHeaders)
-            => await SEND(HttpMethod.Delete, requestUri, content: content, ensureStatusCode: ensureStatusCode, addHeadersWithoutValidation: addHeadersWithoutValidation, defaultHeaders: defaultHeaders);
-        public static async Task<T> DELETE<T>(string requestUri, HttpContent content, HttpStatusCode? ensureStatusCode = null, bool addHeadersWithoutValidation = false, params (string key, string value)[] defaultHeaders)
-            => await SEND<T>(HttpMethod.Delete, requestUri, content: content, ensureStatusCode: ensureStatusCode, addHeadersWithoutValidation: addHeadersWithoutValidation, defaultHeaders: defaultHeaders);
+        public static async Task<string> DELETE(string requestUri, HttpContent content, HttpStatusCode? ensureStatusCode = null, bool addHeadersWithoutValidation = false, int timeoutSeconds = 150, params (string key, string value)[] defaultHeaders)
+            => await SEND(HttpMethod.Delete, requestUri, content: content, ensureStatusCode: ensureStatusCode, addHeadersWithoutValidation: addHeadersWithoutValidation, defaultHeaders: defaultHeaders, timeoutSeconds: timeoutSeconds);
+        public static async Task<T> DELETE<T>(string requestUri, HttpContent content, HttpStatusCode? ensureStatusCode = null, bool addHeadersWithoutValidation = false, int timeoutSeconds = 150, params (string key, string value)[] defaultHeaders)
+            => await SEND<T>(HttpMethod.Delete, requestUri, content: content, ensureStatusCode: ensureStatusCode, addHeadersWithoutValidation: addHeadersWithoutValidation, defaultHeaders: defaultHeaders, timeoutSeconds: timeoutSeconds);
 
-        public static async Task<string> PUT(string requestUri, HttpContent content, HttpStatusCode? ensureStatusCode = null, params (string key, string value)[] defaultHeaders) 
-            => await SEND(HttpMethod.Put, requestUri, content: content, ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders);
-        public static async Task<string> SEND(HttpMethod method, string requestUri, HttpContent content = null, HttpStatusCode? ensureStatusCode = null, bool addHeadersWithoutValidation = false, params (string key, string value)[] defaultHeaders)
-            => await SEND<string>(method, requestUri, content, ensureStatusCode, addHeadersWithoutValidation, defaultHeaders);
+        public static async Task<string> PUT(string requestUri, HttpContent content, HttpStatusCode? ensureStatusCode = null, int timeoutSeconds = 150, params (string key, string value)[] defaultHeaders) 
+            => await SEND(HttpMethod.Put, requestUri, content: content, ensureStatusCode: ensureStatusCode, defaultHeaders: defaultHeaders, timeoutSeconds: timeoutSeconds);
+        public static async Task<string> SEND(HttpMethod method, string requestUri, HttpContent content = null, HttpStatusCode? ensureStatusCode = null, bool addHeadersWithoutValidation = false, int timeoutSeconds = 150, params (string key, string value)[] defaultHeaders)
+            => await SEND<string>(method, requestUri, content, ensureStatusCode, addHeadersWithoutValidation, timeoutSeconds, defaultHeaders);
 
-        public static async Task<T> SEND<T>(HttpMethod method, string requestUri, HttpContent content = null, HttpStatusCode? ensureStatusCode = null, bool addHeadersWithoutValidation = false, params (string key, string value)[] defaultHeaders)
+        public static async Task<T> SEND<T>(
+            HttpMethod method, 
+            string requestUri, 
+            HttpContent content = null, 
+            HttpStatusCode? ensureStatusCode = null, 
+            bool addHeadersWithoutValidation = false,
+            int timeoutSeconds = 150,
+            params (string key, string value)[] defaultHeaders)
         {
             var result = await CURL(
                                method: method,
@@ -76,6 +83,7 @@ namespace AsmodatStandard.Extensions
                                content: content,
                                ensureStatusCode: ensureStatusCode,
                                addHeadersWithoutValidation: addHeadersWithoutValidation,
+                               timeoutSeconds: timeoutSeconds,
                                defaultHeaders: defaultHeaders);
 
             var responseContentJson = await result.Response.Content?.ReadAsStringAsync();
@@ -86,22 +94,35 @@ namespace AsmodatStandard.Extensions
             return typeof(T) == typeof(string) ? (T)(object)responseContentJson : JsonConvert.DeserializeObject<T>(responseContentJson);
         }
 
-        public static Task<CurlResponse> CURL(HttpMethod method, Uri url, HttpContent content = null, HttpStatusCode? ensureStatusCode = null, (string key, string value)[] defaultHeaders = null)
+        public static Task<CurlResponse> CURL(
+            HttpMethod method, 
+            Uri url, 
+            HttpContent content = null, 
+            HttpStatusCode? ensureStatusCode = null,
+            int timeoutSeconds = 150,
+            (string key, string value)[] defaultHeaders = null)
             => CURL(
                method: method,
                requestUri: url.ToString(),
                content: content,
                ensureStatusCode: ensureStatusCode,
+               timeoutSeconds: timeoutSeconds,
                defaultHeaders: defaultHeaders);
 
-        public static async Task<CurlResponse> CURL(HttpMethod method, string requestUri, HttpContent content = null, HttpStatusCode? ensureStatusCode = null, bool addHeadersWithoutValidation = false, (string key, string value)[] defaultHeaders = null)
+        public static async Task<CurlResponse> CURL(
+            HttpMethod method, string requestUri, 
+            HttpContent content = null, 
+            HttpStatusCode? ensureStatusCode = null, 
+            bool addHeadersWithoutValidation = false, 
+            int timeoutSeconds = 150,
+            (string key, string value)[] defaultHeaders = null)
         {
             var request = new HttpRequestMessage(method, requestUri);
 
             if (content != null)
                 request.Content = content;
 
-            var client = new HttpClient() { Timeout = TimeSpan.FromSeconds(150) };
+            var client = new HttpClient() { Timeout = TimeSpan.FromSeconds(timeoutSeconds) };
 
            
             defaultHeaders?.ForEach(header => {

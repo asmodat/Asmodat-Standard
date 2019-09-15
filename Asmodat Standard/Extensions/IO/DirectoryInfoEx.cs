@@ -40,6 +40,81 @@ namespace AsmodatStandard.Extensions.IO
             }
         }
 
+        public static bool TrySetAttributes(this DirectoryInfo source, FileAttributes atributes, bool recursive, out Exception exception)
+        {
+            exception = null;
+            if (source?.Exists != true)
+                return false;
+
+            var files = source.GetFiles(recursive: recursive);
+            if (files.IsNullOrEmpty())
+                return true;
+
+            var success = true;
+            foreach (var f in files)
+            {
+                try
+                {
+                    File.SetAttributes(f.FullName, atributes);
+                }
+                catch(Exception ex)
+                {
+                    exception = ex;
+                    success = false;
+                }
+            }
+
+            return success;
+        }
+
+        public static bool TryDelete(this DirectoryInfo source, bool recursive)
+            => source.TryDelete(recursive: recursive, out var ex);
+
+        public static bool TryDelete(this DirectoryInfo source, bool recursive, out Exception exception)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            exception = null;
+            if (!source.Exists)
+                return true;
+
+            bool delete()
+            {
+                source.Refresh();
+                if (source.Exists)
+                    source.Delete(recursive: recursive);
+
+                source.Refresh();
+                Thread.Sleep(1);
+
+                return source.Exists;
+            }
+
+            try
+            {
+                return delete();
+            }
+            catch (Exception outer)
+            {
+                Exception attributeException = null;
+                try
+                {
+                    // sometimes file attributes have to be set to normal in order to delete files
+                    source.TrySetAttributes(atributes: FileAttributes.Normal, recursive: recursive, out attributeException);
+                    delete();
+                }
+                catch(Exception inner)
+                {
+                    exception = new AggregateException(outer, inner, attributeException);
+                    return false;
+                }
+
+                exception = outer;
+                return false;
+            }
+        }
+
         public static bool HasSubDirectory(this DirectoryInfo source, DirectoryInfo subDir)
         {
             if (source == null)
@@ -90,6 +165,9 @@ namespace AsmodatStandard.Extensions.IO
 
             return bag.DistinctBy(x => x.FullName).ToArray();
         }
+
+        public static FileInfo[] GetFiles(this DirectoryInfo info, bool recursive)
+            => recursive ? info.GetFilesRecursive() : info.GetFiles(); 
 
         public static FileInfo[] GetFilesRecursive(this DirectoryInfo info)
             => GetFilesRecursive(info, new string[] { "*" });

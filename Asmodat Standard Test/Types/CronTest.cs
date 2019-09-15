@@ -15,6 +15,15 @@ namespace AsmodatStandardTest.Threading.CronTest
     public class CronTest
     {
         [Test]
+        public void EdgeCronTest()
+        {
+            var c = "* * * * * *".ToCron();
+            var r = c.Compare(DateTime.UtcNow);
+            Assert.AreEqual(r, 0);
+            Assert.IsTrue(r == 0);
+        }
+
+        [Test]
         public void RangeCronTest()
         {
             void Test(string cron, DateTime d, bool equal)

@@ -11,6 +11,76 @@ namespace AsmodatStandard.Extensions
 {
     public static class TryCatchEx
     {
+        public static void TryCatch(this Action action, out Exception exception)
+        {
+            try
+            {
+                action();
+                exception = null;
+            }
+            catch(Exception ex)
+            {
+                exception = ex;
+            }
+        }
+
+        public static T TryCatch<T>(this Func<T> func, out Exception exception)
+        {
+            try
+            {
+                exception = null;
+                return func();
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+                return default;
+            }
+        }
+
+        public static O TryCatch<T1,O>(this Func<T1,O> func, T1 v1, out Exception exception)
+        {
+            try
+            {
+                exception = null;
+                return func(v1);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+                return default;
+            }
+        }
+
+        public static O TryCatch<T1, T2, O>(this Func<T1, T2, O> func, T1 v1, T2 v2, out Exception exception)
+        {
+            try
+            {
+                exception = null;
+                return func(v1, v2);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+                return default;
+            }
+        }
+
+        public static O TryCatch<T1,T2, T3, O>(this Func<T1,T2,T3, O> func, T1 v1, T2 v2, T3 v3, out Exception exception)
+        {
+            try
+            {
+                exception = null;
+                return func(v1,v2,v3);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+                return default;
+            }
+        }
+
+
 
         public static Task<Exception> CatchExceptionAsync(this Task task, bool catchDisable = false)
             => task.CatchExceptionAsync<Exception>(catchDisable: catchDisable);

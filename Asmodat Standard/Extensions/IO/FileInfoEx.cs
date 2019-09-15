@@ -146,5 +146,8 @@ namespace AsmodatStandard.Extensions.IO
 
         public static void UnZip(this FileInfo info, DirectoryInfo destination, Encoding encoding = null)
             => System.IO.Compression.ZipFile.ExtractToDirectory(info.FullName, destination.FullName, (encoding ?? Encoding.UTF8));
+
+        public static void AppendAllText(this FileInfo source, string contents)
+            => File.AppendAllText(source.FullName, contents);
     }
 }

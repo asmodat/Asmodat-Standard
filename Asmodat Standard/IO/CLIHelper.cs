@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AsmodatStandard.Extensions.Collections;
+using AsmodatStandard.Extensions.Threading;
+using AsmodatStandard.Threading;
+using System.Diagnostics;
 
 namespace AsmodatStandard.IO
 {
@@ -57,5 +60,80 @@ namespace AsmodatStandard.IO
             }
             return namedArgs;
         }
+
+        public static CommandOutput Bash(
+            this string cmd, 
+            string workingDirectory,
+            int timeout = 0)
+        {
+            var escapedArgs = cmd.Replace("\"", "\\\"");
+
+            var result = RunCommands.GetCommandOutputSimple(info: new ProcessStartInfo
+            {
+                FileName = "/bin/bash",
+                Arguments = $"-c \"{escapedArgs}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WorkingDirectory = workingDirectory
+            }, timeout);
+
+            return result;
+        }
+
+        public static CommandOutput CMD(
+            this string cmd, 
+            string workingDirectory,
+            int timeout = 0)
+        {
+            var escapedArgs = cmd.Replace("\"", "\\\"");
+
+            var result = RunCommands.GetCommandOutputSimple(info:new ProcessStartInfo
+                {
+                    FileName = @"C:\Windows\System32\cmd.exe",
+                    Arguments = $"/c {cmd}",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WorkingDirectory = workingDirectory,
+                    Verb = "runas",
+                }, timeout);
+
+            return result;
+        }
+
+        
+
+
+
+        /// <summary>
+        /// Executes console command for windows or linux
+        /// </summary>
+        public static CommandOutput Console(this string cmd, string workingDirectory, int timeout = 0)
+        {
+            if (RuntimeEx.IsWindows())
+                return CMD(cmd, workingDirectory, timeout);
+
+            return Bash(cmd, workingDirectory, timeout);
+        }
+
+        public static CommandOutput Command(string fileName, string args, string workingDirectory, int timeout = 0)
+        {
+            return RunCommands.GetCommandOutputSimple(info: new ProcessStartInfo
+            {
+                FileName = fileName,
+                Arguments = args,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WorkingDirectory = workingDirectory,
+                Verb = RuntimeEx.IsWindows() ? "runas" : null,
+            }, timeout);
+        }
+
     }
+
 }
