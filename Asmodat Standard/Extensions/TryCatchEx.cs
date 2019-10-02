@@ -1,4 +1,5 @@
-﻿using AsmodatStandard.Extensions.Collections;
+﻿using AsmodatStandard.Extensions;
+using AsmodatStandard.Extensions.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -196,10 +197,10 @@ namespace AsmodatStandard.Extensions
             throw exception.SourceException;
         }
 
-        public static Task TryCatchRetryAsync(this Task task, int maxRepeats = 1, int delay = 1000)
-            => TryCatchRetryAsync<Exception>(task, maxRepeats: maxRepeats, delay: delay);
+        public static Task TryCatchRetryAsync(this Task task, int maxRepeats = 1, int delay = 1000, bool verbose = false)
+            => TryCatchRetryAsync<Exception>(task, maxRepeats: maxRepeats, delay: delay, verbose: verbose);
 
-        public static async Task TryCatchRetryAsync<E>(this Task task, int maxRepeats, int delay) where E : Exception
+        public static async Task TryCatchRetryAsync<E>(this Task task, int maxRepeats, int delay, bool verbose) where E : Exception
         {
             int count = 0;
             var sw = Stopwatch.StartNew();
@@ -215,6 +216,9 @@ namespace AsmodatStandard.Extensions
                 {
                     ex.Data?.Add($"UserDefined_{GuidEx.SlimUID()}", $"TryCatchEx() => Count: {++count}, Time: {DateTime.UtcNow.ToLongDateTimeString()}, Elapsed: {sw.ElapsedMilliseconds} [ms]");
                     exception = ExceptionDispatchInfo.Capture(ex);
+
+                    if (verbose)
+                        Console.WriteLine(ex?.JsonSerializeAsPrettyException(Newtonsoft.Json.Formatting.Indented)??"Unknown Exception");
 
                     if ((maxRepeats - 1) > 0)
                         await Task.Delay(delay);

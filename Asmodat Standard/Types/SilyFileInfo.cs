@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using AsmodatStandard.Extensions;
+using AsmodatStandard.Extensions.Collections;
 using AsmodatStandard.Cryptography;
 using AsmodatStandard.Extensions.IO;
+using Newtonsoft.Json;
 
 namespace AsmodatStandard.Types
 {
     public static class SilyFileInfoEx
     {
+        public static readonly object _locker = new object();
+
         public static SilyFileInfo ToSilyFileInfo(this FileInfo fi)
         {
             fi.Refresh();
@@ -60,10 +64,34 @@ namespace AsmodatStandard.Types
 
         public static bool FullNameEqual(this SilyFileInfo si1, string str)
             => SilyFileInfoEx.FullNameEqual(si1?.FullName, str);
+
+        public static string TryGetProperty(this SilyFileInfo si, string key)
+            => si?.Properties?.GetValueOrDefault(key, @default: null);
+
+        /// <summary>
+        /// Threadsafe set property, creates new dictionary if it does not already exists
+        /// </summary>
+        /// <returns>false if key was not added, true if it was added or replaced</returns>
+        public static bool TrySetProperty(this SilyFileInfo si, string key, string value)
+        {
+            if (si == null || key.IsNullOrEmpty())
+                return false;
+
+            lock (_locker)
+            {
+                if (si.Properties.IsNullOrEmpty())
+                    si.Properties = new Dictionary<string, string>();
+
+                si.Properties[key] = value;
+            }
+
+            return true;
+        }
     }
 
     public class SilyFileInfo
     {
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public FileAttributes Attributes { get; set; }
 
         /// <summary>
@@ -78,18 +106,27 @@ namespace AsmodatStandard.Types
         /// unix timestamp
         /// </summary>
         public long LastWriteTime { get; set; }
-        public string Name { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string DirectoryFullName { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string DirectoryName { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Extension { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string FullName { get; set; }
 
         public bool Exists { get; set; }
         public bool IsReadOnly { get; set; }
 
         public long Length { get; set; }
-        
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string MD5 { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, string> Properties { get; set; }
     }
 }

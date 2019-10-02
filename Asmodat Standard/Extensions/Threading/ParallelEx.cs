@@ -17,19 +17,26 @@ namespace AsmodatStandard.Extensions.Threading
 
         public static async Task ForEachAsync<K>(IEnumerable<K> source, Func<K, Task> func, int maxDegreeOfParallelism = 0)
         {
-            var list = new List<K>();
-            foreach (var f in source)
+            var tasks = new List<Task>();
+            List<Task> pending = null;
+
+            foreach (var x in source)
             {
-                list.Add(f);
-                if (list.Count >= maxDegreeOfParallelism)
+                if (maxDegreeOfParallelism > 0)
+                    pending = tasks.Where(t => t != null && !t.IsCanceled && !t.IsCompleted && !t.IsFaulted)?.ToList() ?? new List<Task>();
+
+                if (maxDegreeOfParallelism <= 0 || pending.Count < maxDegreeOfParallelism)
                 {
-                    await Task.WhenAll(list.Select(x => func(x)));
-                    list = new List<K>();
+                    tasks.Add(func(x));
+                    continue;
                 }
+
+                if (!pending.IsNullOrEmpty())
+                    await Task.WhenAny(pending);
             }
 
-            if (!list.IsNullOrEmpty())
-                await Task.WhenAll(list.Select(x => func(x)));
+            if (!tasks.IsNullOrEmpty())
+                await Task.WhenAll(tasks);
         }
 
         public static async Task ForEachAsync<K>(IEnumerable<K> source, Action<K> action)

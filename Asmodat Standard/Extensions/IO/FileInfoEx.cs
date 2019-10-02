@@ -1,5 +1,7 @@
-﻿using System;
+﻿using AsmodatStandard.Cryptography;
+using System;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using System.Threading;
 
@@ -7,6 +9,81 @@ namespace AsmodatStandard.Extensions.IO
 {
     public static class FileInfoEx
     {
+        public static FileInfo Zip(this FileInfo source, string destination = null)
+        {
+            if (source?.Exists != true)
+                throw new Exception("Can't Zip 'source' was not defined.");
+
+            if (destination.IsNullOrEmpty())
+                destination = source.FullName + ".zip";
+
+            var zip = destination.ToFileInfo();
+            if (!zip.TryDelete() && !zip.Directory.TryCreate())
+                throw new Exception($"Zipping source file '{source?.FullName ?? "undefined"}' failed, could not remove '{zip?.FullName}' or create '{zip?.Directory}'.");
+
+            return source.Zip(destination);
+        }
+
+        public static FileInfo Zip(this FileInfo source, FileInfo destination)
+        {
+            using (FileStream fs = new FileStream(destination.FullName, FileMode.Create))
+            using (ZipArchive arch = new ZipArchive(fs, ZipArchiveMode.Create))
+                arch.CreateEntryFromFile(source.FullName, source.Name, CompressionLevel.Optimal);
+
+            return destination;
+        }
+
+        public static FileStream ZipStream(this FileInfo source, FileShare share)
+        {
+            var fs = File.Open(source.FullName,
+                            FileMode.Open,
+                            FileAccess.Read,
+                            share);
+            using (ZipArchive arch = new ZipArchive(fs, ZipArchiveMode.Create, leaveOpen: true))
+                arch.CreateEntryFromFile(source.FullName, source.Name, CompressionLevel.Optimal);
+
+            return fs;
+        }
+
+        public static void UnZipStream(this FileInfo destination, Stream s)
+        {
+            if (!destination.Directory.TryCreate())
+                throw new Exception($"Failed UnZipStream, directory '{destination?.Directory?.FullName ?? "undefined"}' does not exist or coudn't be created.");
+
+            using (ZipArchive arch = new ZipArchive(s, ZipArchiveMode.Read))
+            {
+                if (arch.Entries.Count != 1)
+                    throw new Exception($"UnZipStream to file only accepts single entry, but was '{arch.Entries.Count}'.");
+
+                var en = arch.Entries[0];
+                en.ExtractToFile(destination.FullName);
+            }
+        }
+
+        public static void UnZip(this FileInfo source, string destination = null)
+        {
+            DirectoryInfo di = null;
+            if (destination == null)
+                di = source?.Directory;
+            else
+                di = destination?.ToDirectoryInfo();
+
+            UnZip(source, di);
+        }
+
+        public static void UnZip(this FileInfo source, DirectoryInfo destination)
+        {
+            if (source.Exists)
+                throw new Exception($"Failed UnZip, source '{source.FullName ?? "undefined"}' was not found");
+
+            if (!destination.TryCreate())
+                throw new Exception($"Failed to unzip '{source.FullName ?? "undefined"}', couldn't create '{destination.FullName??"undefined"}'");
+
+            using (var fs = source.OpenRead())
+            using (ZipArchive arch = new ZipArchive(fs, ZipArchiveMode.Read))
+                arch.ExtractToDirectory(destination.FullName);
+        }
+
         public static void TrimEnd(this FileInfo source, long bytes)
         {
             using (FileStream fs = source.Open(FileMode.Open))
@@ -99,21 +176,28 @@ namespace AsmodatStandard.Extensions.IO
         public static void Copy(this FileInfo source, FileInfo destination, bool @override = false)
             => File.Copy(source.FullName, destination.FullName, @override);
 
+        public static bool TryClear(this FileInfo fileInfo)
+            => fileInfo.TryDelete() && fileInfo.TryCreate();
+
         public static bool TryDelete(this FileInfo fileInfo)
         {
             if (fileInfo == null)
                 throw new ArgumentNullException($"{nameof(TryDelete)} failed, {nameof(fileInfo)} was null.");
 
+            fileInfo.Refresh();
+            if (!fileInfo.Exists)
+                return true;
+
             try
             {
                 fileInfo.Delete();
-                return true;
+                fileInfo.Refresh();
+                return fileInfo.Exists == false;
             }
             catch
             {
                 return false;
             }
-
         }
 
         public static FileInfo ToFileInfo(this string file, bool throwIfNotFound)

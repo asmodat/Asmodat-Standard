@@ -126,6 +126,9 @@ namespace AsmodatStandard.Extensions.IO
         public static string RuntimeCombine(params string[] paths)
             => (RuntimeEx.IsWindows()) ? CombineWindows(paths) : CombineLinux(paths);
 
+        public static string ToRuntimePath(this string path)
+            => (RuntimeEx.IsWindows()) ? ToWindowsPath(path) : ToLinuxPath(path);
+
         public static string Combine(this DirectoryInfo info, params string[] paths)
             => PathEx.Combine(new string[] { info.FullName }.Merge(paths));
 

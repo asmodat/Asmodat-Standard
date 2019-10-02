@@ -62,11 +62,28 @@ namespace AsmodatStandard.IO
         }
 
         public static CommandOutput Bash(
-            this string cmd, 
+            this string cmd,
             string workingDirectory,
             int timeout = 0)
         {
-            var escapedArgs = cmd.Replace("\"", "\\\"");
+            cmd = cmd.Trim();
+            bool isSudo = cmd.ToLower().StartsWith("sudo ");
+            if (isSudo) // do not escape sudo
+            {
+                var args = cmd.SplitByFirst(' ')[1];
+                return RunCommands.GetCommandOutputSimple(info: new ProcessStartInfo
+                {
+                    FileName = "sudo",
+                    Arguments = args,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WorkingDirectory = workingDirectory
+                }, timeout);
+            }
+
+            var escapedArgs = cmd.Replace("\"", "\\\"").Trim();
 
             var result = RunCommands.GetCommandOutputSimple(info: new ProcessStartInfo
             {
@@ -80,6 +97,7 @@ namespace AsmodatStandard.IO
             }, timeout);
 
             return result;
+
         }
 
         public static CommandOutput CMD(

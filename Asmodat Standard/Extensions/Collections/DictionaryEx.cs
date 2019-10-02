@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace AsmodatStandard.Extensions.Collections
 {
@@ -6,6 +7,18 @@ namespace AsmodatStandard.Extensions.Collections
     {
         public static V GetValueOrDefault<K, V>(this Dictionary<K, V> source, K key, V @default = default(V))
             => source.TryGetValue(key, out var result) ? result : @default;
+
+        public static V GetOrThrow<K, V>(this Dictionary<K, V> source, K key)
+        {
+            try
+            {
+                return source[key];
+            }
+            catch(Exception ex)
+            {
+                throw new Exception($"Key '{key?.JsonSerialize()??"null"}' was not found", ex);
+            }
+        }
 
         public static bool CollectionEquals(
             this IDictionary<string, string> c1,

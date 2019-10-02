@@ -4,6 +4,22 @@ namespace AsmodatStandard.Extensions
 {
     public static class DoubleEx
     {
+        public static string ToPrettyBytes(this double d) 
+        {
+            if (d.IsNaN() || d.IsInfinity())
+                return "NaN B";
+
+            try
+            {
+                var l = Convert.ToInt64(d);
+                return l.ToPrettyBytes();
+            }
+            catch
+            {
+                return "NaN B";
+            }
+        }
+
         public static string ToString(this double d, int nDecimals)
             => d.ToString($"N{nDecimals}");
 
