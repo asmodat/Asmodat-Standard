@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,76 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class IEnumerableEx
     {
+        public static T GetRandomOrDefault<T>(this IEnumerable<T> source, T @default = default(T)) where T : IComparable
+        {
+            var arr = source.ToArray();
+            if (arr.IsNullOrEmpty())
+                return @default;
+
+            return arr[RandomEx.Next(0, arr.Length)];
+        }
+
+        public static T MaxOrDefault<O,T>(this IEnumerable<O> source, Func<O, T> selector, T @default = default(T)) where T : IComparable
+        {
+            if (source.IsNullOrEmpty())
+                return @default;
+
+            return source.Max(selector);
+        }
+
+        public static T MinOrDefault<O, T>(this IEnumerable<O> source, Func<O, T> selector, T @default = default(T)) where T : IComparable
+        {
+            if (source.IsNullOrEmpty())
+                return @default;
+
+            return source.Min(selector);
+        }
+
+        public static T MaxOrDefault<T>(this IEnumerable<T> source, T @default = default(T)) where T : IComparable
+        {
+            if (source.IsNullOrEmpty())
+                return @default;
+
+            return source.Max();
+        }
+
+        public static T MinOrDefault<T>(this IEnumerable<T> source, T @default = default(T)) where T : IComparable
+        {
+            if (source.IsNullOrEmpty())
+                return @default;
+
+            return source.Min();
+        }
+
+        public static Dictionary<K, V> ToDictionary<K, V>(this IEnumerable<KeyValuePair<K, V>> source)
+        {
+            if (source == null)
+                return null;
+
+            if (source.IsNullOrEmpty())
+                return new Dictionary<K, V>();
+
+            return source.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        public static T FirstOrDefault<T>(this IEnumerable<T> source, T @default = default(T))
+         => source.ElementAtOrDefault(0, @default);
+
+        public static T SecondOrDefault<T>(this IEnumerable<T> source, T @default = default(T))
+         => source.ElementAtOrDefault(1, @default);
+
+        public static T ThirdOrDefault<T>(this IEnumerable<T> source, T @default = default(T))
+         => source.ElementAtOrDefault(2, @default);
+
+        public static T ElementAtOrDefault<T>(this IEnumerable<T> source, int index, T @default = default(T))
+        {
+            var arr = source?.ToArray();
+            if (arr.IsNullOrEmpty() || arr.Length <= index)
+                return @default;
+
+            return arr[index];
+        }
+
         ///<summary>Finds the index of the first item matching an expression in an enumerable.</summary>
         ///<param name="items">The enumerable to search.</param>
         ///<param name="predicate">The expression to test the items against.</param>
@@ -25,6 +96,7 @@ namespace AsmodatStandard.Extensions.Collections
             }
             return -1;
         }
+
         ///<summary>Finds the index of the first occurrence of an item in an enumerable.</summary>
         ///<param name="items">The enumerable to search.</param>
         ///<param name="item">The item to find.</param>
@@ -318,6 +390,8 @@ namespace AsmodatStandard.Extensions.Collections
             return source.Skip(Math.Max(0, source.Count() - n));
         }
 
+        public static IEnumerable<T> TakeLastN<T>(this IEnumerable<T> source, int n) => TakeLast(source, n);
+
         /// <summary>
         /// Executes action with index and returns count, use action as: (v,i) => {}, where v is valie, i is index
         /// </summary>
@@ -335,6 +409,17 @@ namespace AsmodatStandard.Extensions.Collections
         /// </summary>
         public static int ForEach<T>(this IEnumerable<T> source, Action<T> a)
         {
+            // Validate
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+
+            if (a == null)
+            {
+                throw new ArgumentNullException("action");
+            }
+
             int i = -1;
             foreach (T item in source)
             {

@@ -1,10 +1,12 @@
 ﻿using AsmodatStandard.Extensions.Collections;
+using AsmodatStandard.Extensions.Threading;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace AsmodatStandard.Extensions.IO
 {
@@ -57,7 +59,7 @@ namespace AsmodatStandard.Extensions.IO
                 {
                     File.SetAttributes(f.FullName, atributes);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     exception = ex;
                     success = false;
@@ -104,7 +106,7 @@ namespace AsmodatStandard.Extensions.IO
                     source.TrySetAttributes(atributes: FileAttributes.Normal, recursive: recursive, out attributeException);
                     delete();
                 }
-                catch(Exception inner)
+                catch (Exception inner)
                 {
                     exception = new AggregateException(outer, inner, attributeException);
                     return false;
@@ -156,10 +158,11 @@ namespace AsmodatStandard.Extensions.IO
 
             var bag = new ConcurrentBag<FileInfo>();
 
-            patterns.ParallelForEach(pattern => {
+            patterns.ParallelForEach(pattern =>
+            {
                 var rootResult = info.GetFiles(pattern, SearchOption.TopDirectoryOnly);
 
-                if(!rootResult.IsNullOrEmpty())
+                if (!rootResult.IsNullOrEmpty())
                     bag.AddRange(rootResult);
             });
 
@@ -167,7 +170,7 @@ namespace AsmodatStandard.Extensions.IO
         }
 
         public static FileInfo[] GetFiles(this DirectoryInfo info, bool recursive)
-            => recursive ? info.GetFilesRecursive() : info.GetFiles(); 
+            => recursive ? info.GetFilesRecursive() : info.GetFiles();
 
         public static FileInfo[] GetFilesRecursive(this DirectoryInfo info)
             => GetFilesRecursive(info, new string[] { "*" });
@@ -197,7 +200,7 @@ namespace AsmodatStandard.Extensions.IO
             return bag.DistinctBy(x => x.FullName).ToArray();
         }
 
-        public static FileInfo[] GetFiles(this DirectoryInfo info, 
+        public static FileInfo[] GetFiles(this DirectoryInfo info,
             bool recursive,
             IEnumerable<string> inclusivePatterns,
             IEnumerable<string> exclusivePatterns)
@@ -223,7 +226,7 @@ namespace AsmodatStandard.Extensions.IO
 
             info.Refresh();
 
-            return recursive? info.GetDirectoriesRecursive() : info.GetDirectories();
+            return recursive ? info.GetDirectoriesRecursive() : info.GetDirectories();
         }
 
         public static DirectoryInfo[] GetDirectoriesRecursive(this DirectoryInfo info)
@@ -234,7 +237,8 @@ namespace AsmodatStandard.Extensions.IO
             if (!directories.IsNullOrEmpty())
                 bag.AddRange(directories);
 
-            directories.ParallelForEach(directory => {
+            directories.ParallelForEach(directory =>
+            {
                 var arr = GetDirectoriesRecursive(directory);
 
                 if (!arr.IsNullOrEmpty())
@@ -256,5 +260,30 @@ namespace AsmodatStandard.Extensions.IO
 
         public static void SortByFullName(this DirectoryInfo[] infos)
             => Array.Sort(infos, (f1, f2) => f1.FullName.ToLower().Trim(' ', '\\', '/').CompareTo(f2.FullName.ToLower().Trim(' ', '\\', '/')));
+
+        public static async Task CopyAsync(this DirectoryInfo dir, DirectoryInfo destDirName, bool recursive, bool overwrite, int maxDegreeOfParallelism = 2)
+        {
+            if (!dir.Exists)
+                return;
+
+            var dirs = dir.GetDirectories();
+            if (!destDirName.Exists)
+                destDirName.Create();
+
+            var files = dir.GetFiles();
+            await ParallelEx.ForEachAsync(files, async file =>
+            {
+                string temppath = PathEx.RuntimeCombine(destDirName.FullName, file.Name);
+                file.CopyTo(temppath, overwrite: overwrite);
+                await Task.Delay(1);
+            }, maxDegreeOfParallelism: maxDegreeOfParallelism);
+
+            if (recursive)
+                await ParallelEx.ForEachAsync(dirs, async subdir =>
+                {
+                    string temppath = PathEx.RuntimeCombine(destDirName.FullName, subdir.Name);
+                    await CopyAsync(subdir.FullName.ToDirectoryInfo(), temppath.ToDirectoryInfo(), recursive: recursive, overwrite: overwrite);
+                }, maxDegreeOfParallelism: maxDegreeOfParallelism);
+        }
     }
 }

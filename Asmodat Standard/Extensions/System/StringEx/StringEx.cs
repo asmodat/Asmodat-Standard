@@ -1,11 +1,14 @@
 ﻿using AsmodatStandard.Extensions.Collections;
+using AsmodatStandard.Types;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -14,22 +17,269 @@ namespace AsmodatStandard.Extensions
 {
     public static partial class StringEx
     {
-        public static string Base64Encode(this string s, System.Text.Encoding encoding = null) => System.Convert.ToBase64String((encoding ?? System.Text.Encoding.UTF8).GetBytes(s));
-        public static string Base64Decode(this string s, System.Text.Encoding encoding = null) => (encoding ?? Encoding.UTF8).GetString(System.Convert.FromBase64String(s));
+        public static bool IsValidUrl(this string s)
+        {
+            if (s.IsNullOrWhitespace())
+                return false;
+
+            return Uri.IsWellFormedUriString(s, UriKind.Absolute);
+        }
+      
+        public static bool IsValidJsonObjectOrArray(this string strInput) 
+            => strInput.IsValidJsonObject() || strInput.IsValidJsonArray();
+
+        public static bool IsValidJsonObject(this string strInput)
+        {
+            strInput = strInput?.Trim();
+            if (strInput != null && strInput.StartsWith("{") && strInput.EndsWith("}")) //For array
+            {
+                try
+                {
+                    var obj = JToken.Parse(strInput);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public static bool IsValidJsonArray(this string strInput)
+        {
+            strInput = strInput?.Trim();
+            if (strInput != null && strInput.StartsWith("[") && strInput.EndsWith("]")) //For array
+            {
+                try
+                {
+                    var obj = JToken.Parse(strInput);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// fixes string to N characters
+        /// eg. "123".SuFixToN(5,'.') == "123.."
+        /// eg. "1234567".SuFixToN(5) == "12345"
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="c">defaulr whitespace</param>
+        /// <param name="n">number of characters</param>
+        /// <returns></returns>
+        public static string SuFixToN(this string s, int n, char? c = ' ')
+        {
+            if (n < 0) return null;
+            if (n == 0) return "";
+            var tmp = "" + s;
+
+            if (tmp.Length > n)
+                return tmp.Substring(0, n);
+
+            for (int i = tmp.Length; i < n; i++)
+                tmp += c;
+
+            return tmp;
+        }
+
+        /// <summary>
+        /// fixes string to N characters
+        /// eg. "123".PreFixToN(5,'.') == "..123"
+        /// eg. "1234567".PreFixToN(5) == "34567"
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="n"></param>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        public static string PreFixToN(this string s, int n, char? c = ' ')
+        {
+            if (n < 0) return null;
+            if (n == 0) return "";
+            var tmp = "" + s;
+
+            if (tmp.Length > n)
+                return tmp.Reverse().Substring(0, n).Reverse();
+
+            for (int i = tmp.Length; i < n; i++)
+                tmp = (c + tmp);
+
+            return tmp;
+        }
+
+        /// <summary>
+        /// Clipboard Friendly Encryption
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public static string Base61AEncode(this string s, Encoding encoding = null)
+        {
+            if (s == null)
+                throw new ArgumentException("Null string can't be encrypted");
+
+            if (s == "")
+                return "_A_";
+
+            s = s.IsBase64() ? $"A_{s}" : s.Base64Encode(encoding);
+            s = s.Replace(("==", "4_"));
+            s = s.ReplaceMany(("+", "1_"), ("/", "2_"), ("=", "3_"));
+
+            if ((s.Length + 2) % 3 == 0)
+                return $"{s}5_";
+
+            if ((s.Length + 1) % 3 == 0)
+                return $"_{s}";
+
+            return s;
+        }
+
+        /// <summary>
+        /// Clipboard Friendly Decryption
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="forceDoNotDecode"></param>
+        /// <returns></returns>
+        public static string Base61ADecode(this string s, Encoding encoding = null)
+        {
+            if (s == "_A_")
+                return "";
+
+            if (!s.IsBase61A())
+                throw new Exception("String is not a Base61A string.");
+
+            var doNotDecode = s.StartsWithAny("A_", "_A_");
+            s = s.TrimStartSingle("_");
+            s = s.TrimEndSingle("5_");
+            s = s.ReplaceMany(("4_","=="), ("1_","+"), ("2_","/"), ("3_","="),("A_",""));
+            if (doNotDecode)
+                return s;
+
+            return s.Base64Decode(encoding);
+        }
+
+        public static bool IsBase61A(this string s)
+        {
+            if (s.IsNullOrWhitespace() || s.Length % 3 != 0 || s.ContainsAny(" ", "\t", "\r", "\n"))
+                return false;
+
+            if (s == "_A_")
+                return true;
+
+            s = s.TrimStartSingle("_");
+            s = s.TrimStartSingle("A_");
+            s = s.TrimEndSingle("5_");
+            s = s.ReplaceMany(("4_", "=="), ("1_", "+"), ("2_", "/"), ("3_", "="));
+            return s.IsBase64();
+        }
 
         /// <summary>
         /// Checks is string is a valid base 64 string
         /// </summary>
         /// <param name="s">base 64 string</param>
         /// <returns>true if string is base64 encoded, otherwise false</returns>
-        public static bool IsBase64(this string s)
+        public static bool IsBase64(this string base64)
         {
-            if (s.IsNullOrWhitespace())
+            if (base64.IsNullOrWhitespace() || base64.Length % 4 != 0 || base64.ContainsAny(" ","\t","\r","\n"))
                 return false;
 
-            s = s.Trim();
-            return (s.Length % 4 == 0) && Regex.IsMatch(s, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
+            try
+            {
+                return !Convert.FromBase64String(base64).IsNullOrEmpty();
+            }
+            catch
+            {
+                // Handle the exception
+            }
+            return false;
         }
+
+        public static string GZipCompress(this string text)
+        {
+            byte[] buffer = Encoding.UTF8.GetBytes(text);
+            var memoryStream = new MemoryStream();
+            using (var gZipStream = new GZipStream(memoryStream, CompressionMode.Compress, true))
+            {
+                gZipStream.Write(buffer, 0, buffer.Length);
+            }
+
+            memoryStream.Position = 0;
+
+            var compressedData = new byte[memoryStream.Length];
+            memoryStream.Read(compressedData, 0, compressedData.Length);
+
+            var gZipBuffer = new byte[compressedData.Length + 4];
+            Buffer.BlockCopy(compressedData, 0, gZipBuffer, 4, compressedData.Length);
+            Buffer.BlockCopy(BitConverter.GetBytes(buffer.Length), 0, gZipBuffer, 0, 4);
+            return Convert.ToBase64String(gZipBuffer);
+        }
+
+        public static string GZipDecompress(this string compressedText)
+        {
+            byte[] gZipBuffer = Convert.FromBase64String(compressedText);
+            using (var memoryStream = new MemoryStream())
+            {
+                int dataLength = BitConverter.ToInt32(gZipBuffer, 0);
+                memoryStream.Write(gZipBuffer, 4, gZipBuffer.Length - 4);
+
+                var buffer = new byte[dataLength];
+
+                memoryStream.Position = 0;
+                using (var gZipStream = new GZipStream(memoryStream, CompressionMode.Decompress))
+                {
+                    gZipStream.Read(buffer, 0, buffer.Length);
+                }
+
+                return Encoding.UTF8.GetString(buffer);
+            }
+        }
+
+        public static string TrimOnTrigger(this string s, char trigger, params char[] trim)
+        {
+            if (s.IsNullOrEmpty())
+                return s;
+
+            var result = "";
+            var isTriggered = false;
+            for(int i = 0; i < s.Length; i++)
+            {
+                var c = s[i];
+                if(c == trigger)
+                {
+                    isTriggered = true;
+                    result += c;
+                    continue;
+                }
+
+                if (isTriggered && trim.Contains(c))
+                    continue;
+
+                result += c;
+                isTriggered = false;
+            }
+
+            return result;
+        }
+
+        public static string StringFormat(this string format, params object[] args)
+            => string.Format(CultureInfo.InvariantCulture, format, args);
+
+        public static string Base64Encode(this string s, System.Text.Encoding encoding = null) => System.Convert.ToBase64String((encoding ?? System.Text.Encoding.UTF8).GetBytes(s));
+        public static string Base64Decode(this string s, System.Text.Encoding encoding = null) => (encoding ?? Encoding.UTF8).GetString(System.Convert.FromBase64String(s));
+
+        public static string Base4096Encode(this string s, System.Text.Encoding encoding = null) => new Base4096(textEncoding: encoding ?? System.Text.Encoding.UTF8).Encode((encoding ?? System.Text.Encoding.UTF8).GetBytes(s));
+        public static string Base4096Decode(this string s, System.Text.Encoding encoding = null) => (encoding ?? Encoding.UTF8).GetString(new Base4096(textEncoding: encoding ?? System.Text.Encoding.UTF8).Decode(s));
 
         /// <summary>
         /// Checks if string is a hex string
@@ -72,6 +322,38 @@ namespace AsmodatStandard.Extensions
         public static T JsonDeserialize<T>(this string json)
             => JsonConvert.DeserializeObject<T>(json);
 
+        public static T TryJsonDeserialize<T>(this string json)
+            => json.TryJsonDeserialize<T>(out var e);
+        public static T TryJsonDeserialize<T>(this string json, out Exception e)
+        {
+            try
+            {
+                e = null;
+                return json.JsonDeserialize<T>();
+            }
+            catch(Exception error)
+            {
+                e = error;
+                return default(T);
+            }
+        }
+
+        public static T JsonDeserializeErrorIgnore<T>(this string json)
+        {
+            void HandleDeserializationError(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs errorArgs)
+            {
+                var currentError = errorArgs.ErrorContext.Error.Message;
+                errorArgs.ErrorContext.Handled = true;
+            }
+
+            var result = JsonConvert.DeserializeObject<T>(json, new JsonSerializerSettings
+            {
+                Error = HandleDeserializationError
+            });
+
+            return result;
+        }
+
         public static string Reverse(this string s)
         {
             if (s.IsNullOrEmpty())
@@ -99,6 +381,21 @@ namespace AsmodatStandard.Extensions
                 }
 
             return list.Distinct().ToArray();
+        }
+
+        public static string ToVisibleAscii(this string s, char? replace = null)
+        {
+            if (s.IsNullOrEmpty())
+                return s;
+
+            var tmp = "";
+            for(int i = 0; i < s.Length; i++)
+            {
+                var c = s[i];
+                tmp += (c < 32 || c > 126) ? ("" + replace) : c + "";
+            }
+
+            return tmp;
         }
 
         /// <summary>
@@ -145,13 +442,34 @@ namespace AsmodatStandard.Extensions
         public static bool AnyLower(this string s)
             => !s.IsNullOrEmpty() && s.Any(char.IsLower);
 
+        public static bool IsDigits(this string s)
+            => !s.IsNullOrEmpty() && s.All(char.IsDigit);
+
+        public static string RemoveDigits(this string s)
+        {
+            if (s == null)
+                return null;
+            var noDigitString = "";
+            foreach(char c in s)
+            {
+                if(c.IsDigit())
+                    continue;
+                noDigitString += c;
+            }
+
+            return noDigitString;
+        }
+
         public static bool IsAlphaNumericAscii(this string s)
             => !s.IsNullOrEmpty() && new Regex("^[a-zA-Z][a-zA-Z0-9]*$").IsMatch(s);
 
-        public static bool IsAlphanumericUnicode(this string s)
+        public static bool IsNumericString(this string s)
+            => !s.IsNullOrEmpty() && new Regex("^[0-9]*$").IsMatch(s);
+
+        public static bool IsAlphaNumericUnicode(this string s)
             => !s.IsNullOrEmpty() && s.Any(char.IsLetterOrDigit);
 
-        public static string ToAlphanumeric(this string s, params char[] whitelist)
+        public static string ToAlphaNumeric(this string s, params char[] whitelist)
         {
             if (s.IsNullOrEmpty())
                 return s;
@@ -230,7 +548,7 @@ namespace AsmodatStandard.Extensions
             => target.TrimStart(trim, count: 1);
 
         public static string TrimEndSingle(this string target, string trim)
-            => target.TrimStart(trim, count: 1);
+            => target.TrimEnd(trim, count: 1);
 
         public static string TrimStart(this string target, string trim, int count = int.MaxValue)
         {
@@ -300,6 +618,23 @@ namespace AsmodatStandard.Extensions
 
                 if (result.IsNullOrEmpty())
                     return result;
+            }
+
+            return result;
+        }
+
+        public static string Trim(this string str, params string[] trim)
+        {
+            var result = str;
+            for(int i = 0; i < trim.Length; i++)
+            {
+                foreach (var sub in trim)
+                {
+                    result = result.Trim(sub);
+
+                    if (result.IsNullOrEmpty())
+                        return result;
+                }
             }
 
             return result;
@@ -394,11 +729,29 @@ namespace AsmodatStandard.Extensions
         public static int ToIntOrDefault(this string s, int @default = default(int))
             => int.TryParse(s, out var result) ? result : @default;
 
+        public static long ToLong(this string s) => long.Parse(s);
+
         public static long ToLongOrDefault(this string s, long @default = default(long))
             => long.TryParse(s, out var result) ? result : @default;
 
+        public static ulong ToULong(this string s) => ulong.Parse(s);
+
+        public static ulong ToULongOrDefault(this string s, ulong @default = default(ulong))
+            => ulong.TryParse(s, out var result) ? result : @default;
+
+
+        public static BigInteger ToBigInt(this string s) => BigInteger.Parse(s);
+        public static BigInteger ToBigIntOrDefault(this string s, BigInteger @default = default(BigInteger))
+            => BigInteger.TryParse(s, out var result) ? result : @default;
+
+        public static BigInteger ToBigIntFloorOrDefault(this string s, BigInteger @default = default(BigInteger), char decimalPoint = '.')
+            => (s?.Split(decimalPoint)?.FirstOrDefault()).ToBigIntOrDefault(@default: @default);
+
         public static double ToDoubleOrDefault(this string s, double @default = default(double))
             => double.TryParse(s,out var result) ? result : @default;
+
+        public static decimal ToDecimalOrDefault(this string s, decimal @default = default(decimal))
+            => decimal.TryParse(s, out var result) ? result : @default;
 
         /// <summary>
         /// Splits sting by the first occurence of 'c'
@@ -493,12 +846,13 @@ namespace AsmodatStandard.Extensions
         public static string SkipChars(this string str, int count) => str.Substring(count, str.Length - count);
 
         public static bool StartsWithAny(this string str, params string[] any) => any?.Any(s => str.StartsWith(s)) == true;
-
         public static bool EndsWithAny(this string str, params string[] any) => any?.Any(s => str.EndsWith(s)) == true;
 
         public static bool IsEmpty(this string str) => str == string.Empty;
 
         public static bool IsNullOrEmpty(this string str) => string.IsNullOrEmpty(str);
+        public static bool IsAnyNullOrEmpty(params string[] str) => str.Any(x => x.IsNullOrEmpty());
+        public static bool IsAnyNullOrWhitespace(params string[] str) => str.Any(x => x.IsNullOrWhitespace());
 
         public static bool IsNullOrWhitespace(this string str) => string.IsNullOrWhiteSpace(str);
 

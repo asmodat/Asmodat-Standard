@@ -197,6 +197,19 @@ namespace AsmodatStandard.Extensions
             throw exception.SourceException;
         }
 
+        public static async Task<Exception> TryCatchAsync(this Task task)
+        {
+            try
+            {
+                await task;
+                return null;
+            }
+            catch(Exception ex)
+            {
+                return ex;
+            }
+        }
+
         public static Task TryCatchRetryAsync(this Task task, int maxRepeats = 1, int delay = 1000, bool verbose = false)
             => TryCatchRetryAsync<Exception>(task, maxRepeats: maxRepeats, delay: delay, verbose: verbose);
 
@@ -229,14 +242,57 @@ namespace AsmodatStandard.Extensions
             throw exception.SourceException;
         }
 
-        public static Task<T> TryCatchRetryAsync<T>(this Task<T> task, int maxRepeats = 1, int delay = 1000, int delayIncrement = 10, int timeout_ms = int.MaxValue)
-            => TryCatchRetryAsync<T, Exception>(task, maxRepeats: maxRepeats, delay: delay, delayIncrement: delayIncrement, timeout_ms: timeout_ms);
+
+        public static async Task<(T value, Exception error)> TryRetryAsync<T>(this Task<T> task,
+            int maxRepeats = 1,
+            int delay = 1000,
+            int delayIncrement = 10,
+            int timeout_ms = int.MaxValue,
+            T @default = default(T))
+        {
+            int count = 0;
+            var sw = Stopwatch.StartNew();
+            ExceptionDispatchInfo exception = null;
+            do
+            {
+                try
+                {
+                    return (await task, null);
+                }
+                catch (Exception ex)
+                {
+                    ex.Data?.Add($"UserDefined_{GuidEx.SlimUID()}", $"TryCatchEx() => Count: {++count}, Time: {DateTime.UtcNow.ToLongDateTimeString()}, Elapsed: {sw.ElapsedMilliseconds}/{timeout_ms} [ms]");
+                    exception = ExceptionDispatchInfo.Capture(ex);
+
+                    if ((maxRepeats - 1) > 0)
+                    {
+                        await Task.Delay(delay);
+                        delay += delayIncrement;
+                    }
+
+                    if (sw.ElapsedMilliseconds > timeout_ms)
+                    {
+                        exception.Throw();
+                        throw exception.SourceException;
+                    }
+                }
+            } while (--maxRepeats > 0);
+
+            return (@default, exception?.SourceException);
+        }
+
+
+
+        public static Task<T> TryCatchRetryAsync<T>(this Task<T> task, int maxRepeats = 1, int delay = 1000, int delayIncrement = 10, int timeout_ms = int.MaxValue, bool doNotThrow = false, T @default = default(T))
+            => TryCatchRetryAsync<T, Exception>(task, maxRepeats: maxRepeats, delay: delay, delayIncrement: delayIncrement, timeout_ms: timeout_ms, doNotThrow: doNotThrow, @default: @default);
 
         public static async Task<T> TryCatchRetryAsync<T, E>(this Task<T> task, 
             int maxRepeats, 
             int delay,
             int delayIncrement,
-            int timeout_ms) where E : Exception
+            int timeout_ms, 
+            bool doNotThrow = false,
+            T @default = default(T)) where E : Exception
         {
             int count = 0;
             var sw = Stopwatch.StartNew();
@@ -266,8 +322,13 @@ namespace AsmodatStandard.Extensions
                 }
             } while (--maxRepeats > 0);
 
-            exception.Throw();
-            throw exception.SourceException;
+            if (!doNotThrow)
+            {
+                exception.Throw();
+                throw exception.SourceException;
+            }
+            else
+                return @default;
         }
 
         public static bool Action(this Action action) => action.Action(out ExceptionDispatchInfo ex);

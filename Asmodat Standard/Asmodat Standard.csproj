@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -28,23 +28,36 @@
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Asmodat.BouncyCastle" Version="1.0.0.1" />
     <PackageReference Include="Asmodat.Standard.SSH.NET" Version="1.0.0.1" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.41.1" />
+    <PackageReference Include="Google.Apis.Core" Version="1.41.1" />
+    <PackageReference Include="Google.Apis.Gmail.v1" Version="1.41.1.1635" />
+    <PackageReference Include="Google.Protobuf" Version="3.10.1" />
     <PackageReference Include="MathNet.Numerics" Version="4.8.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.0" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.5.0" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.5.0" />
 	<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+	<PackageReference Include="MimeKit" Version="2.3.2" />
+	<PackageReference Include="NBitcoin" Version="4.2.16" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
     <PackageReference Include="protobuf-net" Version="3.0.0-alpha.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.5.0" />
     <PackageReference Include="System.IO.Compression.ZipFile" Version="4.3.0" />
+    <PackageReference Include="System.Json" Version="4.6.0" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
     <PackageReference Include="System.Threading.AccessControl" Version="4.5.0" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.9.0" />
     <PackageReference Include="System.Threading.ThreadPool" Version="4.3.0" />
+    <PackageReference Include="TextCopy" Version="3.0.0" />
   </ItemGroup>
 
 </Project>

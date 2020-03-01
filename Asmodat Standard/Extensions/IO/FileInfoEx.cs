@@ -73,7 +73,7 @@ namespace AsmodatStandard.Extensions.IO
 
         public static void UnZip(this FileInfo source, DirectoryInfo destination)
         {
-            if (source.Exists)
+            if (!source.Exists)
                 throw new Exception($"Failed UnZip, source '{source.FullName ?? "undefined"}' was not found");
 
             if (!destination.TryCreate())

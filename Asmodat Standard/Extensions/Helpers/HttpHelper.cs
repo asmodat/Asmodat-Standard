@@ -33,6 +33,35 @@ namespace AsmodatStandard.Extensions
                 Credentials = new NetworkCredential(user, password)
             });
 
+        public static string UriCombine(string url, params string[] urls)
+        {
+            string UriCombine2(string u1, string u2)
+            {
+                u1 = u1?.Trim('/', '\\');
+                u2 = u2?.Trim('/', '\\');
+
+                if (u1.IsNullOrEmpty())
+                    return u2;
+
+                if (u2.IsNullOrEmpty())
+                    return u1;
+
+                if(u2.StartsWithAny("&", "?"))
+                    return $"{u1}{u2}";
+                else
+                    return $"{u1}/{u2}";
+            }
+
+            if (urls.IsNullOrEmpty())
+                return UriCombine2(url, "");
+            
+            string url2 = "";
+            for(int i = 0; i < urls.Length; i++)
+                url2 = UriCombine2(url2, urls[i]);
+
+            return UriCombine2(url, url2);
+        }
+
         public static string UriEncode(this string str) => HttpUtility.UrlEncode(str);
         public static string UriDecode(this string str) => HttpUtility.UrlDecode(str);
 
@@ -131,7 +160,9 @@ namespace AsmodatStandard.Extensions
                 else
                     client.DefaultRequestHeaders.Add(header.key, header.value);
             });
-            return new CurlResponse(request, await client.SendAsync(request), client);
+
+            var response = await client.SendAsync(request);
+            return new CurlResponse(request, response, client);
         }
 
         public static async Task<T> GET<T>(this HttpClient client, Uri uri, HttpStatusCode? ensureStatusCode = null, bool addHeadersWithoutValidation = false, params (string key, string value)[] defaultHeaders)

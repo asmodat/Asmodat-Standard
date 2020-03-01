@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using AsmodatStandard.Cryptography;
+using AsmodatStandard.Extensions.Cryptography;
 using System.Text;
 
 namespace AsmodatStandard.Extensions
@@ -8,6 +11,10 @@ namespace AsmodatStandard.Extensions
     public static class RandomEx
     {
         public static readonly Random Instance = new Random(Guid.NewGuid().GetHashCode());
+        public static readonly RNGCryptoServiceProvider SecureInstance = new RNGCryptoServiceProvider();
+
+        public static string NextMD5() => NextBytesSecure(32).MD5().ToHexString();
+        public static string NextSHA256() => NextBytesSecure(64).SHA256().ToHexString();
 
         public static byte[] NextBytes(int length)
         {
@@ -15,6 +22,15 @@ namespace AsmodatStandard.Extensions
             Instance.NextBytes(arr);
             return arr;
         }
+
+        public static byte[] NextBytesSecure(int length)
+        {
+            var arr = new byte[length];
+            SecureInstance.GetBytes(arr);
+            var nonSecureArray = NextBytes(length);
+            return arr.XOR(nonSecureArray); 
+        }
+
 
         public static string NextHexString(int digits)
         {
@@ -194,6 +210,12 @@ namespace AsmodatStandard.Extensions
                 result[i] = arr[indexes[i]];
 
             return result;
+        }
+
+        public static T SelectRandom<T>(this IEnumerable<T> items)
+        {
+            var arr = items.ToArray();
+            return arr[Next(0, arr.Length)];
         }
     }
 }

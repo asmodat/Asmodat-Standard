@@ -1,9 +1,71 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
 
 namespace AsmodatStandard.Extensions
 {
     public static class LongEx
     {
+        /// <summary>
+        /// shift right base 10
+        /// e.g. 123456789.SHR10(5) == 1234
+        /// </summary>
+        public static long SHR10(this long l, int n)
+        {
+            var s = l.ToString();
+            if (l > 0 && s.Length <= n)
+                return 0;
+            else if (l < 0 && s.Length <= (n + 1))
+                return 0;
+
+            return s.Substring(0, s.Length - n).ToLong();
+        }
+
+        /// <summary>
+        /// shift left base 10
+        /// e.g. 1234.SHL10(5) == 123400000
+        /// </summary>
+        public static long SHL10(this long l, int n)
+        {
+            if (l == 0)
+                return 0;
+
+            return $"{l}{"0".Repeat(n)}".ToLong();
+        }
+
+        public static string ToPrettyTimeSpan(this Stopwatch sw)
+        {
+            var s = (sw?.Elapsed)?.TotalSeconds ?? 0;
+            if (s.IsInfinity() || s.IsNaN() || s >= long.MaxValue || s <= 0)
+                return ((long)0).ToPrettyTimeSpan();
+
+            return ((long)s).ToPrettyTimeSpan();
+        }
+
+        public static string ToPrettyTimeSpan(this long seconds)
+        {
+            if (seconds <= 0)
+                return "0 Seconds";
+
+            TimeSpan t = TimeSpan.FromSeconds(seconds);
+            
+            var result = "";
+
+            if (t.Days > 0)
+                result += (t.Days == 1) ? "1 Day " : $"{t.Days} Days ";
+
+            if (t.Hours > 0)
+                result += (t.Hours == 1) ? "1 Hour " : $"{t.Hours} Hours ";
+
+            if (t.Minutes > 0)
+                result += (t.Minutes == 1) ? "1 Minute " : $"{t.Minutes} Minutes ";
+
+            if (t.Seconds > 0)
+                result += (t.Seconds == 1) ? "1 Second" : $"{t.Seconds} Seconds";
+
+            return result.Trim();
+        }
+
         public static string ToPrettyBytes(this long bytes)
         {
             if (bytes < 0)

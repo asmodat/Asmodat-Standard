@@ -46,6 +46,32 @@ namespace AsmodatStandard.Extensions.Threading
             }
         }
 
+        public static async Task LockAsync(this SemaphoreSlim ss, Func<Task> func)
+        {
+            try
+            {
+                await ss.WaitAsync();
+                await func();
+            }
+            finally
+            {
+                ss.Release();
+            }
+        }
+
+        public static async Task<R> LockAsync<R>(this SemaphoreSlim ss, Func<Task<R>> func)
+        {
+            try
+            {
+                await ss.WaitAsync();
+                return await func();
+            }
+            finally
+            {
+                ss.Release();
+            }
+        }
+
         public static async Task<T> LockAsync<T>(this SemaphoreSlim ss, Func<T> func)
         {
             try

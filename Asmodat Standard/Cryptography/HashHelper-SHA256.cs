@@ -17,6 +17,9 @@ namespace AsmodatStandard.Cryptography
         public static bool IsValidSHA256Hex(this string digest)
             => !digest.IsNullOrEmpty() && Regex.Match(input: digest, pattern: "\\b[A-Fa-f0-9]{64}\\b").Success;
 
+        public static bool IsValidMD5Hex(this string digest)
+            => !digest.IsNullOrEmpty() && Regex.Match(input: digest, pattern: "\\b[A-Fa-f0-9]{32}\\b").Success;
+
         public static byte[] SHA256(this string str, Encoding encoding = null)
             => str.ToByteArray(encoding ?? Encoding.UTF8).SHA256();
 

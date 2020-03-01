@@ -1,10 +1,27 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AsmodatStandard.Extensions
 {
     public static class ObjectEx
     {
+        public static Dictionary<string, T> JsonConvertToDictionary<T>(this object obj)
+        {
+            var json = JsonConvert.SerializeObject(obj);
+            var dictionary = JsonConvert.DeserializeObject<Dictionary<string, T>>(json);
+            return dictionary;
+        }
+
+        public static bool IsNotNull(this object value)
+        {
+            return value != null;
+        }
+
+        public static T JsonCopy<T>(this T obj) => obj.JsonSerialize(Formatting.None).JsonDeserialize<T>();
+        public static T JsonCast<T>(this object obj) => obj.JsonSerialize(Formatting.None).JsonDeserialize<T>();
+
         public static string JsonSerialize(this object obj, Formatting formatting = Formatting.None,
             ReferenceLoopHandling referenceLoopHandling = ReferenceLoopHandling.Ignore,
             NullValueHandling nullValueHandling = NullValueHandling.Include)
@@ -34,7 +51,9 @@ namespace AsmodatStandard.Extensions
 
         public static double ToDouble(this object obj) => obj == null ? double.NaN : Convert.ToDouble(obj);
         public static int ToInt32(this object obj) => Convert.ToInt32(obj);
+        public static uint ToUInt32(this object obj) => Convert.ToUInt32(obj);
         public static long ToInt64(this object obj) => Convert.ToInt64(obj);
+        public static ulong ToUInt64(this object obj) => Convert.ToUInt64(obj);
 
         public static string[] ToStringArray(this object[] input)
         {

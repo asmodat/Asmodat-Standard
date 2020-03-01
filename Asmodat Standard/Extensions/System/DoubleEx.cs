@@ -4,6 +4,18 @@ namespace AsmodatStandard.Extensions
 {
     public static class DoubleEx
     {
+        public static decimal ToDecimalOrDefault(this double d, decimal @default = default(decimal))
+        {
+            try
+            {
+                return (decimal)d;
+            }
+            catch
+            {
+                return @default;
+            }
+        }
+
         public static string ToPrettyBytes(this double d) 
         {
             if (d.IsNaN() || d.IsInfinity())

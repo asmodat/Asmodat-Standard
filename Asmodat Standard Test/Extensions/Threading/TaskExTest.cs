@@ -14,7 +14,7 @@ namespace AsmodatStandardTest.Extensions.Threading
     {
 
         [Test]
-        public async Task TimeoutTest()
+        public void TimeoutTest()
         {
             async Task<bool> DelayReturn(int msSleep, bool throwException = false)
             {
@@ -39,9 +39,6 @@ namespace AsmodatStandardTest.Extensions.Threading
 
             Assert.ThrowsAsync<SuccessException>(() => DelayNoReturn(500, true).Timeout(msTimeout: 1000));
             Assert.ThrowsAsync<SuccessException>(() => DelayReturn(500, true).Timeout(msTimeout: 1000));
-
         }
-
-
     }
 }

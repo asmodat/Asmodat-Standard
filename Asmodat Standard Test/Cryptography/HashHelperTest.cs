@@ -81,12 +81,12 @@ namespace AsmodatStandardTest.Cryptography
         public async Task HashDirectoryMD5()
         {
             var dir = Directory.GetCurrentDirectory();
-            var wkd = Path.Combine(dir, "Cryptography", "HashDirectoryMD5").ToDirectoryInfo();
-            var zip = Path.Combine(dir, "Cryptography", "HashDirectory.zip").ToFileInfo();
+            
+            var wkd = PathEx.RuntimeCombine(dir, "Cryptography", "HashDirectoryMD5").ToDirectoryInfo();
+            var zip = PathEx.RuntimeCombine(dir, "Cryptography", "HashDirectory.zip").ToFileInfo();
 
-            if (wkd.Exists)
-                wkd.Delete(recursive: true);
-
+            wkd.TryDelete(recursive: true);
+            wkd.TryCreate();
             zip.UnZip(wkd);
 
             string hash = "1f49827d48429d5c30d5ef4be4453a76";

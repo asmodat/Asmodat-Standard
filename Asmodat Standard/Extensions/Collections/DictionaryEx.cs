@@ -1,5 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Json;
 
 namespace AsmodatStandard.Extensions.Collections
 {
@@ -7,6 +12,15 @@ namespace AsmodatStandard.Extensions.Collections
     {
         public static V GetValueOrDefault<K, V>(this Dictionary<K, V> source, K key, V @default = default(V))
             => source.TryGetValue(key, out var result) ? result : @default;
+
+        public static V GetFirstValueOrDefault<K, V>(this Dictionary<K, V> source, params K[] keys)
+        {
+            foreach(var k in keys)
+                if (source.TryGetValue(k, out var result))
+                    return result;
+
+            return default(V);
+        }
 
         public static V GetOrThrow<K, V>(this Dictionary<K, V> source, K key)
         {

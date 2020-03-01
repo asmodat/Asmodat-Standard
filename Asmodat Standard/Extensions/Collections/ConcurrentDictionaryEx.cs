@@ -28,15 +28,90 @@ namespace AsmodatStandard.Extensions.Collections
         public static Dictionary<K,V> ToDictionary<K,V>(this ConcurrentDictionary<K, V> dict)
             => dict.ToDictionary(x => x.Key, x => x.Value);
 
+
+        public static void TryAddOrReplace2<K, V>(this ConcurrentDictionary<K, V> dict, K key, V value, int timeout = int.MaxValue)
+        {
+            var sw = Stopwatch.StartNew();
+            while (!dict.TryAdd(key, value))
+            {
+                
+                if (sw.ElapsedMilliseconds > timeout)
+                    throw new TimeoutException();
+
+
+                Thread.Sleep(1);
+            }
+        }
+
+        public static void AddOrReplace<K, V>(this ConcurrentDictionary<K, V> dict, K key, V value, int timeout = int.MaxValue)
+        {
+            var sw = Stopwatch.StartNew();
+            while (!dict.TryAdd(key, value))
+            {
+                dict.Remove(key, timeout: timeout);
+                if (sw.ElapsedMilliseconds > timeout)
+                    throw new TimeoutException();
+
+                Thread.Sleep(1);
+            }
+        }
+
+        public static async Task AddOrReplaceAsync<K, V>(this ConcurrentDictionary<K, V> dict, K key, V value, int timeout = int.MaxValue)
+        {
+            var sw = Stopwatch.StartNew();
+            while (!dict.TryAdd(key, value))
+            {
+                await dict.RemoveAsync(key, timeout: timeout);
+                if (sw.ElapsedMilliseconds > timeout)
+                    throw new TimeoutException();
+
+                await Task.Delay(1);
+            }
+        }
+
+        /// <summary>
+        /// Adds or Updates dictionary key
+        /// </summary>
         public static void Add<K,V>(this ConcurrentDictionary<K,V> dict, K key, V value, int timeout = int.MaxValue)
         {
             var sw = Stopwatch.StartNew();
             while(!dict.TryAdd(key, value))
             {
+                dict.Remove(key, timeout: timeout);
                 if (sw.ElapsedMilliseconds > timeout)
                     throw new TimeoutException();
 
                 Thread.Sleep(1);
+            }
+        }
+
+        public static void Remove<K, V>(this ConcurrentDictionary<K, V> dict, K key, int timeout = int.MaxValue)
+        {
+            var sw = Stopwatch.StartNew();
+            while (!dict.TryRemove(key, out var value))
+            {
+                if (!dict.ContainsKey(key))
+                    return;
+
+                if (sw.ElapsedMilliseconds > timeout)
+                    throw new TimeoutException();
+
+                Thread.Sleep(1);
+            }
+        }
+
+        public static async Task RemoveAsync<K, V>(this ConcurrentDictionary<K, V> dict, K key, int timeout = int.MaxValue)
+        {
+            var sw = Stopwatch.StartNew();
+            while (!dict.TryRemove(key, out var value))
+            {
+                if (!dict.ContainsKey(key))
+                    return;
+
+                if (sw.ElapsedMilliseconds > timeout)
+                    throw new TimeoutException();
+
+                await Task.Delay(1);
             }
         }
 
@@ -45,6 +120,8 @@ namespace AsmodatStandard.Extensions.Collections
             var sw = Stopwatch.StartNew();
             while (!dict.TryAdd(key, value))
             {
+                await dict.RemoveAsync(key, timeout: timeout);
+
                 if (sw.ElapsedMilliseconds > timeout)
                     throw new TimeoutException();
 

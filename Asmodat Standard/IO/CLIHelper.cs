@@ -21,16 +21,17 @@ namespace AsmodatStandard.IO
                 if (arg.Contains('='))
                 {
                     var kv = arg.SplitByFirst('=');
-                    key = kv[0].Trim(' ', '-', '=');
+                    key = kv[0].Trim(' ', '-', '=', '—');
                     value = kv[1].Trim();
 
-                    if ((value.StartsWith("'") && value.EndsWith("'")) ||
+                    if ((value.StartsWith("`") && value.EndsWith("`")) ||
+                        (value.StartsWith("'") && value.EndsWith("'")) ||
                         value.StartsWith("\"") && value.EndsWith("\""))
                         value = value.Substring(1, value.Length - 2); //remove quotes if present
                 }
-                else if (arg.StartsWith("-"))
+                else if (arg.StartsWith("-") || arg.StartsWith("—"))
                 {
-                    key = arg.Trim(' ', '-', '=');
+                    key = arg.Trim(' ', '-', '=', '—');
 
                     if (key.Length <= 0)
                         continue; //empty strings can't be keys

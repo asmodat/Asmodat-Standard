@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -6,6 +7,18 @@ namespace AsmodatStandard.Extensions.Collections
 {
     public static class ArrayEx
     {
+        public static T TryGetValueOrDefault<T>(this T[] arr, int index, T @default = default(T))
+            => (arr.IsNullOrEmpty() || arr.Length <= index) ? @default : arr[index];
+
+        public static T[] Reverse<T>(this T[] arr)
+        {
+            var newArr = new T[arr.Length];
+            for (int i = arr.Length - 1, i2 = 0; i >= 0; i--, i2++)
+                newArr[i2] = arr[i];
+
+            return newArr;
+        }
+
         /// <summary>
         /// Takes last 'n' values starting at position 'position' excluding 'position' index itself
         /// </summary>

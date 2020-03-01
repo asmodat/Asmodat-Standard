@@ -17,10 +17,9 @@ namespace AsmodatStandardTest.Threading.CronTest
         [Test]
         public void EdgeCronTest()
         {
-            var c = "* * * * * *".ToCron();
-            var r = c.Compare(DateTime.UtcNow);
-            Assert.AreEqual(r, 0);
-            Assert.IsTrue(r == 0);
+            Assert.IsTrue("* * * * * *".ToCron().Compare(DateTime.UtcNow) == 0);
+            Assert.IsTrue("* 0/2 * * * *".ToCron().Compare(new DateTime(2000, 10, 10, 10, 0, 0, DateTimeKind.Utc)) == 0);
+            Assert.IsTrue("* 0/2 * * * *".ToCron().Compare(new DateTime(2000, 10, 10, 9, 0, 0, DateTimeKind.Utc)) != 0);
         }
 
         [Test]

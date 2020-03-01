@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System.IO;
 using AsmodatStandard.Extensions;
+using AsmodatStandard.Extensions.Cryptography;
 using AsmodatStandard.Extensions.IO;
 using System.Threading.Tasks;
 using AsmodatStandard.Cryptography;
@@ -10,6 +11,24 @@ namespace AsmodatStandardTest.Cryptography
     [TestFixture]
     public class AESTest
     {
+        [Test]
+        public async Task AESStringEncryptDecrypt()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                var pass = RandomEx.NextString(RandomEx.Next(1, 1024), char.MinValue, char.MaxValue)
+                    .Base64Encode().Base64Decode();
+                var s = RandomEx.NextString(RandomEx.Next(1, 1024 * 64), char.MinValue, char.MaxValue)
+                    .Base64Encode().Base64Decode();
+
+                var e = await s.AESB64Encrypt(pass);
+                var d = await e.AESB64Decrypt(pass);
+
+                Assert.AreEqual(d, s);
+                Assert.AreNotEqual(s, e);
+            }
+        }
+
         [Test]
         public async Task AESEncryptDecrypt()
         {

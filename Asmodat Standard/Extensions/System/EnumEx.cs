@@ -41,6 +41,18 @@ namespace AsmodatStandard.Extensions
         public static T ToEnum<T>(this string s) where T : Enum
             => (T)Enum.Parse(typeof(T), s);
 
+        public static T ToEnumOrDefault<T>(this string s, T @default) where T : Enum
+        {
+            try
+            {
+                return (T)Enum.Parse(typeof(T), s);
+            }
+            catch
+            {
+                return @default;
+            }
+        }
+
         /// <summary>
         /// Converts integer to specified enum then calls toString method and returns result, otherwise if fails - default value
         /// </summary>

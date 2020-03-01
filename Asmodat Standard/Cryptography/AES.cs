@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using AsmodatStandard.Extensions;
 using AsmodatStandard.Extensions.Cryptography;
+using AsmodatStandard.Extensions.Collections;
 using Newtonsoft.Json;
 
 namespace AsmodatStandard.Cryptography
@@ -42,6 +43,29 @@ namespace AsmodatStandard.Cryptography
 
     public static partial class AES
     {
+        public static async Task<MemoryStream> EncryptAsync(this Stream input, AesSecret secret)
+        {
+            using (var aes = new AesManaged())
+            {
+                aes.Mode = secret.CipherMode;
+                aes.Padding = secret.PaddingMode;
+                var encryptor = aes.CreateEncryptor(secret.Key, secret.IV);
+                var blockSize = aes.LegalBlockSizes.Last();
+
+                var ms = new MemoryStream();
+                var cryptor = new CryptoStream(ms, encryptor, CryptoStreamMode.Write);
+
+                var read = 0;
+                var bufferSize = blockSize.MaxSize * 1024;
+                var bIn = new byte[bufferSize];
+                while ((read = await input.ReadAsync(bIn, 0, bufferSize)) > 0)
+                    await cryptor.WriteAsync(bIn, 0, read);
+
+                ms.Seek(0, SeekOrigin.Begin);
+                return ms;
+            }
+        }
+
         public static async Task EncryptAsync(this Stream input, AesSecret secret, Stream output)
         {
             using (var aes = new AesManaged())
@@ -59,6 +83,28 @@ namespace AsmodatStandard.Cryptography
                     while ((read = await input.ReadAsync(bIn, 0, bufferSize)) > 0)
                         await cryptor.WriteAsync(bIn, 0, read);
                 }
+            }
+        }
+
+        public static async Task<MemoryStream> DecryptAsync(this Stream input, AesSecret secret)
+        {
+            using (var aes = new AesManaged())
+            {
+                aes.Mode = secret.CipherMode;
+                aes.Padding = secret.PaddingMode;
+                var encryptor = aes.CreateDecryptor(secret.Key, secret.IV);
+                var blockSize = aes.LegalBlockSizes.Last();
+                var output = new MemoryStream();
+                var decryptor = new CryptoStream(input, encryptor, CryptoStreamMode.Read);
+
+                var read = 0;
+                var bufferSize = blockSize.MaxSize * 1024;
+                var bIn = new byte[bufferSize];
+                while ((read = await decryptor.ReadAsync(bIn, 0, bufferSize)) > 0)
+                    await output.WriteAsync(bIn, 0, read);
+
+                output.Seek(0, SeekOrigin.Begin);
+                return output;
             }
         }
 
