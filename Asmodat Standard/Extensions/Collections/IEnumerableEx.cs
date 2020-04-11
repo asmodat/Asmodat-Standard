@@ -290,6 +290,9 @@ namespace AsmodatStandard.Extensions.Collections
         public static bool IsNullOrEmpty<T>(this IEnumerable<T> source)
             => source == null || !source.Any();
 
+        public static bool IsEmpty<T>(this IEnumerable<T> source)
+            => !source.Any();
+
         /// <summary>
         /// Checks if enumerable count is less then value
         /// </summary>

@@ -6,6 +6,8 @@ namespace AsmodatStandard.Extensions
 {
     public static class LongEx
     {
+        public static string ToHexString(this long l) => string.Format("{0:X}", l);
+        
         /// <summary>
         /// shift right base 10
         /// e.g. 123456789.SHR10(5) == 1234

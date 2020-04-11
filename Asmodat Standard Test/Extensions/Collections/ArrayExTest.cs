@@ -1,12 +1,15 @@
 ﻿using AsmodatStandard.Extensions.Collections;
 using NUnit.Framework;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace AsmodatStandardTest.Extensions.Collections
 {
     [TestFixture]
     public class ArrayExTest
     {
+        
+
         [Test]
         public void Merge()
         {

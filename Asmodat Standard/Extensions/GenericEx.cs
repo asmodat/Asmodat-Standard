@@ -10,6 +10,8 @@ namespace AsmodatStandard.Extensions
 {
     public static class GenericEx
     {
+        public static bool EqualsDefault<T>(this T o) => EqualityComparer<T>.Default.Equals(o, default(T));
+
         public static T ConcatNull<T>(this T obj1, T obj2) => obj1 == null ? obj2 : obj1;
 
         public static bool IsDefault<T>(this T value) where T : struct

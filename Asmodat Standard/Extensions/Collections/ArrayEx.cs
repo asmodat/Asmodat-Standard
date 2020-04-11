@@ -1,12 +1,100 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace AsmodatStandard.Extensions.Collections
 {
     public static class ArrayEx
     {
+        /// <summary>
+        /// [width,height]
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Width<TKey>(this TKey[,] source)
+        {
+            if (source == null)
+                return 0;
+
+            return source.GetLength(0);
+        }
+        /// <summary>
+        /// [width,height]
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Height<TKey>(this TKey[,] source)
+        {
+            if (source == null)
+                return 0;
+
+            return source.GetLength(1);
+        }
+
+
+        public static bool IsAnyDimentionNullOrEmpty<TKey>(this TKey[,,] source)
+        {
+            if (source == null)
+                return true;
+
+            int i = 0, r = source.Rank;
+            for (; i < r; i++)
+                if (source.GetLength(i) <= 0)
+                    return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// [width,height,depp]
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Width<TKey>(this TKey[,,] source)
+        {
+            if (source == null)
+                return 0;
+
+            return source.GetLength(0);
+        }
+        /// <summary>
+        /// [width,height,depp]
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Height<TKey>(this TKey[,,] source)
+        {
+            if (source == null)
+                return 0;
+
+            return source.GetLength(1);
+        }
+
+        /// <summary>
+        /// [width,height,depth]
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Depth<TKey>(this TKey[,,] source)
+        {
+            if (source == null)
+                return 0;
+
+            return source.GetLength(2);
+        }
+
         public static T TryGetValueOrDefault<T>(this T[] arr, int index, T @default = default(T))
             => (arr.IsNullOrEmpty() || arr.Length <= index) ? @default : arr[index];
 

@@ -10,7 +10,7 @@ using NUnit.Framework;
 using AsmodatStandard.Cryptography.Bitcoin;
 using AsmodatStandard.Cryptography;
 
-namespace Chaos.NaCl.Tests
+namespace AsmodatStandardTest.Ed25519.Ed25519Tests
 {
     [TestFixture]
     public class Ed25519Tests
@@ -19,14 +19,23 @@ namespace Chaos.NaCl.Tests
         public void TendermintKMSKeyPairFromSeed()
         {
             var bip39 = new Bip39("autumn valve banner happy sentence scan supreme major barrel brief snack toddler dizzy bronze science bunker trust wait dinosaur upper reward fruit bottom royal");
-            var derivedKey = Ed25519HdKeyGen.DerivePath("m/44'/118'/0'/0'/0'", bip39.SeedBytes);
+
+            Assert.AreEqual( //check seed
+                "49b60b942fc93142588c2c46a33f358bd51533ab2891bdd45b3788ff5b02bc79ea494db8b0ea09aefe9c9f10009e264708714f8c1b99d1d68d3e76d85b4ff0fe",
+                bip39.SeedBytes.ToHexString());
+            
+            var derivedKey = Ed25519HdKeyGen.DerivePathCosmosTM(bip39.SeedBytes);
             var pubKey = Ed25519HdKeyGen.GetPublicKey(derivedKey.Key, withZeroByte: false);
 
-            var pub_key = pubKey.ToBase64String();
-            var priv_key = derivedKey.Key.Merge(pubKey).ToBase64String();
+            
+            var expectedPrivKey = "";
+            var expectedPrivKeyArr = expectedPrivKey.FromBase64String();
 
-            if (pub_key != "SffHCJFOHOPhwJc0H89vBo5rA+OBCt+k5DvvZlVPgKo=" ||
-               priv_key != "UvgD8Xm05S8doM9OM0U4eV9cul7wubQMhqvPTzxyp0pJ98cIkU4c4+HAlzQfz28GjmsD44EK36TkO+9mVU+Aqg==")
+            var pub_key = pubKey.ToBase64String();
+            var priv_key = derivedKey.Key.ToBase64String();
+
+            //TODO: verify against: https://github.com/KiraCore/KB/blob/master/Cosmos/Scripts/tmkms-softsign-recovery-from-seed.py
+            if (priv_key != "cMTcOhijW+6FOjbhH9KbDH1jFls2zaoxhJ1PS+Y7/UE=")
                 throw new Exception("Key derivation failed miserably");
         }
     }

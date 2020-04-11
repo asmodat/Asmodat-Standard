@@ -6,6 +6,8 @@ namespace AsmodatStandard.Extensions
 {
     public static class IntEx
     {
+        public static string ToHexString(this int i) => string.Format("{0:X}", i);
+
         public static bool IsPowerOf2(this int v)
         {
             if (v < 0)

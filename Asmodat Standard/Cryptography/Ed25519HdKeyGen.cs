@@ -12,8 +12,8 @@ namespace AsmodatStandard.Cryptography
 {
     public class HdKey
     {
-        public byte[] Key { get; internal set; }
-        public byte[] ChainCode { get; internal set; }
+        public byte[] Key { get; set; }
+        public byte[] ChainCode { get; set; }
     }
 
     public static class Ed25519HdKeyGen
@@ -103,6 +103,25 @@ namespace AsmodatStandard.Cryptography
             {
                 parentKey = Derive(parentKey, (UInt32)(s + HardenedOffset));
             }
+
+            return parentKey;
+        }
+
+        public static HdKey DerivePathCosmosTM(ReadOnlySpan<byte> seed)
+        {
+            var key = GetMasterKeyFromSeed(seed);
+            var intSegments = new List<uint>()
+            {
+                0x80000000 | 44,
+                0x80000000 | 118,
+                0x80000000 | 0,
+                0,
+                0,
+            };
+
+            var parentKey = key;
+            foreach (var s in intSegments)
+                parentKey = Derive(parentKey, s);
 
             return parentKey;
         }

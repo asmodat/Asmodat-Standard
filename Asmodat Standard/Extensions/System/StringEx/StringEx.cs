@@ -17,6 +17,77 @@ namespace AsmodatStandard.Extensions
 {
     public static partial class StringEx
     {
+
+        /*
+      public static string LZWDecodeASCII(string s)
+      {
+
+
+      }
+
+// Decompress an LZW-encoded string
+window.lzw_decode = function(s) {
+  var dict = {};
+  var data = (s + "").split("");
+  var currChar = data[0];
+  var oldPhrase = currChar;
+  var out = [currChar];
+  var code = 256;
+  var phrase;
+  for (var i = 1; i < data.length; i++) {
+      var currCode = data[i].charCodeAt(0);
+      if (currCode < 256) {
+          phrase = data[i];
+      }
+      else {
+          phrase = dict[currCode] ? dict[currCode] : (oldPhrase + currChar);
+      }
+      out.push(phrase);
+      currChar = phrase.charAt(0);
+      dict[code] = oldPhrase + currChar;
+      code++;
+      oldPhrase = phrase;
+  }
+  return out.join("");
+}
+           
+
+        public static string LZWEncodeASCII(string s)
+        {
+            if (s == null)
+                return null;
+
+            if (s == "")
+                return "";
+
+            var dict = new Dictionary<string, char>();
+            var data = s.ToCharArray();
+            var output = new List<char>(); // var out = [];
+            char currChar;
+            string phrase = "" + data[0];
+            char code = (char)256;
+
+            for (var i = 1; i < data.Length; i++)
+            {
+                currChar = data[i];
+                if (dict.ContainsKey(phrase + currChar))
+                    phrase += currChar;
+                else
+                {
+                    output.Add(phrase.Length > 1 ? dict[phrase] : phrase[0]);
+                    dict[phrase + currChar] = code;
+                    code++;
+                    phrase = currChar + "";
+                }
+            }
+            output.Add(phrase.Length > 1 ? dict[phrase] : phrase[0]);
+            for (var i = 0; i < output.Count; i++) {
+                output[i] = output[i];
+            }
+
+            return output.JoinToString();
+}*/
+
         public static bool IsValidUrl(this string s)
         {
             if (s.IsNullOrWhitespace())
@@ -272,6 +343,18 @@ namespace AsmodatStandard.Extensions
             return result;
         }
 
+        public static byte[] TryFromBase64(this string s)
+        {
+            try
+            {
+                return s.FromBase64String();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public static string StringFormat(this string format, params object[] args)
             => string.Format(CultureInfo.InvariantCulture, format, args);
 
@@ -292,7 +375,7 @@ namespace AsmodatStandard.Extensions
                 s = s?.Trim();
 
             if (ignorePrefix)
-                s = s?.TrimStart("0x");
+                s = s?.TrimStartSingle("0x");
 
             if (s.IsNullOrEmpty())
                 return false;
@@ -675,11 +758,15 @@ namespace AsmodatStandard.Extensions
             return false;
         }
 
-        public static string ToHexString(this byte[] ba)
+        public static string ToHexString(this byte[] ba, bool prefix = false)
         {
             StringBuilder hex = new StringBuilder(ba.Length * 2);
             foreach (byte b in ba)
                 hex.AppendFormat("{0:x2}", b);
+
+            if (prefix)
+                return $"0x{hex.ToString()}";
+
             return hex.ToString();
         }
 
@@ -708,6 +795,14 @@ namespace AsmodatStandard.Extensions
                 hex = hex.Substring(2, hex.Length - 2);
 
             return long.Parse(hex, NumberStyles.HexNumber);
+        }
+
+        public static UInt32 HexToUInt32(this string hex)
+        {
+            if (hex.StartsWith("0x"))
+                hex = hex.Substring(2, hex.Length - 2);
+
+            return UInt32.Parse(hex, NumberStyles.HexNumber);
         }
 
         public static bool HexEquals(this string hex1, string hex2) => HexToArray(hex1).SequenceEqual(HexToArray(hex2));

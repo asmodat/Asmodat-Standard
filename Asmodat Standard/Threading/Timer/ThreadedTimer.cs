@@ -9,7 +9,6 @@ namespace AsmodatStandard.Threading
     public partial class AsyncTimer : IDisposable
     {
         private bool disposed = false;
-        private static readonly object _locker = new object();
 
         public void Dispose()
         {
