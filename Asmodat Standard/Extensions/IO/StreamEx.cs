@@ -10,6 +10,15 @@ namespace AsmodatStandard.Extensions.IO
 {
     public static class StreamEx
     {
+        public static Int16 ReadInt16BE(this BinaryReader reader)
+        {
+            byte[] temp = reader.ReadBytes(2);
+            return (short)(
+                temp[0] << 8 |
+                temp[1]
+            );
+        }
+
         public static Task<string> ToStringAsync(this Stream stream, Encoding encoding = null)
             => (encoding == null ?
             new StreamReader(stream) :

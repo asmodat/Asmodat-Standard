@@ -4,14 +4,23 @@ using System.Text;
 using System.Numerics;
 using AsmodatStandard.Extensions.Collections;
 using AsmodatStandard.Extensions;
-
+using System.Linq;
 
 namespace AsmodatStandard.Types
 {
-    
-
     public static partial class Scale
     {
+        public static object DecodeScaleOption(ref string str, Type type)
+        {
+            var hasValue = HasOption(ref str);
+            var genArgType = type.GetGenericArguments().Single();
+            var value = hasValue ?
+                DecodeObject(ref str, genArgType) :
+                genArgType.GetDefaultObject();
+
+            return Activator.CreateInstance(type, hasValue, value);
+        }
+
         public static bool HasOption(ref string str)
         {
             if (str == null)

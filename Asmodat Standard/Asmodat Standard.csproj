@@ -9,16 +9,18 @@
     <Description>Multipurpose .NET Standard Extensions</Description>
     <PackageId>Asmodat.Standard</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <PackageReleaseNotes>2019-09-15</PackageReleaseNotes>
-    <Version>1.0.0.22</Version>
+    <PackageReleaseNotes>2020-11-02</PackageReleaseNotes>
+    <Version>1.0.0.23</Version>
     <PackageProjectUrl>https://github.com/asmodat/Asmodat-Standard</PackageProjectUrl>
     <PackageTags>Asmodat Standard, Asmodat, AsmodatStandard, Extensions, Standard</PackageTags>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Company>AsmodatStandard</Company>
     <PackageIconUrl>https://avatars3.githubusercontent.com/u/10515811</PackageIconUrl>
     <Authors>AsmodatStandard</Authors>
-    <AssemblyVersion>1.0.0.22</AssemblyVersion>
+    <AssemblyVersion>1.0.0.23</AssemblyVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputType>Library</OutputType>
+    <FileVersion>1.0.0.23</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

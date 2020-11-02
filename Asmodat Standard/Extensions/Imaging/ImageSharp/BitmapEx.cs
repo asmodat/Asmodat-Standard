@@ -1,21 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using AsmodatStandard.Cryptography;
-using AsmodatStandard.Extensions.Cryptography;
-using System.Text;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Drawing.Drawing2D;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.Formats;
 using System.Drawing.Imaging;
 using AsmodatStandard.Extensions.Imaging;
+using SixLabors.ImageSharp.Formats.Bmp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Gif;
 
 namespace AsmodatStandard.Extensions.ImageSharp
 {
@@ -35,22 +25,22 @@ namespace AsmodatStandard.Extensions.ImageSharp
             using (var ms = new MemoryStream())
             {
                 if (newFormat == ImageFormat.Gif)
-                    isImage.Save(ms, new SixLabors.ImageSharp.Formats.Gif.GifEncoder()
+                    isImage.Save(ms, new GifEncoder()
                     {
 
                     });
                 else if (newFormat == ImageFormat.Jpeg)
-                    isImage.Save(ms, new SixLabors.ImageSharp.Formats.Jpeg.JpegEncoder()
+                    isImage.Save(ms, new JpegEncoder()
                     {
                         Quality = quality
                     });
                 else if (newFormat == ImageFormat.Png)
-                    isImage.Save(ms, new SixLabors.ImageSharp.Formats.Png.PngEncoder()
+                    isImage.Save(ms, new PngEncoder()
                     {
                         CompressionLevel = compressionLevel
                     });
                 else if (newFormat == ImageFormat.Bmp)
-                    isImage.Save(ms, new SixLabors.ImageSharp.Formats.Bmp.BmpEncoder()
+                    isImage.Save(ms, new BmpEncoder()
                     {
 
                     });

@@ -110,23 +110,7 @@ namespace AsmodatStandard.Types
             return ushort.Parse(major + minor, System.Globalization.NumberStyles.HexNumber);
         }
 
-        public static string ExtractString(ref string stringStream, CompactInteger length)
-            => ExtractString(ref stringStream, (long)length.Value);
-        public static string ExtractString(ref string stringStream, BigInteger length)
-            => ExtractString(ref stringStream, (long)length);
-        public static string ExtractString(ref string stringStream, long length) 
-            => ExtractString(ref stringStream, (int)length);
-        public static string ExtractString(ref string stringStream, int length)
-        {
-            string s = string.Empty;
-            while (length > 0)
-            {
-                s += (char)NextByte(ref stringStream);
-                length--;
-            }
-            return s;
-        }
-
+        
         public static CompactInteger DecodeCompactInteger(ref string stringStream)
         {
             uint first_byte = NextByte(ref stringStream);

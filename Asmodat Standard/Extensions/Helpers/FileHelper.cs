@@ -17,11 +17,25 @@ namespace AsmodatStandard.Extensions
         const byte CR = 0x0D;
         const byte LF = 0x0A;
 
-        public static FileInfo[] GetFiles(string path, string pattern = "*", bool recursive = false)
+        public static FileInfo[] GetFiles(string path, string pattern = "*", bool recursive = false, char? split = null)
         {
             if (path.IsNullOrEmpty())
                 throw new ArgumentException(nameof(path));
 
+            if(split != null) // Allow to split by character
+            {
+                var paths = path.Split(split.Value).Where(x => !x.IsNullOrEmpty()).ToArray();
+                var results = new List<FileInfo>();
+                foreach (var p in paths)
+                {
+                    var result = GetFiles(p, pattern, recursive, split = null);
+                    if (result.IsNullOrEmpty())
+                        continue;
+                    results.AddRange(result);
+                }
+                return results.ToArray();
+            }
+            
             if (IsDirectory(path))
             {
                 return path.ToDirectoryInfo().GetFiles(

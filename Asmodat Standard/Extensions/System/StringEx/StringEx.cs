@@ -17,77 +17,6 @@ namespace AsmodatStandard.Extensions
 {
     public static partial class StringEx
     {
-
-        /*
-      public static string LZWDecodeASCII(string s)
-      {
-
-
-      }
-
-// Decompress an LZW-encoded string
-window.lzw_decode = function(s) {
-  var dict = {};
-  var data = (s + "").split("");
-  var currChar = data[0];
-  var oldPhrase = currChar;
-  var out = [currChar];
-  var code = 256;
-  var phrase;
-  for (var i = 1; i < data.length; i++) {
-      var currCode = data[i].charCodeAt(0);
-      if (currCode < 256) {
-          phrase = data[i];
-      }
-      else {
-          phrase = dict[currCode] ? dict[currCode] : (oldPhrase + currChar);
-      }
-      out.push(phrase);
-      currChar = phrase.charAt(0);
-      dict[code] = oldPhrase + currChar;
-      code++;
-      oldPhrase = phrase;
-  }
-  return out.join("");
-}
-           
-
-        public static string LZWEncodeASCII(string s)
-        {
-            if (s == null)
-                return null;
-
-            if (s == "")
-                return "";
-
-            var dict = new Dictionary<string, char>();
-            var data = s.ToCharArray();
-            var output = new List<char>(); // var out = [];
-            char currChar;
-            string phrase = "" + data[0];
-            char code = (char)256;
-
-            for (var i = 1; i < data.Length; i++)
-            {
-                currChar = data[i];
-                if (dict.ContainsKey(phrase + currChar))
-                    phrase += currChar;
-                else
-                {
-                    output.Add(phrase.Length > 1 ? dict[phrase] : phrase[0]);
-                    dict[phrase + currChar] = code;
-                    code++;
-                    phrase = currChar + "";
-                }
-            }
-            output.Add(phrase.Length > 1 ? dict[phrase] : phrase[0]);
-            for (var i = 0; i < output.Count; i++) {
-                output[i] = output[i];
-            }
-
-            return output.JoinToString();
-}*/
-
         public static bool IsValidUrl(this string s)
         {
             if (s.IsNullOrWhitespace())
@@ -543,6 +472,22 @@ window.lzw_decode = function(s) {
             return noDigitString;
         }
 
+        public static string RemoveNonDigits(this string s, char[] exceptions = null)
+        {
+            if (s == null)
+                return null;
+            exceptions = exceptions ?? new char[0];
+            var digitString = "";
+            foreach (char c in s)
+            {
+                if (!c.IsDigit() && !exceptions.Contains(c))
+                    continue;
+                digitString += c;
+            }
+
+            return digitString;
+        }
+
         public static bool IsAlphaNumericAscii(this string s)
             => !s.IsNullOrEmpty() && new Regex("^[a-zA-Z][a-zA-Z0-9]*$").IsMatch(s);
 
@@ -746,6 +691,29 @@ window.lzw_decode = function(s) {
         public static bool ContainsAny(this string s, params string[] others)
             => ContainsAny(s: s, others: others?.ToIEnumerable());
 
+        public static bool ContainsAll(this string s, params string[] others)
+        {
+            if (others.IsNullOrEmpty())
+                return false;
+
+            foreach (var other in others)
+            {
+                if (other == null && s != null)
+                    return false;
+
+                if (other != null && s == null)
+                    return false;
+
+                if (other == null && s == null)
+                    continue;
+
+                if (!s.Contains(other))
+                    return false;
+            }
+
+            return true;
+        }
+
         public static bool ContainsAny(this string s, IEnumerable<string> others)
         {
             if (others.IsNullOrEmpty())
@@ -795,6 +763,14 @@ window.lzw_decode = function(s) {
                 hex = hex.Substring(2, hex.Length - 2);
 
             return long.Parse(hex, NumberStyles.HexNumber);
+        }
+
+        public static ulong HexToULong(this string hex)
+        {
+            if (hex.StartsWith("0x"))
+                hex = hex.Substring(2, hex.Length - 2);
+
+            return ulong.Parse(hex, NumberStyles.HexNumber);
         }
 
         public static UInt32 HexToUInt32(this string hex)
@@ -954,3 +930,74 @@ window.lzw_decode = function(s) {
         public static bool Equals(this string left, string right, StringComparison stringComparison) => string.Equals(left, right, stringComparison);
     }
 }
+
+
+/*
+public static string LZWDecodeASCII(string s)
+{
+
+
+}
+
+// Decompress an LZW-encoded string
+window.lzw_decode = function(s) {
+var dict = {};
+var data = (s + "").split("");
+var currChar = data[0];
+var oldPhrase = currChar;
+var out = [currChar];
+var code = 256;
+var phrase;
+for (var i = 1; i < data.length; i++) {
+var currCode = data[i].charCodeAt(0);
+if (currCode < 256) {
+  phrase = data[i];
+}
+else {
+  phrase = dict[currCode] ? dict[currCode] : (oldPhrase + currChar);
+}
+out.push(phrase);
+currChar = phrase.charAt(0);
+dict[code] = oldPhrase + currChar;
+code++;
+oldPhrase = phrase;
+}
+return out.join("");
+}
+
+
+public static string LZWEncodeASCII(string s)
+{
+    if (s == null)
+        return null;
+
+    if (s == "")
+        return "";
+
+    var dict = new Dictionary<string, char>();
+    var data = s.ToCharArray();
+    var output = new List<char>(); // var out = [];
+    char currChar;
+    string phrase = "" + data[0];
+    char code = (char)256;
+
+    for (var i = 1; i < data.Length; i++)
+    {
+        currChar = data[i];
+        if (dict.ContainsKey(phrase + currChar))
+            phrase += currChar;
+        else
+        {
+            output.Add(phrase.Length > 1 ? dict[phrase] : phrase[0]);
+            dict[phrase + currChar] = code;
+            code++;
+            phrase = currChar + "";
+        }
+    }
+    output.Add(phrase.Length > 1 ? dict[phrase] : phrase[0]);
+    for (var i = 0; i < output.Count; i++) {
+        output[i] = output[i];
+    }
+
+    return output.JoinToString();
+}*/

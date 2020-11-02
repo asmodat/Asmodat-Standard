@@ -8,8 +8,6 @@ using AsmodatStandard.Extensions;
 
 namespace AsmodatStandard.Types
 {
-    
-
     public static partial class Scale
     {
         public static byte[] DecodeBytes(ref string str)

@@ -47,12 +47,33 @@ namespace AsmodatStandard.Networking
             _client.Credentials = new NetworkCredential(login, password);
         }
 
-        public async Task Send(string from, string to, string body, string subject, IEnumerable<string> attachments = null, bool recursive = false, bool isBodyHTML = false, bool throwIfAttachementNotFound = false)
+        public async Task Send(
+            string from, 
+            string to, 
+            string body, 
+            string subject, 
+            IEnumerable<string> attachments = null, 
+            bool recursive = false, bool isBodyHTML = false, 
+            bool throwIfAttachementNotFound = false,
+            bool throwIfAttachementTooBig = false,
+            long attachementMaxSize = (25*1024*1024))
         {
             using (MailMessage mm = new MailMessage())
             {
                 mm.From = new MailAddress(from);
-                mm.To.Add(to);
+
+                var recipients = to.Split(',').Where(x => !x.IsNullOrWhitespace()).ToArray();
+
+                if (recipients.IsNullOrEmpty())
+                    throw new System.Exception("Failed to send email, no recipients were specified");
+
+                foreach(var recipient in recipients)
+                {
+                    if(!recipient.IsValidEmailAddress())
+                        throw new System.Exception($"Recipient address '{recipient}' is not a valid email address");
+                    mm.To.Add(recipient);
+                }
+
                 mm.Body = body;
                 mm.Subject = subject;
                 mm.IsBodyHtml = isBodyHTML;
@@ -67,10 +88,17 @@ namespace AsmodatStandard.Networking
 
                         if (Directory.Exists(attachment))
                         {
-                            var files = DirectoryInfoEx.GetFiles(attachment.ToDirectoryInfo(), recursive: recursive);
+                            long totalSize = 0;
+                            var files = DirectoryInfoEx.GetFiles(attachment.ToDirectoryInfo(), recursive: recursive)?.OrderBy(x => x.Length)?.ToArray();
                             if (!files.IsNullOrEmpty())
                                 foreach (var file in files)
-                                    attachFiles.Add(file.FullName);
+                                {
+                                    totalSize += attachementMaxSize;
+                                    if (totalSize <= attachementMaxSize)
+                                        attachFiles.Add(file.FullName);
+                                    else if (throwIfAttachementTooBig)
+                                        throw new System.Exception($"Total size of all attachements exeded maximum of {attachementMaxSize}B.");
+                                }
                         }
                     }
                 }

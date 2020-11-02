@@ -1,5 +1,7 @@
-﻿using System;
+﻿using AsmodatStandard.Types;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace AsmodatStandard.Extensions
@@ -38,6 +40,9 @@ namespace AsmodatStandard.Extensions
         public static T[] ToArray<T>() where T : Enum
             => Enum.GetValues(typeof(T)).OfType<T>().ToArray();
 
+        public static object[] ToArray(Type type)
+            => Enum.GetValues(type).OfType<object>().ToArray();
+
         public static T ToEnum<T>(this string s) where T : Enum
             => (T)Enum.Parse(typeof(T), s);
 
@@ -70,5 +75,32 @@ namespace AsmodatStandard.Extensions
 
         public static IEnumerable<T> ToEnum<T>(this IEnumerable<string> arr) where T : Enum
             => arr.Select(s => (T)Enum.Parse(typeof(T), s));
+
+        /*public static string GetDescriptionString<E>(this E val) where E: Enum
+        {
+            var attributes = GetCustomAttributes<E, DescriptionAttribute>(val);
+            return attributes.Length > 0 ? attributes[0].Description : string.Empty;
+        }*/
+
+        public static A[] GetCustomAttributes<E,A>(this E val) where E : Enum where A : Attribute
+            => (A[])GetCustomAttributes(val, typeof(A));
+
+        private static object[] GetCustomAttributes<E>(this E val, Type type) where E : Enum
+        {
+            var attributes = val
+                .GetType()
+                .GetField(val.ToString())
+                .GetCustomAttributes(type, inherit: false);
+
+            return attributes;
+        }
+
+        public static object[] GetAttributes<E>(this E val, Type enumType)
+        {
+            var field = enumType.GetField(val.ToString());
+            var attributes = field.GetCustomAttributes(false);
+
+            return attributes;
+        }
     }
 }

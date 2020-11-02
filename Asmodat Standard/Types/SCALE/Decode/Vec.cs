@@ -10,24 +10,47 @@ namespace AsmodatStandard.Types
 {
     public static partial class Scale
     {
-        public static UInt16[] DecodeVecUInt16(string str)
+        public static byte[][] DecodeVecFixedBytes(string str)
         {
             if (str == null)
                 return null;
 
-            var l = Scale.DecodeCompactInteger(ref str);
+            var l = DecodeCompactInteger(ref str);
 
             if (l.Value == 0)
-                return new UInt16[0];
+                return new byte[0][];
 
             var bytes = GetBytesFromHexString(str);
-            var size = (int)(bytes.Length / l.Value); //number of bytes per item
-            var result = new List<UInt16>();
-            for(int i = 0; i < bytes.Length;)
+            var bytesPeritem = (int)(bytes.Length / l.Value); //number of bytes per item
+            var result = new List<byte[]>();
+            for (int i = 0; i < bytes.Length;)
             {
-                var value = bytes.SubArray(i, size);
-                result.Add(DecodeUInt16(value));
-                i += size;
+                result.Add(DecodeBytes(ref str, bytesPeritem));
+                i += bytesPeritem;
+            }
+
+            if (!str.IsNullOrEmpty())
+                throw new Exception("DecodeVecFixedBytes => faulre, string was not a Vec.");
+
+            return result.ToArray();
+        }
+
+        public static byte[][] DecodeVecFixedBytes(ref string str, int bytesPeritem)
+        {
+            if (str == null)
+                return null;
+
+            var l = DecodeCompactInteger(ref str);
+
+            if (l.Value == 0)
+                return new byte[0][];
+
+            var bytes = GetBytesFromHexString(str);
+            var result = new List<byte[]>();
+            for (int i = 0; i < bytes.Length;)
+            {
+                result.Add(DecodeBytes(ref str, bytesPeritem));
+                i += bytesPeritem;
             }
 
             return result.ToArray();

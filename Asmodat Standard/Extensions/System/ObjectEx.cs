@@ -7,6 +7,14 @@ namespace AsmodatStandard.Extensions
 {
     public static class ObjectEx
     {
+        public static object GetValueByPropertyName(this object source, string fieldName)
+        {
+            var type = source.GetType();
+            var prop = type.GetProperty(fieldName);
+            var value = prop.GetValue(source);
+            return value;
+        }
+
         public static Dictionary<string, T> JsonConvertToDictionary<T>(this object obj)
         {
             var json = JsonConvert.SerializeObject(obj);
